@@ -1,0 +1,300 @@
+{
+  "training_date": "2026-02-28 11:23:28",
+  "sklearn_version": "1.8.0",
+  "features": [
+    "prior_30d_pct",
+    "log_buy_price",
+    "owned_pct_num",
+    "log_value_usd",
+    "n_insiders_in_cluster",
+    "officer_type_enc",
+    "filing_gap_days",
+    "is_10pct"
+  ],
+  "model_params": {
+    "loss": "squared_error",
+    "learning_rate": 0.05,
+    "max_iter": 500,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 20,
+    "l2_regularization": 0.1,
+    "max_bins": 255,
+    "early_stopping": true,
+    "validation_fraction": 0.1,
+    "n_iter_no_change": 20,
+    "random_state": 42,
+    "categorical_features": "from_dtype"
+  },
+  "winsorization_caps": {
+    "buy_price_cap": 19226.25509999972,
+    "value_usd_cap": 17373087.33999998
+  },
+  "test_size": 0.2,
+  "random_state": 42,
+  "windows": {
+    "1d": {
+      "n_train": 11860,
+      "n_test": 2966,
+      "n_iter": 33,
+      "target_clip": [
+        -16.206275,
+        25.626099999999997
+      ],
+      "r2": 0.013042783272841807,
+      "mae": 4.14838942424144,
+      "rmse": 6.243840889056158,
+      "dir_acc": 0.5256237356709373,
+      "dec_spread": 2.2881002533783783,
+      "prec_pos": 0.5267389024816498,
+      "prec_gt2_pos": 0.592,
+      "prec_gt2_gt2": 0.472,
+      "prec_gt5_pos": 0.6923076923076923,
+      "feature_importance": {
+        "log_buy_price": 0.026337699932152004,
+        "prior_30d_pct": 0.01474142515582949,
+        "n_insiders_in_cluster": 0.003891050075335911,
+        "log_value_usd": 0.001650700077339251,
+        "is_10pct": 3.976939471369567e-05,
+        "filing_gap_days": -0.0006730040040777042,
+        "officer_type_enc": -0.000762751532228656,
+        "owned_pct_num": -0.0031869364615824346
+      },
+      "quintile_stats": [
+        {
+          "quintile": 1,
+          "mean_pred": 0.0390819690018695,
+          "mean_actual": 0.5266990725126475,
+          "win_rate": 0.4991568296795953,
+          "n": 593
+        },
+        {
+          "quintile": 2,
+          "mean_pred": 0.276363529554898,
+          "mean_actual": 0.2827946458684654,
+          "win_rate": 0.5126475548060708,
+          "n": 593
+        },
+        {
+          "quintile": 3,
+          "mean_pred": 0.34805366299838364,
+          "mean_actual": 0.3985764755480607,
+          "win_rate": 0.524451939291737,
+          "n": 593
+        },
+        {
+          "quintile": 4,
+          "mean_pred": 0.6507025877507067,
+          "mean_actual": 0.8076265598650926,
+          "win_rate": 0.5143338954468802,
+          "n": 593
+        },
+        {
+          "quintile": 5,
+          "mean_pred": 1.770485621533763,
+          "mean_actual": 1.932968728956229,
+          "win_rate": 0.5707070707070707,
+          "n": 594
+        }
+      ],
+      "model_path": "models\\model_1d.pkl"
+    },
+    "3d": {
+      "n_train": 11830,
+      "n_test": 2958,
+      "n_iter": 32,
+      "target_clip": [
+        -21.613602999999998,
+        35.79739599999993
+      ],
+      "r2": -0.010940391771206981,
+      "mae": 5.809463699649332,
+      "rmse": 8.510399212389517,
+      "dir_acc": 0.5114942528735632,
+      "dec_spread": 1.3809436610169488,
+      "prec_pos": 0.5117540687160941,
+      "prec_gt2_pos": 0.528957528957529,
+      "prec_gt2_gt2": 0.44015444015444016,
+      "prec_gt5_pos": 0.5135135135135135,
+      "feature_importance": {
+        "log_buy_price": 0.014614890500278843,
+        "log_value_usd": 0.0049883738099784965,
+        "owned_pct_num": 0.004456609159227076,
+        "officer_type_enc": 0.0022671328006811154,
+        "n_insiders_in_cluster": 0.0007412254312062938,
+        "is_10pct": -0.000500852696525933,
+        "filing_gap_days": -0.0017696083282257914,
+        "prior_30d_pct": -0.0038429611160923803
+      },
+      "quintile_stats": [
+        {
+          "quintile": 1,
+          "mean_pred": -0.16774117565101926,
+          "mean_actual": 0.1568873891708963,
+          "win_rate": 0.49746192893401014,
+          "n": 591
+        },
+        {
+          "quintile": 2,
+          "mean_pred": 0.2921731948443443,
+          "mean_actual": 0.562167659898477,
+          "win_rate": 0.5279187817258884,
+          "n": 591
+        },
+        {
+          "quintile": 3,
+          "mean_pred": 0.3922694598989556,
+          "mean_actual": 0.30736037901861246,
+          "win_rate": 0.4957698815566836,
+          "n": 591
+        },
+        {
+          "quintile": 4,
+          "mean_pred": 0.6523874317211188,
+          "mean_actual": 0.3472297377326565,
+          "win_rate": 0.505922165820643,
+          "n": 591
+        },
+        {
+          "quintile": 5,
+          "mean_pred": 2.417286453931168,
+          "mean_actual": 1.983659776094275,
+          "win_rate": 0.5252525252525253,
+          "n": 594
+        }
+      ],
+      "model_path": "models\\model_3d.pkl"
+    },
+    "5d": {
+      "n_train": 11804,
+      "n_test": 2951,
+      "n_iter": 47,
+      "target_clip": [
+        -25.313374,
+        43.14677599999998
+      ],
+      "r2": 0.023569491265642006,
+      "mae": 7.023131034848147,
+      "rmse": 10.30037960344112,
+      "dir_acc": 0.5055913249745849,
+      "dec_spread": 4.856870623728813,
+      "prec_pos": 0.49815634218289084,
+      "prec_gt2_pos": 0.528052805280528,
+      "prec_gt2_gt2": 0.46204620462046203,
+      "prec_gt5_pos": 0.6533333333333333,
+      "feature_importance": {
+        "log_buy_price": 0.039115601419524436,
+        "prior_30d_pct": 0.011601860323571711,
+        "log_value_usd": 0.011113742293284878,
+        "owned_pct_num": 0.006669150628565601,
+        "officer_type_enc": 0.005817901504898759,
+        "is_10pct": 0.0015741334737827573,
+        "n_insiders_in_cluster": 0.00039509219949883655,
+        "filing_gap_days": -0.0019890084244436833
+      },
+      "quintile_stats": [
+        {
+          "quintile": 1,
+          "mean_pred": -0.37687886130717957,
+          "mean_actual": -0.2362505627118647,
+          "win_rate": 0.47627118644067795,
+          "n": 590
+        },
+        {
+          "quintile": 2,
+          "mean_pred": 0.24980796754161766,
+          "mean_actual": -0.017388088135593293,
+          "win_rate": 0.488135593220339,
+          "n": 590
+        },
+        {
+          "quintile": 3,
+          "mean_pred": 0.3398557159131178,
+          "mean_actual": 0.13746055932203396,
+          "win_rate": 0.49491525423728816,
+          "n": 590
+        },
+        {
+          "quintile": 4,
+          "mean_pred": 0.5557954262309373,
+          "mean_actual": 0.5007814067796609,
+          "win_rate": 0.49830508474576274,
+          "n": 590
+        },
+        {
+          "quintile": 5,
+          "mean_pred": 2.8196574263988277,
+          "mean_actual": 2.711236307952622,
+          "win_rate": 0.4957698815566836,
+          "n": 591
+        }
+      ],
+      "model_path": "models\\model_5d.pkl"
+    },
+    "10d": {
+      "n_train": 11729,
+      "n_test": 2933,
+      "n_iter": 53,
+      "target_clip": [
+        -33.775163,
+        55.60321899999993
+      ],
+      "r2": 0.024910115045086223,
+      "mae": 9.238251376286803,
+      "rmse": 13.323412452017603,
+      "dir_acc": 0.5352881009205591,
+      "dec_spread": 6.349414406143343,
+      "prec_pos": 0.5306021717670286,
+      "prec_gt2_pos": 0.5284090909090909,
+      "prec_gt2_gt2": 0.4971590909090909,
+      "prec_gt5_pos": 0.5374149659863946,
+      "feature_importance": {
+        "log_buy_price": 0.05356375534546696,
+        "log_value_usd": 0.022995117832469214,
+        "prior_30d_pct": 0.014785842372211321,
+        "is_10pct": 0.008262303975596486,
+        "owned_pct_num": 0.008058795317323775,
+        "officer_type_enc": 0.006191231471397052,
+        "n_insiders_in_cluster": 0.0012635616887873957,
+        "filing_gap_days": 5.908472150193411e-05
+      },
+      "quintile_stats": [
+        {
+          "quintile": 1,
+          "mean_pred": -1.581705935754896,
+          "mean_actual": -1.729695187713311,
+          "win_rate": 0.43856655290102387,
+          "n": 586
+        },
+        {
+          "quintile": 2,
+          "mean_pred": -0.030001596680937968,
+          "mean_actual": 0.5729149744027301,
+          "win_rate": 0.48293515358361777,
+          "n": 586
+        },
+        {
+          "quintile": 3,
+          "mean_pred": 0.4130132846730819,
+          "mean_actual": 0.5506822286689418,
+          "win_rate": 0.5238907849829352,
+          "n": 586
+        },
+        {
+          "quintile": 4,
+          "mean_pred": 0.752929933533486,
+          "mean_actual": 1.9167711382252557,
+          "win_rate": 0.5546075085324232,
+          "n": 586
+        },
+        {
+          "quintile": 5,
+          "mean_pred": 3.850328669955296,
+          "mean_actual": 2.9287315653650237,
+          "win_rate": 0.5263157894736842,
+          "n": 589
+        }
+      ],
+      "model_path": "models\\model_10d.pkl"
+    }
+  }
+}
