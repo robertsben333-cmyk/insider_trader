@@ -74,6 +74,11 @@ MARKET_OPEN_H, MARKET_OPEN_M = 9, 30
 MARKET_CLOSE_H, MARKET_CLOSE_M = 16, 0
 ET = ZoneInfo("America/New_York")
 
+# Polling intervals: high-frequency window covers 2 h before/after market open.
+NEAR_OPEN_WINDOW_HOURS = 2       # hours around 9:30 ET with high-frequency polling
+NEAR_OPEN_INTERVAL_MINUTES = 30  # poll every 30 min inside that window
+FAR_INTERVAL_MINUTES = 120       # poll every 2 h outside that window
+
 
 def is_market_open(now_et: datetime) -> bool:
     """True if now_et is within regular trading hours (9:30–16:00 ET, Mon–Fri)."""
@@ -92,6 +97,37 @@ def seconds_until_next_open(now_et: datetime) -> float:
     while candidate.weekday() >= 5:
         candidate += timedelta(days=1)
     return max(0.0, (candidate - now_et).total_seconds())
+
+
+def compute_sleep_interval_minutes(now_et: datetime) -> int:
+    """Return polling interval in minutes based on proximity to market open.
+
+    - NEAR_OPEN_INTERVAL_MINUTES (30) within NEAR_OPEN_WINDOW_HOURS hours
+      before *or* after 9:30 ET on a weekday (i.e. 7:30–11:30 ET).
+    - FAR_INTERVAL_MINUTES (120) at all other times (overnight, weekends,
+      midday).  This avoids blocking order creation at market open while still
+      capturing pre-market and early-session filings frequently.
+    """
+    if now_et.weekday() >= 5:
+        return FAR_INTERVAL_MINUTES
+    open_t = now_et.replace(hour=MARKET_OPEN_H, minute=MARKET_OPEN_M, second=0, microsecond=0)
+    near_start = open_t - timedelta(hours=NEAR_OPEN_WINDOW_HOURS)
+    near_end   = open_t + timedelta(hours=NEAR_OPEN_WINDOW_HOURS)
+    if near_start <= now_et < near_end:
+        return NEAR_OPEN_INTERVAL_MINUTES
+    return FAR_INTERVAL_MINUTES
+
+def _to_float(val: object) -> float:
+    """Coerce *val* to a Python float; returns nan on failure.
+
+    Using this helper avoids repeated type-ignore comments at call sites where
+    pd.to_numeric() returns a broad union that float() can't statically accept.
+    """
+    try:
+        return float(pd.to_numeric(val, errors="coerce"))  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return float("nan")
+
 
 EXPECTED_AGG_COLUMNS = [
     "transaction_date",
@@ -135,16 +171,16 @@ def read_csv_or_empty(path: Path, columns: Sequence[str] | None = None) -> pd.Da
     if path.exists():
         return pd.read_csv(path, dtype=str, keep_default_na=False)
     cols = list(columns) if columns else []
-    return pd.DataFrame(columns=cols)
+    return pd.DataFrame(columns=pd.Index(cols))
 
 
 def make_event_key_series(ticker: pd.Series, trade_date_like: pd.Series) -> pd.Series:
-    trade_date = pd.to_datetime(trade_date_like, errors="coerce").dt.strftime("%Y-%m-%d")
-    return ticker.fillna("").astype(str) + "|" + trade_date.fillna("")
+    trade_date = pd.to_datetime(trade_date_like, errors="coerce").dt.strftime("%Y-%m-%d")  # type: ignore[union-attr]
+    return ticker.fillna("").astype(str) + "|" + trade_date.fillna("")  # type: ignore[return-value]
 
 
 def row_signature(df: pd.DataFrame, columns: Sequence[str]) -> pd.Series:
-    return df[list(columns)].fillna("").astype(str).agg("||".join, axis=1)
+    return df[list(columns)].fillna("").astype(str).agg("||".join, axis=1)  # type: ignore[return-value]
 
 
 def coerce_raw_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -152,7 +188,7 @@ def coerce_raw_columns(df: pd.DataFrame) -> pd.DataFrame:
     for col in RAW_COLUMNS:
         if col not in out.columns:
             out[col] = ""
-    return out[RAW_COLUMNS]
+    return out[RAW_COLUMNS]  # type: ignore[return-value]
 
 
 def month_offsets(now: datetime, months_back: int) -> List[Tuple[int, int]]:
@@ -203,7 +239,7 @@ def scrape_recent_filings(scraper: OpenInsiderScraper, months_back: int, logger:
     now = datetime.now()
     offsets = month_offsets(now, months_back)
 
-    def _fetch_month(ym: Tuple[int, int]) -> List[dict]:
+    def _fetch_month(ym: Tuple[int, int]) -> list[tuple]:
         year, month = ym
         logger.info("Scraping OpenInsider month %04d-%02d ...", year, month)
         return list(scraper._get_data_for_month(year, month))
@@ -211,9 +247,9 @@ def scrape_recent_filings(scraper: OpenInsiderScraper, months_back: int, logger:
     with ThreadPoolExecutor(max_workers=len(offsets)) as pool:
         results = list(pool.map(_fetch_month, offsets))
 
-    frames = [pd.DataFrame(rows, columns=RAW_COLUMNS) for rows in results if rows]
+    frames = [pd.DataFrame(list(rows), columns=pd.Index(RAW_COLUMNS)) for rows in results if rows]
     if not frames:
-        return pd.DataFrame(columns=RAW_COLUMNS)
+        return pd.DataFrame(columns=pd.Index(RAW_COLUMNS))
     out = pd.concat(frames, ignore_index=True)
     out = coerce_raw_columns(out).drop_duplicates(subset=RAW_COLUMNS).reset_index(drop=True)
     return out
@@ -228,7 +264,7 @@ def merge_scraped_into_raw(
     scraped = coerce_raw_columns(scraped_df)
     if scraped.empty:
         logger.info("Scraper returned 0 rows.")
-        return existing, pd.DataFrame(columns=RAW_COLUMNS)
+        return existing, pd.DataFrame(columns=pd.Index(RAW_COLUMNS))
 
     existing_sig = set(row_signature(existing, RAW_COLUMNS).tolist())
     scraped_sig = row_signature(scraped, RAW_COLUMNS)
@@ -270,24 +306,23 @@ def build_candidate_events(raw_df: pd.DataFrame) -> pd.DataFrame:
         | title.str.contains(TEN_PCT_PATTERN, na=False)
     )
     df = df[mask_supported].copy()
-    df["filing_gap_days"] = (df["transaction_date"] - df["trade_date"]).dt.days
+    df["filing_gap_days"] = (df["transaction_date"] - df["trade_date"]).dt.days  # type: ignore[union-attr]
     df = df[(df["filing_gap_days"] >= 0) & (df["filing_gap_days"] <= MAX_FILING_GAP_DAYS)].copy()
-    df["trade_date_d"] = df["trade_date"].dt.date
+    df["trade_date_d"] = df["trade_date"].dt.date  # type: ignore[union-attr]
 
-    counts = (
-        df.groupby(["ticker", "trade_date_d"], as_index=False)
-        .size()
-        .rename(columns={"size": "n_insiders_in_cluster"})
+    df["n_insiders_in_cluster"] = (
+        df.groupby(["ticker", "trade_date_d"])["ticker"]  # type: ignore[union-attr]
+        .transform("count")
+        .astype(int)
     )
-    df = df.merge(counts, on=["ticker", "trade_date_d"], how="left")
-    df = df.sort_values(["ticker", "trade_date_d", "transaction_date"]).reset_index(drop=True)
+    df = df.sort_values(["ticker", "trade_date_d", "transaction_date"]).reset_index(drop=True)  # type: ignore[call-overload]
 
     def pick_representative(group: pd.DataFrame) -> pd.DataFrame:
         if len(group) == 1:
             return group.iloc[[0]]
         return group.iloc[[1]]
 
-    rep = (
+    rep = pd.DataFrame(
         df.groupby(["ticker", "trade_date_d"], group_keys=False, sort=False)
         .apply(pick_representative)
         .reset_index(drop=True)
@@ -296,33 +331,34 @@ def build_candidate_events(raw_df: pd.DataFrame) -> pd.DataFrame:
     rep["n_insiders"] = rep["n_insiders_in_cluster"].astype(int)
     rep["cluster_buy"] = rep["n_insiders_in_cluster"].astype(int) >= 2
     rep["n_insiders_label"] = rep["n_insiders_in_cluster"].astype(int).clip(upper=5).map(
-        {1: "1 (solo)", 2: "2", 3: "3", 4: "4", 5: "5+"}
+        {1: "1 (solo)", 2: "2", 3: "3", 4: "4", 5: "5+"}  # type: ignore[arg-type]
     )
-    rep["event_key"] = make_event_key_series(rep["ticker"], rep["trade_date_d"].astype(str))
-    rep["representative_transaction_date"] = rep["transaction_date"].dt.strftime("%Y-%m-%d %H:%M:%S")
-    rep["trade_date"] = rep["trade_date"].dt.strftime("%Y-%m-%d %H:%M:%S")
+    rep["event_key"] = make_event_key_series(rep["ticker"], rep["trade_date_d"].astype(str))  # type: ignore[arg-type]
+    rep["representative_transaction_date"] = rep["transaction_date"].dt.strftime("%Y-%m-%d %H:%M:%S")  # type: ignore[union-attr]
+    rep["trade_date"] = rep["trade_date"].dt.strftime("%Y-%m-%d %H:%M:%S")  # type: ignore[union-attr]
     return rep.reset_index(drop=True)
 
 
 def new_event_keys_from_rows(new_raw_rows: pd.DataFrame) -> set[str]:
     if new_raw_rows.empty:
         return set()
-    keys = make_event_key_series(new_raw_rows["ticker"], new_raw_rows["trade_date"])
+    keys = make_event_key_series(new_raw_rows["ticker"], new_raw_rows["trade_date"])  # type: ignore[arg-type]
     return {k for k in keys.tolist() if k and not k.endswith("|")}
 
 
 def load_latest_scored_state(predictions_path: Path) -> pd.DataFrame:
+    _state_cols = pd.Index(["event_key", "representative_transaction_date"])
     if not predictions_path.exists():
-        return pd.DataFrame(columns=["event_key", "representative_transaction_date"])
+        return pd.DataFrame(columns=_state_cols)
     df = pd.read_csv(predictions_path, dtype=str, keep_default_na=False)
     if df.empty or "event_key" not in df.columns:
-        return pd.DataFrame(columns=["event_key", "representative_transaction_date"])
+        return pd.DataFrame(columns=_state_cols)
     for col in ("scored_at", "representative_transaction_date"):
         if col not in df.columns:
             df[col] = ""
     df["_score_sort"] = pd.to_datetime(df["scored_at"], errors="coerce")
     df = df.sort_values(["event_key", "_score_sort"]).drop_duplicates(subset=["event_key"], keep="last")
-    return df[["event_key", "representative_transaction_date"]].reset_index(drop=True)
+    return df[["event_key", "representative_transaction_date"]].reset_index(drop=True)  # type: ignore[return-value]
 
 
 def select_pending_events(
@@ -332,12 +368,12 @@ def select_pending_events(
 ) -> pd.DataFrame:
     if candidates.empty or not impacted_event_keys:
         return pd.DataFrame(columns=candidates.columns)
-    pending = candidates[candidates["event_key"].isin(impacted_event_keys)].copy()
+    pending = candidates[candidates["event_key"].isin(list(impacted_event_keys))].copy()
     if pending.empty:
-        return pending
+        return pending  # type: ignore[return-value]
 
     if latest_state.empty:
-        return pending
+        return pending  # type: ignore[return-value]
 
     latest = latest_state.rename(
         columns={"representative_transaction_date": "last_scored_representative_transaction_date"}
@@ -372,7 +408,7 @@ def _aggs_to_dicts(aggs) -> List[dict]:
     return [
         {"t": a.timestamp, "o": a.open, "c": a.close, "h": a.high, "l": a.low}
         for a in aggs
-        if getattr(a, "timestamp", None) and getattr(a, "close", None)
+        if getattr(a, "timestamp", None) is not None and getattr(a, "close", None) is not None
     ]
 
 
@@ -438,7 +474,8 @@ def ensure_lookback_cache(
 def find_price_at_or_after(bars: Iterable[dict], target_ts_ms: int) -> float | None:
     for bar in bars:
         if bar.get("t", -1) >= target_ts_ms:
-            return float(bar.get("c"))
+            c = bar.get("c")
+            return float(c) if c is not None else None
     return None
 
 
@@ -576,16 +613,16 @@ def enrich_pending_with_market_data(
         ticker_p = str(row["ticker"])
         txn_ts_p = pd.to_datetime(row["transaction_date"], errors="coerce")
         trade_ts_p = pd.to_datetime(row["trade_date"], errors="coerce")
-        if pd.isna(txn_ts_p) or pd.isna(trade_ts_p):
+        if bool(pd.isna(txn_ts_p)) or bool(pd.isna(trade_ts_p)):
             continue
-        buy_dt_p = compute_buy_datetime(txn_ts_p)
+        buy_dt_p = compute_buy_datetime(txn_ts_p)  # type: ignore[arg-type]
         buy_date_p = buy_dt_p.date()
 
         mkey = (ticker_p, buy_date_p.strftime("%Y-%m-%d"))
         if mkey not in min_tasks and not minute_cache_path(cache_dir, ticker_p, buy_date_p).exists():
             min_tasks[mkey] = buy_date_p
 
-        td_p = trade_ts_p.date()
+        td_p = trade_ts_p.date()  # type: ignore[union-attr]
         from_d_p = td_p - timedelta(days=train_models.FETCH_WINDOW)
         lkey = (ticker_p, from_d_p.strftime("%Y-%m-%d"), td_p.strftime("%Y-%m-%d"))
         if lkey not in lk_tasks and not lookback_cache_path(cache_dir, ticker_p, from_d_p, td_p).exists():
@@ -621,12 +658,12 @@ def enrich_pending_with_market_data(
         ticker = str(row["ticker"])
         txn_ts = pd.to_datetime(row["transaction_date"], errors="coerce")
         trade_ts = pd.to_datetime(row["trade_date"], errors="coerce")
-        if pd.isna(txn_ts) or pd.isna(trade_ts):
+        if bool(pd.isna(txn_ts)) or bool(pd.isna(trade_ts)):
             buy_dt_col.append("")
             buy_px_col.append(np.nan)
             continue
 
-        buy_dt = compute_buy_datetime(txn_ts)
+        buy_dt = compute_buy_datetime(txn_ts)  # type: ignore[arg-type]
         buy_date = buy_dt.date()
         minute_key = (ticker, buy_date.strftime("%Y-%m-%d"))
         if minute_key not in minute_cache:
@@ -647,7 +684,7 @@ def enrich_pending_with_market_data(
         buy_dt_col.append(buy_dt.strftime("%Y-%m-%d %H:%M:%S"))
         buy_px_col.append(float(buy_price) if buy_price is not None else np.nan)
 
-        td = trade_ts.date()
+        td = trade_ts.date()  # type: ignore[union-attr]
         from_d = td - timedelta(days=train_models.FETCH_WINDOW)
         lk = (ticker, from_d.strftime("%Y-%m-%d"), td.strftime("%Y-%m-%d"))
         if lk not in lookback_seen:
@@ -671,7 +708,7 @@ def enrich_pending_with_market_data(
 
 
 def build_pending_aggregate_rows(pending_enriched: pd.DataFrame, columns: Sequence[str]) -> pd.DataFrame:
-    base = pd.DataFrame(index=np.arange(len(pending_enriched)), columns=list(columns))
+    base = pd.DataFrame(index=np.arange(len(pending_enriched)), columns=pd.Index(list(columns)))
     for col in pending_enriched.columns:
         if col in base.columns:
             base[col] = pending_enriched[col].values
@@ -687,7 +724,7 @@ def prepare_temp_aggregate_file(
 ) -> None:
     hist = read_csv_or_empty(aggregated_path)
     if hist.empty:
-        hist = pd.DataFrame(columns=EXPECTED_AGG_COLUMNS)
+        hist = pd.DataFrame(columns=pd.Index(EXPECTED_AGG_COLUMNS))
 
     cols = list(dict.fromkeys(list(hist.columns) + EXPECTED_AGG_COLUMNS))
     hist = hist.reindex(columns=cols)
@@ -700,10 +737,10 @@ def prepare_temp_aggregate_file(
     pending_rows = build_pending_aggregate_rows(pending_enriched, cols).reindex(columns=cols)
 
     combined = pd.concat([hist, pending_rows], ignore_index=True)
-    combined["_event_key"] = make_event_key_series(combined["ticker"], combined["trade_date"])
+    combined["_event_key"] = make_event_key_series(combined["ticker"], combined["trade_date"])  # type: ignore[arg-type]
     combined["_txn_sort"] = pd.to_datetime(combined["transaction_date"], errors="coerce")
     combined = (
-        combined.sort_values(["_event_key", "_txn_sort"])
+        combined.sort_values(["_event_key", "_txn_sort"])  # type: ignore[call-overload]
         .drop_duplicates(subset=["_event_key"], keep="last")
         .drop(columns=["_event_key", "_txn_sort"])
         .reset_index(drop=True)
@@ -763,7 +800,7 @@ def to_xgb(X: pd.DataFrame) -> pd.DataFrame:
 def to_linear_numeric(X: pd.DataFrame) -> pd.DataFrame:
     Xn = X.copy()
     for col in Xn.columns:
-        if pd.api.types.is_categorical_dtype(Xn[col]):
+        if isinstance(Xn[col].dtype, pd.CategoricalDtype):
             codes = Xn[col].cat.codes.astype(float)
             codes[codes < 0] = np.nan
             Xn[col] = codes
@@ -782,7 +819,7 @@ def align_features_to_model(model, X: pd.DataFrame) -> pd.DataFrame:
     missing = [c for c in cols if c not in X.columns]
     if missing:
         raise ValueError(f"Model expects missing feature columns: {missing}")
-    return X[cols].copy()
+    return X[cols].copy()  # type: ignore[return-value]
 
 
 def predict_model(model_name: str, model, X: pd.DataFrame) -> np.ndarray:
@@ -843,7 +880,7 @@ def score_features(
         return pd.DataFrame()
 
     if "is_tradable" in feat_df.columns:
-        feat_df = feat_df[feat_df["is_tradable"].astype(int) == 1].copy()
+        feat_df = feat_df[feat_df["is_tradable"].astype(int) == 1].copy()  # type: ignore[assignment]
         if feat_df.empty:
             return pd.DataFrame()
 
@@ -851,7 +888,7 @@ def score_features(
     if missing:
         raise ValueError(f"Missing features required for scoring: {missing}")
 
-    X = feat_df[train_models.FEATURES].copy()
+    X: pd.DataFrame = feat_df[train_models.FEATURES].copy()  # type: ignore[assignment]
     if "market_type" not in feat_df.columns:
         feat_df["market_type"] = "UNKNOWN"
     if "is_tradable" not in feat_df.columns:
@@ -879,9 +916,9 @@ def score_features(
             "filing_hour_et",
         ]
     ].copy()
-    meta["market_type"] = meta["market_type"].fillna("UNKNOWN").astype(str)
-    meta["is_tradable"] = pd.to_numeric(meta["is_tradable"], errors="coerce").fillna(0).astype(int)
-    meta["trade_date"] = pd.to_datetime(meta["trade_date"], errors="coerce").dt.strftime("%Y-%m-%d")
+    meta["market_type"] = meta["market_type"].fillna("UNKNOWN").astype(str)  # type: ignore[union-attr]
+    meta["is_tradable"] = pd.to_numeric(meta["is_tradable"], errors="coerce").fillna(0).astype(int)  # type: ignore[union-attr]
+    meta["trade_date"] = pd.to_datetime(meta["trade_date"], errors="coerce").dt.strftime("%Y-%m-%d")  # type: ignore[union-attr]
     multi_day_targets_are_daily = bool(policy.get("multi_day_targets_are_daily", False))
 
     scored_frames = []
@@ -896,7 +933,7 @@ def score_features(
         w = policy.get("weights_by_horizon", {}).get(str(h), {}).get("weights", {})
         if not w:
             w = {m: 1.0 / len(MODEL_NAMES) for m in MODEL_NAMES}
-        weighted = sum(preds[m] * float(w.get(m, 0.0)) for m in MODEL_NAMES)
+        weighted: np.ndarray = sum(preds[m] * float(w.get(m, 0.0)) for m in MODEL_NAMES)  # type: ignore[assignment]
         expected_daily = expected_daily_from_horizon_pct(
             pred_pct=weighted,
             horizon_days=h,
@@ -925,10 +962,10 @@ def upsert_predictions(predictions_path: Path, scored_df: pd.DataFrame) -> pd.Da
 
     old = read_csv_or_empty(predictions_path)
     if not old.empty and "event_key" in old.columns:
-        keys = set(scored_df["event_key"].astype(str).tolist())
+        keys = list(scored_df["event_key"].astype(str).tolist())
         old = old[~old["event_key"].astype(str).isin(keys)].copy()
     combined = pd.concat([old, scored_df], ignore_index=True)
-    combined = combined.sort_values(["event_key", "horizon_days", "scored_at"], na_position="last")
+    combined = combined.sort_values(["event_key", "horizon_days", "scored_at"], na_position="last")  # type: ignore[call-overload]
     predictions_path.parent.mkdir(parents=True, exist_ok=True)
     combined.to_csv(predictions_path, index=False)
     return combined
@@ -948,8 +985,8 @@ def print_report(scored_df: pd.DataFrame) -> None:
     for _, grp in scored_df.sort_values(["event_key", "horizon_days"]).groupby("event_key", sort=True):
         head = grp.iloc[0]
         insiders = head["n_insiders_in_cluster"]
-        buy_price = head["buy_price"]
-        buy_price_txt = "nan" if pd.isna(buy_price) else f"{float(buy_price):.4f}"
+        buy_price = _to_float(head["buy_price"])
+        buy_price_txt = "nan" if np.isnan(buy_price) else f"{buy_price:.4f}"
         print(
             f"{head['ticker']} | trade_date={head['trade_date']} | filed={head['representative_transaction_date']} "
             f"| owner={head['owner_name']} | market={head.get('market_type', 'UNKNOWN')} "
@@ -1049,8 +1086,8 @@ def load_day1_decile_curve(
             dec["horizon_days"] = pd.to_numeric(dec.get("horizon_days"), errors="coerce")
             dec["decile"] = pd.to_numeric(dec.get("decile"), errors="coerce")
             dec["mean_pred"] = pd.to_numeric(dec.get("mean_pred"), errors="coerce")
-            day1 = dec[dec["horizon_days"] == 1].dropna(subset=["decile", "mean_pred"]).copy()
-            day1 = day1[(day1["decile"] >= 1) & (day1["decile"] <= 10)].sort_values("decile")
+            day1 = dec[dec["horizon_days"] == 1].dropna(subset=["decile", "mean_pred"]).copy()  # type: ignore[call-overload]
+            day1 = day1[(day1["decile"] >= 1) & (day1["decile"] <= 10)].sort_values("decile")  # type: ignore[call-overload]
             if len(day1) >= 2:
                 xs = (day1["decile"].to_numpy(dtype=float) / 10.0).astype(float)
                 ys = day1["mean_pred"].to_numpy(dtype=float)
@@ -1097,7 +1134,7 @@ def apply_linear_allocation_advice(
 
     out = picks_df.copy()
     pred_series = pd.to_numeric(out[pred_col], errors="coerce") if pred_col in out.columns else pd.Series(np.nan, index=out.index)
-    p = pred_series.to_numpy(dtype=float)
+    p = np.asarray(pred_series, dtype=float)
     est_dec = estimate_decile_score_from_raw_pred(p, decile_scores, raw_cutoffs)
 
     base_alloc = float(max(0.0, base_alloc_fraction))
@@ -1133,7 +1170,7 @@ def select_day1_pred_mean_candidates(
     if day1.empty:
         return pd.DataFrame(), pred_col
 
-    picks = day1[day1[pred_col] > float(threshold)].copy()
+    picks = pd.DataFrame(day1[day1[pred_col] > float(threshold)].copy())
     if picks.empty:
         return picks, pred_col
     picks = picks.sort_values(pred_col, ascending=False).drop_duplicates(subset=["event_key"], keep="first")
@@ -1159,13 +1196,13 @@ def print_day1_investment_findings(
         return
 
     for _, row in picks_df.iterrows():
-        alloc_frac = pd.to_numeric(row.get("advised_allocation_fraction"), errors="coerce")
-        alloc_txt = "n/a" if pd.isna(alloc_frac) else f"{float(alloc_frac) * 100.0:.1f}%"
-        dec_est = pd.to_numeric(row.get("estimated_decile_score"), errors="coerce")
-        dec_txt = "n/a" if pd.isna(dec_est) else f"{float(dec_est):.3f}"
+        alloc_frac = _to_float(row.get("advised_allocation_fraction"))
+        alloc_txt = "n/a" if np.isnan(alloc_frac) else f"{alloc_frac * 100.0:.1f}%"
+        dec_est = _to_float(row.get("estimated_decile_score"))
+        dec_txt = "n/a" if np.isnan(dec_est) else f"{dec_est:.3f}"
         print(
             f"{row['ticker']} | {row['company_name']} | owner={row['owner_name']} | "
-            f"trade_date={row['trade_date']} | {pred_col}={float(row[pred_col]):+.3f}% | "
+            f"trade_date={row['trade_date']} | {pred_col}={_to_float(row[pred_col]):+.3f}% | "
             f"est_decile={dec_txt} | advised_alloc={alloc_txt} of budget"
         )
     print()
@@ -1205,7 +1242,7 @@ def build_alert_detail_rows(
         "advised_allocation_pct",
     ]
     cols = cols + [c for c in optional_cols if c in picks_df.columns]
-    base = picks_df[cols].drop_duplicates(subset=["event_key"], keep="first").copy()
+    base = picks_df[cols].drop_duplicates(subset=["event_key"], keep="first").copy()  # type: ignore[call-overload]
     out = base.merge(piv, on="event_key", how="left")
     return out.sort_values("score_1d", ascending=False).reset_index(drop=True)
 
@@ -1278,20 +1315,20 @@ def send_email(
 
     rows_html = []
     for _, row in details_df.iterrows():
-        buy_px = pd.to_numeric(row.get("buy_price"), errors="coerce")
-        buy_px_txt = "nan" if pd.isna(buy_px) else f"{float(buy_px):.4f}"
-        s1 = pd.to_numeric(row.get("score_1d"), errors="coerce")
-        s3 = pd.to_numeric(row.get("score_3d"), errors="coerce")
-        s5 = pd.to_numeric(row.get("score_5d"), errors="coerce")
-        s10 = pd.to_numeric(row.get("score_10d"), errors="coerce")
-        dec_est = pd.to_numeric(row.get("estimated_decile_score"), errors="coerce")
-        adv_alloc_pct = pd.to_numeric(row.get("advised_allocation_pct"), errors="coerce")
-        s1_txt = "nan" if pd.isna(s1) else f"{float(s1):+.3f}%"
-        s3_txt = "nan" if pd.isna(s3) else f"{float(s3):+.3f}%"
-        s5_txt = "nan" if pd.isna(s5) else f"{float(s5):+.3f}%"
-        s10_txt = "nan" if pd.isna(s10) else f"{float(s10):+.3f}%"
-        dec_txt = "nan" if pd.isna(dec_est) else f"{float(dec_est):.3f}"
-        adv_alloc_txt = "nan" if pd.isna(adv_alloc_pct) else f"{float(adv_alloc_pct):.1f}%"
+        buy_px  = _to_float(row.get("buy_price"))
+        s1      = _to_float(row.get("score_1d"))
+        s3      = _to_float(row.get("score_3d"))
+        s5      = _to_float(row.get("score_5d"))
+        s10     = _to_float(row.get("score_10d"))
+        dec_est = _to_float(row.get("estimated_decile_score"))
+        adv_alloc_pct = _to_float(row.get("advised_allocation_pct"))
+        buy_px_txt    = "nan" if np.isnan(buy_px)       else f"{buy_px:.4f}"
+        s1_txt        = "nan" if np.isnan(s1)           else f"{s1:+.3f}%"
+        s3_txt        = "nan" if np.isnan(s3)           else f"{s3:+.3f}%"
+        s5_txt        = "nan" if np.isnan(s5)           else f"{s5:+.3f}%"
+        s10_txt       = "nan" if np.isnan(s10)          else f"{s10:+.3f}%"
+        dec_txt       = "nan" if np.isnan(dec_est)      else f"{dec_est:.3f}"
+        adv_alloc_txt = "nan" if np.isnan(adv_alloc_pct) else f"{adv_alloc_pct:.1f}%"
         rows_html.append(
             "<tr>"
             f"<td>{row['ticker']}</td>"
@@ -1448,7 +1485,7 @@ def run_cycle(
         args.predictions_file,
         len(combined_pred),
     )
-    return scored["event_key"].nunique()
+    return int(scored["event_key"].nunique())
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -1461,7 +1498,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--sector-cache-file", default="live/data/sector_cache.csv")
     p.add_argument("--model-dir", default="models/prod4")
     p.add_argument("--temp-aggregate-file", default="live/data/live_scoring_temp_aggregate.csv")
-    p.add_argument("--interval-minutes", type=int, default=1)
     p.add_argument("--months-back", type=int, default=1, help="Current month + N previous months.")
     p.add_argument("--once", action="store_true", help="Run exactly one cycle.")
     p.add_argument("--polygon-api-key", default="", help="Optional override for POLYGON_API_KEY.")
@@ -1531,20 +1567,16 @@ def main() -> None:
 
     while True:
         now_et = datetime.now(ET)
-
-        # Outside market hours: sleep until next open (bypass for --once so
-        # manual/test runs always execute immediately regardless of time).
-        if not args.once and not is_market_open(now_et):
-            secs = seconds_until_next_open(now_et)
-            logger.info(
-                "Market closed. Sleeping %.1f min until next open...", secs / 60.0
-            )
-            time.sleep(secs)
-            continue
-
+        interval_minutes = compute_sleep_interval_minutes(now_et)
         cycle_start_time = datetime.now()
         months_back = compute_months_back(last_scraped_at, cycle_start_time, args.months_back)
-        logger.info("Scraping %d month(s) back (last_scraped_at=%s).", months_back, last_scraped_at)
+        logger.info(
+            "Cycle start (interval=%d min, window=%s). Scraping %d month(s) back (last_scraped_at=%s).",
+            interval_minutes,
+            "near-open" if interval_minutes == NEAR_OPEN_INTERVAL_MINUTES else "far",
+            months_back,
+            last_scraped_at,
+        )
 
         start = time.time()
         try:
@@ -1567,7 +1599,7 @@ def main() -> None:
             break
 
         elapsed = time.time() - start
-        sleep_seconds = max(0.0, args.interval_minutes * 60 - elapsed)
+        sleep_seconds = max(0.0, interval_minutes * 60 - elapsed)
         logger.info("Sleeping %.1f min until next cycle...", sleep_seconds / 60.0)
         time.sleep(sleep_seconds)
 
