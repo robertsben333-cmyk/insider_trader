@@ -14,15 +14,31 @@ env/
 # Environment / secrets
 .env
 
-# Large data files (price cache = 52k+ files)
-data/price_cache/
-
-# Large CSV data files (regeneratable)
-data/insider_purchases.csv
-
-# Jupyter
-.ipynb_checkpoints/
+# Logs
+*.log
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OpenInsider scraper cache (regeneratable JSON files)
+.cache/
+
+# Polygon price cache (regeneratable, machine-specific)
+backtest/data/price_cache/
+live/data/price_cache/
+
+# Live run state (machine-specific)
+live/data/*.scrape_state.json
+
+# Backtest data directory (large regeneratable files)
+backtest/data/
+
+# Live validation runs
+live/validation_*/
+
+# Claude workspace
+.claude/

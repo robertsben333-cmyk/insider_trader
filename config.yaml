@@ -1,6 +1,6 @@
 # Basic Settings
 output:
-  directory: "data"
+  directory: "backtest/data"
   filename: "insider_purchases.csv"
   format: "csv"  # Possible values: csv, parquet
 

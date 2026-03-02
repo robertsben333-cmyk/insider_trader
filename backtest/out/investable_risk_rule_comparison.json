@@ -1,0 +1,130 @@
+[
+  {
+    "strategy": "baseline_pred_gt_0p8",
+    "params": {
+      "pred_threshold": 0.8
+    },
+    "val": {
+      "n_trades": 475,
+      "return_pct": 5277.3170903926075,
+      "max_drawdown_pct": -13.503263699380119,
+      "win_rate_pct": 61.89473684210526,
+      "mean_trade_ret_pct": 3.905982602105263,
+      "std_trade_ret_pct": 8.838399225832942,
+      "sharpe_trade": 0.44193326215552997,
+      "sortino_trade": 1.0664132518349907,
+      "cvar5_trade_ret_pct": -11.707983333333331,
+      "objective_val": 5270.565458542917
+    },
+    "test": {
+      "n_trades": 457,
+      "return_pct": 1087.119930981316,
+      "max_drawdown_pct": -10.613336977779596,
+      "win_rate_pct": 53.82932166301969,
+      "mean_trade_ret_pct": 2.378519912472647,
+      "std_trade_ret_pct": 8.269879194270732,
+      "sharpe_trade": 0.2876124132648099,
+      "sortino_trade": 0.6758440325326066,
+      "cvar5_trade_ret_pct": -11.853873913043477,
+      "objective_val": 1081.8132624924262
+    }
+  },
+  {
+    "strategy": "vol_cap",
+    "params": {
+      "pred_threshold": 0.8,
+      "vol_cap_quantile": 0.9,
+      "vol_cap_value": 2.076876607274869
+    },
+    "val": {
+      "n_trades": 359,
+      "return_pct": 1084.096494205845,
+      "max_drawdown_pct": -13.997360476118615,
+      "win_rate_pct": 61.00278551532033,
+      "mean_trade_ret_pct": 3.2219162116991638,
+      "std_trade_ret_pct": 8.20743262402064,
+      "sharpe_trade": 0.3925607871905768,
+      "sortino_trade": 0.9527892650072768,
+      "cvar5_trade_ret_pct": -10.946172222222224,
+      "objective_val": 1077.0978139677857
+    },
+    "test": {
+      "n_trades": 378,
+      "return_pct": 402.74893146838576,
+      "max_drawdown_pct": -9.231050937767993,
+      "win_rate_pct": 54.232804232804234,
+      "mean_trade_ret_pct": 1.9591008888888886,
+      "std_trade_ret_pct": 7.972466443456643,
+      "sharpe_trade": 0.24573335024781567,
+      "sortino_trade": 0.556596834814952,
+      "cvar5_trade_ret_pct": -11.881163157894736,
+      "objective_val": 398.13340599950175
+    }
+  },
+  {
+    "strategy": "ticker_lossrate_cap",
+    "params": {
+      "pred_threshold": 0.8,
+      "lossrate_cap_quantile": 0.9,
+      "lossrate_cap_value": 0.6666666666666666
+    },
+    "val": {
+      "n_trades": 454,
+      "return_pct": 3747.623602622917,
+      "max_drawdown_pct": -8.451848128317396,
+      "win_rate_pct": 61.89427312775331,
+      "mean_trade_ret_pct": 3.7182184052863434,
+      "std_trade_ret_pct": 8.670773289817532,
+      "sharpe_trade": 0.42882200710435014,
+      "sortino_trade": 1.0162385017042972,
+      "cvar5_trade_ret_pct": -11.67156956521739,
+      "objective_val": 3743.3976785587583
+    },
+    "test": {
+      "n_trades": 433,
+      "return_pct": 753.649431189457,
+      "max_drawdown_pct": -13.881660365557813,
+      "win_rate_pct": 54.27251732101617,
+      "mean_trade_ret_pct": 2.3179221709006925,
+      "std_trade_ret_pct": 8.227810747213221,
+      "sharpe_trade": 0.2817179736038263,
+      "sortino_trade": 0.6472734485901861,
+      "cvar5_trade_ret_pct": -11.955145454545454,
+      "objective_val": 746.7086010066781
+    }
+  },
+  {
+    "strategy": "combined_vol_and_lossrate_cap",
+    "params": {
+      "pred_threshold": 0.8,
+      "vol_cap_quantile": 0.9,
+      "vol_cap_value": 2.076876607274869,
+      "lossrate_cap_quantile": 0.9,
+      "lossrate_cap_value": 0.6666666666666666
+    },
+    "val": {
+      "n_trades": 345,
+      "return_pct": 867.8204201412759,
+      "max_drawdown_pct": -9.832150000000006,
+      "win_rate_pct": 60.86956521739131,
+      "mean_trade_ret_pct": 3.10981776231884,
+      "std_trade_ret_pct": 8.006267800473166,
+      "sharpe_trade": 0.3884229006348066,
+      "sortino_trade": 0.9715168568271846,
+      "cvar5_trade_ret_pct": -10.261772222222223,
+      "objective_val": 862.9043451412759
+    },
+    "test": {
+      "n_trades": 362,
+      "return_pct": 295.5043692288828,
+      "max_drawdown_pct": -14.545013978678622,
+      "win_rate_pct": 53.31491712707182,
+      "mean_trade_ret_pct": 1.808397900552486,
+      "std_trade_ret_pct": 7.896493997996805,
+      "sharpe_trade": 0.22901276199427786,
+      "sortino_trade": 0.5069612640459227,
+      "cvar5_trade_ret_pct": -11.791405263157895,
+      "objective_val": 288.2318622395435
+    }
+  }
+]

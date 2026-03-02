@@ -1,0 +1,60 @@
+{
+  "params": {
+    "min_decile_score": 0.9,
+    "base_alloc_fraction": 0.25,
+    "bonus_grid": [
+      0.0,
+      0.05,
+      0.1,
+      0.15,
+      0.2,
+      0.25,
+      0.3,
+      0.35
+    ],
+    "raw_pred_mean4_cutoff": 0.7129917140924689,
+    "split_train_rows": 19427,
+    "split_test_rows": 6475,
+    "test_pick_rows": 889
+  },
+  "best_row": {
+    "bonus_fraction": 0.35,
+    "base_alloc_fraction": 0.25,
+    "max_alloc_fraction": 0.6,
+    "max_ticker_weight": 0.6,
+    "raw_pred_mean4_cutoff": 0.7129917140924689,
+    "n_trades": 316.0,
+    "return_pct": 2074.466470310773,
+    "max_drawdown_pct": -17.69444987131088,
+    "win_rate_pct": 56.0126582278481,
+    "mean_trade_ret_pct": 2.963092126582278,
+    "std_trade_ret_pct": 8.647478756856295,
+    "sharpe_trade": 0.34265387749382353,
+    "sortino_trade": 0.7963396871622985,
+    "cvar5_trade_ret_pct": -12.182712500000001,
+    "objective_val": 2065.6192453751173,
+    "avg_alloc_fraction": 0.4747203911038598,
+    "p95_alloc_fraction": 0.5891903021567921,
+    "max_alloc_fraction_realized": 0.5990991918463995
+  },
+  "second_best_row": {
+    "bonus_fraction": 0.3,
+    "base_alloc_fraction": 0.25,
+    "max_alloc_fraction": 0.55,
+    "max_ticker_weight": 0.55,
+    "raw_pred_mean4_cutoff": 0.7129917140924689,
+    "n_trades": 336.0,
+    "return_pct": 2068.1802720854107,
+    "max_drawdown_pct": -15.485442750305388,
+    "win_rate_pct": 55.05952380952381,
+    "mean_trade_ret_pct": 2.768545571428571,
+    "std_trade_ret_pct": 8.52991853074423,
+    "sharpe_trade": 0.32456881756255385,
+    "sortino_trade": 0.7507487747518,
+    "cvar5_trade_ret_pct": -12.093841176470589,
+    "objective_val": 2060.437550710258,
+    "avg_alloc_fraction": 0.4425257741434968,
+    "p95_alloc_fraction": 0.5400396355587584,
+    "max_alloc_fraction_realized": 0.5492278787254852
+  }
+}

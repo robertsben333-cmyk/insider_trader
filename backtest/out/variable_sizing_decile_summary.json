@@ -1,0 +1,37 @@
+{
+  "params": {
+    "min_decile_score": 0.9,
+    "min_alloc_fraction": 0.05,
+    "max_alloc_fraction": 0.25,
+    "max_ticker_weight": 0.25,
+    "start_budget_eur": 10000.0,
+    "raw_pred_mean4_cutoff": 0.7411469097345084,
+    "split_train_rows": 19427,
+    "split_test_rows": 6475,
+    "test_pick_rows": 827
+  },
+  "fixed_metrics": {
+    "n_trades": 481,
+    "return_pct": 1149.460151334154,
+    "max_drawdown_pct": -13.339807121902092,
+    "win_rate_pct": 54.054054054054056,
+    "mean_trade_ret_pct": 2.368332632016632,
+    "std_trade_ret_pct": 8.217667148648372,
+    "sharpe_trade": 0.2882001167942378,
+    "sortino_trade": 0.6614852981059606,
+    "cvar5_trade_ret_pct": -11.924296,
+    "objective_val": 1142.790247773203
+  },
+  "variable_metrics": {
+    "n_trades": 649,
+    "return_pct": 484.7711603330555,
+    "max_drawdown_pct": -8.32260280911321,
+    "win_rate_pct": 54.39137134052389,
+    "mean_trade_ret_pct": 2.2756663235747303,
+    "std_trade_ret_pct": 8.237657617568617,
+    "sharpe_trade": 0.27625162749194276,
+    "sortino_trade": 0.6341185637940955,
+    "cvar5_trade_ret_pct": -11.923945454545454,
+    "objective_val": 480.6098589284989
+  }
+}

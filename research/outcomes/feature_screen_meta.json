@@ -1,0 +1,28 @@
+{
+  "base_feature_count": 16,
+  "candidate_feature_count": 17,
+  "candidate_coverage": {
+    "cluster_buy": 1.0,
+    "insider_bought_ticker": 1.0,
+    "days_since_last_buy_any": 0.8085521885521886,
+    "days_since_last_buy_same_ticker": 0.7647138047138047,
+    "filing_hour_et": 1.0,
+    "is_after_close": 1.0,
+    "filing_weekday": 1.0,
+    "momentum_slope": 0.9577777777777777,
+    "vol_regime": 0.9749494949494949,
+    "qty_log": 0.9989225589225589,
+    "value_per_share_delta": 0.9905723905723905,
+    "ticker_buy_count_30d": 1.0,
+    "ticker_buy_count_90d": 1.0,
+    "same_ticker_insider_count_365d": 1.0,
+    "overnight_gap_to_entry": 0.9981144781144781,
+    "open_to_buy_move": 1.0,
+    "market_relative_5d": 0.9776430976430976
+  },
+  "outputs": {
+    "detail": "C:\\Users\\XavierFriesen\\insider_trades_predictor\\research\\outcomes\\feature_screen_detail.csv",
+    "summary": "C:\\Users\\XavierFriesen\\insider_trades_predictor\\research\\outcomes\\feature_screen_summary.csv",
+    "recommendations": "C:\\Users\\XavierFriesen\\insider_trades_predictor\\research\\outcomes\\feature_screen_recommendations.csv"
+  }
+}

@@ -1,0 +1,1042 @@
+{
+  "meta": {
+    "split": "time",
+    "test_size": 0.2,
+    "models": [
+      "HGBR",
+      "XGBoost",
+      "HMM-XGBoost",
+      "ElasticNet",
+      "SplineElasticNet"
+    ],
+    "combination_sizes": [
+      3,
+      4,
+      5
+    ],
+    "ranking_metric": "avg_top_decile_mean (tie-break: min_top_decile_mean, avg_decile_spread)"
+  },
+  "by_horizon": {
+    "1": [
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 3.0102888704318933,
+        "bottom_decile_mean": 0.48566689189189177,
+        "decile_spread": 2.5246219785400017
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 2.829816445182724,
+        "bottom_decile_mean": 0.4776277027027027,
+        "decile_spread": 2.3521887424800214
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.8204540697674423,
+        "bottom_decile_mean": 0.052054898648648595,
+        "decile_spread": 2.768399171118794
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 5,
+        "top_decile_mean": 2.774019435215947,
+        "bottom_decile_mean": 0.27967880067567563,
+        "decile_spread": 2.494340634540271
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 2.7193297342192695,
+        "bottom_decile_mean": -0.1167520270270271,
+        "decile_spread": 2.8360817612462967
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.707011877076412,
+        "bottom_decile_mean": 0.26161089527027026,
+        "decile_spread": 2.4454009818061415
+      },
+      {
+        "combo": [
+          "HGBR",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.69793073089701,
+        "bottom_decile_mean": 0.24139290540540542,
+        "decile_spread": 2.4565378254916044
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 2.684306810631229,
+        "bottom_decile_mean": 0.2771445945945945,
+        "decile_spread": 2.4071622160366344
+      },
+      {
+        "combo": [
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.675882059800664,
+        "bottom_decile_mean": 0.47203589527027023,
+        "decile_spread": 2.2038461645303937
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 2.660209302325581,
+        "bottom_decile_mean": 0.43554408783783777,
+        "decile_spread": 2.2246652144877435
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.6197032392026576,
+        "bottom_decile_mean": 0.054734712837837776,
+        "decile_spread": 2.5649685263648196
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost",
+        "n_models": 3,
+        "top_decile_mean": 2.5579306478405313,
+        "bottom_decile_mean": -0.013825337837837891,
+        "decile_spread": 2.571755985678369
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 2.541114534883721,
+        "bottom_decile_mean": 0.4850397804054054,
+        "decile_spread": 2.056074754478316
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.5036940199335547,
+        "bottom_decile_mean": 0.26097930743243236,
+        "decile_spread": 2.2427147125011224
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.4874274086378736,
+        "bottom_decile_mean": 0.2750396114864865,
+        "decile_spread": 2.2123877971513872
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.477487707641196,
+        "bottom_decile_mean": 0.5461176520270269,
+        "decile_spread": 1.931370055614169
+      }
+    ],
+    "3": [
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 3.335327115511548,
+        "bottom_decile_mean": -0.14549370508474668,
+        "decile_spread": 3.4808208205962945
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 5,
+        "top_decile_mean": 3.2065475775577523,
+        "bottom_decile_mean": 0.33699141016949063,
+        "decile_spread": 2.8695561673882617
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 3.18004130693069,
+        "bottom_decile_mean": 0.735424267796609,
+        "decile_spread": 2.444617039134081
+      },
+      {
+        "combo": [
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 3.091117577557753,
+        "bottom_decile_mean": -0.1366549796610173,
+        "decile_spread": 3.22777255721877
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 3.012593442244221,
+        "bottom_decile_mean": -0.07000994576271279,
+        "decile_spread": 3.082603388006934
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 2.9953654290429017,
+        "bottom_decile_mean": 0.22181245084745696,
+        "decile_spread": 2.7735529781954447
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.9892208679867958,
+        "bottom_decile_mean": 0.030663233898304238,
+        "decile_spread": 2.9585576340884914
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 2.9360779306930658,
+        "bottom_decile_mean": 0.36826290169491416,
+        "decile_spread": 2.567815028998152
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.885744646864684,
+        "bottom_decile_mean": 0.36618463050847366,
+        "decile_spread": 2.5195600163562104
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.8557650594059374,
+        "bottom_decile_mean": -0.14830489152542473,
+        "decile_spread": 3.004069950931362
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.832501729372935,
+        "bottom_decile_mean": 0.3455415898305076,
+        "decile_spread": 2.4869601395424277
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.8291740528052784,
+        "bottom_decile_mean": 0.21212569830508457,
+        "decile_spread": 2.6170483545001937
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost",
+        "n_models": 3,
+        "top_decile_mean": 2.8238007293729344,
+        "bottom_decile_mean": 0.2673164610169479,
+        "decile_spread": 2.5564842683559865
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 2.6508419702970265,
+        "bottom_decile_mean": 0.15344668813559245,
+        "decile_spread": 2.4973952821614342
+      },
+      {
+        "combo": [
+          "HGBR",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.636605419141912,
+        "bottom_decile_mean": 0.5345456711864399,
+        "decile_spread": 2.1020597479554723
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.4319149306930665,
+        "bottom_decile_mean": 0.13315239322033773,
+        "decile_spread": 2.298762537472729
+      }
+    ],
+    "5": [
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 3.510284621621621,
+        "bottom_decile_mean": -0.3269827728813563,
+        "decile_spread": 3.837267394502977
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 3.264590945945945,
+        "bottom_decile_mean": -0.44174345762711886,
+        "decile_spread": 3.706334403573064
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 3.256267716216216,
+        "bottom_decile_mean": -0.7739471050847457,
+        "decile_spread": 4.030214821300961
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 3.15538462162162,
+        "bottom_decile_mean": -0.28635157966101693,
+        "decile_spread": 3.441736201282637
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 3.1337623175675664,
+        "bottom_decile_mean": -0.3496274372881358,
+        "decile_spread": 3.4833897548557022
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 3.1132885810810804,
+        "bottom_decile_mean": 0.219885613559322,
+        "decile_spread": 2.8934029675217583
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 3.0266368918918904,
+        "bottom_decile_mean": 0.18140324067796593,
+        "decile_spread": 2.8452336512139245
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost",
+        "n_models": 3,
+        "top_decile_mean": 2.998426837837837,
+        "bottom_decile_mean": 0.12301790508474549,
+        "decile_spread": 2.875408932753092
+      },
+      {
+        "combo": [
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.920232493243242,
+        "bottom_decile_mean": 0.21578246101694923,
+        "decile_spread": 2.7044500322262928
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.898521175675675,
+        "bottom_decile_mean": -0.3360200677966101,
+        "decile_spread": 3.234541243472285
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 2.72235285135135,
+        "bottom_decile_mean": -0.06373837966101695,
+        "decile_spread": 2.7860912310123673
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.7203936418918917,
+        "bottom_decile_mean": -0.027382108474576252,
+        "decile_spread": 2.747775750366468
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 2.684934013513513,
+        "bottom_decile_mean": -0.2876495661016949,
+        "decile_spread": 2.972583579615208
+      },
+      {
+        "combo": [
+          "HGBR",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.674475999999999,
+        "bottom_decile_mean": 0.11793281355932186,
+        "decile_spread": 2.556543186440677
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 5,
+        "top_decile_mean": 2.650717121621621,
+        "bottom_decile_mean": 0.06118534915254218,
+        "decile_spread": 2.589531772469079
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.442664756756756,
+        "bottom_decile_mean": 0.15404213559322016,
+        "decile_spread": 2.288622621163536
+      }
+    ],
+    "10": [
+      {
+        "combo": [
+          "HGBR",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 3.5247762508474545,
+        "bottom_decile_mean": -0.3884148703071683,
+        "decile_spread": 3.9131911211546226
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 3.5010560372881336,
+        "bottom_decile_mean": 0.17390541979522062,
+        "decile_spread": 3.327150617492913
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 3.293234745762709,
+        "bottom_decile_mean": -0.16928408532423408,
+        "decile_spread": 3.462518831086943
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 3.255793325423727,
+        "bottom_decile_mean": 0.2679593856655271,
+        "decile_spread": 2.9878339397582
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 3.0259702745762684,
+        "bottom_decile_mean": 0.3876506621160393,
+        "decile_spread": 2.6383196124602293
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 2.964506271186438,
+        "bottom_decile_mean": 0.6114531194539224,
+        "decile_spread": 2.3530531517325155
+      },
+      {
+        "combo": [
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.924082477966099,
+        "bottom_decile_mean": 0.6337948361774737,
+        "decile_spread": 2.290287641788625
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 2.8925608440677943,
+        "bottom_decile_mean": -0.3403630546075098,
+        "decile_spread": 3.2329238986753044
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 5,
+        "top_decile_mean": 2.7815169898305063,
+        "bottom_decile_mean": 0.3116362662116022,
+        "decile_spread": 2.469880723618904
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.663971969491523,
+        "bottom_decile_mean": 1.08305318088737,
+        "decile_spread": 1.5809187886041531
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 4,
+        "top_decile_mean": 2.6420288542372856,
+        "bottom_decile_mean": 0.5235529044368578,
+        "decile_spread": 2.1184759498004277
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.5337272237288113,
+        "bottom_decile_mean": 1.0668293549488033,
+        "decile_spread": 1.466897868780008
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.4802229423728788,
+        "bottom_decile_mean": 1.1826714812286676,
+        "decile_spread": 1.2975514611442112
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost",
+        "n_models": 3,
+        "top_decile_mean": 2.3517468203389806,
+        "bottom_decile_mean": 0.48901855972695996,
+        "decile_spread": 1.8627282606120206
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 2.3139630305084724,
+        "bottom_decile_mean": 0.3255232116040932,
+        "decile_spread": 1.9884398189043793
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "top_decile_mean": 1.9725055898305064,
+        "bottom_decile_mean": -0.11644961433447291,
+        "decile_spread": 2.0889552041649795
+      }
+    ]
+  },
+  "overall_ranking": [
+    {
+      "combo_key": "HGBR + XGBoost + ElasticNet + SplineElasticNet",
+      "combo": [
+        "HGBR",
+        "XGBoost",
+        "ElasticNet",
+        "SplineElasticNet"
+      ],
+      "n_models": 4,
+      "avg_top_decile_mean": 2.9628762589652466,
+      "min_top_decile_mean": 2.829816445182724,
+      "avg_decile_spread": 2.960513843551618,
+      "min_decile_spread": 2.3521887424800214
+    },
+    {
+      "combo_key": "HGBR + HMM-XGBoost + ElasticNet",
+      "combo": [
+        "HGBR",
+        "HMM-XGBoost",
+        "ElasticNet"
+      ],
+      "n_models": 3,
+      "avg_top_decile_mean": 2.940809652072214,
+      "min_top_decile_mean": 2.6197032392026576,
+      "avg_decile_spread": 2.9364753359209494,
+      "min_decile_spread": 2.5649685263648196
+    },
+    {
+      "combo_key": "HGBR + XGBoost + HMM-XGBoost + SplineElasticNet",
+      "combo": [
+        "HGBR",
+        "XGBoost",
+        "HMM-XGBoost",
+        "SplineElasticNet"
+      ],
+      "n_models": 4,
+      "avg_top_decile_mean": 2.9116377069976656,
+      "min_top_decile_mean": 2.7193297342192695,
+      "avg_decile_spread": 2.650545898297722,
+      "min_decile_spread": 2.3530531517325155
+    },
+    {
+      "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet",
+      "combo": [
+        "HGBR",
+        "XGBoost",
+        "HMM-XGBoost",
+        "ElasticNet"
+      ],
+      "n_models": 4,
+      "avg_top_decile_mean": 2.9049163882200713,
+      "min_top_decile_mean": 2.6420288542372856,
+      "avg_decile_spread": 2.4659145431232252,
+      "min_decile_spread": 2.1184759498004277
+    },
+    {
+      "combo_key": "HMM-XGBoost + ElasticNet + SplineElasticNet",
+      "combo": [
+        "HMM-XGBoost",
+        "ElasticNet",
+        "SplineElasticNet"
+      ],
+      "n_models": 3,
+      "avg_top_decile_mean": 2.9028286521419395,
+      "min_top_decile_mean": 2.675882059800664,
+      "avg_decile_spread": 2.6065890989410203,
+      "min_decile_spread": 2.2038461645303937
+    },
+    {
+      "combo_key": "XGBoost + HMM-XGBoost + SplineElasticNet",
+      "combo": [
+        "XGBoost",
+        "HMM-XGBoost",
+        "SplineElasticNet"
+      ],
+      "n_models": 3,
+      "avg_top_decile_mean": 2.9011955111527117,
+      "min_top_decile_mean": 2.663971969491523,
+      "avg_decile_spread": 2.7649305785568434,
+      "min_decile_spread": 1.5809187886041531
+    },
+    {
+      "combo_key": "HGBR + ElasticNet + SplineElasticNet",
+      "combo": [
+        "HGBR",
+        "ElasticNet",
+        "SplineElasticNet"
+      ],
+      "n_models": 3,
+      "avg_top_decile_mean": 2.8834471002215936,
+      "min_top_decile_mean": 2.636605419141912,
+      "avg_decile_spread": 2.757082970260594,
+      "min_decile_spread": 2.1020597479554723
+    },
+    {
+      "combo_key": "HGBR + HMM-XGBoost + SplineElasticNet",
+      "combo": [
+        "HGBR",
+        "HMM-XGBoost",
+        "SplineElasticNet"
+      ],
+      "n_models": 3,
+      "avg_top_decile_mean": 2.8672112003274663,
+      "min_top_decile_mean": 2.4319149306930665,
+      "avg_decile_spread": 3.000970996753005,
+      "min_decile_spread": 2.2123877971513872
+    },
+    {
+      "combo_key": "XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+      "combo": [
+        "XGBoost",
+        "HMM-XGBoost",
+        "ElasticNet",
+        "SplineElasticNet"
+      ],
+      "n_models": 4,
+      "avg_top_decile_mean": 2.8552814676243554,
+      "min_top_decile_mean": 2.660209302325581,
+      "avg_decile_spread": 2.6829198614918184,
+      "min_decile_spread": 2.2246652144877435
+    },
+    {
+      "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+      "combo": [
+        "HGBR",
+        "XGBoost",
+        "HMM-XGBoost",
+        "ElasticNet",
+        "SplineElasticNet"
+      ],
+      "n_models": 5,
+      "avg_top_decile_mean": 2.8532002810564565,
+      "min_top_decile_mean": 2.650717121621621,
+      "avg_decile_spread": 2.605827324504129,
+      "min_decile_spread": 2.469880723618904
+    },
+    {
+      "combo_key": "HGBR + HMM-XGBoost + ElasticNet + SplineElasticNet",
+      "combo": [
+        "HGBR",
+        "HMM-XGBoost",
+        "ElasticNet",
+        "SplineElasticNet"
+      ],
+      "n_models": 4,
+      "avg_top_decile_mean": 2.8444866389955985,
+      "min_top_decile_mean": 2.541114534883721,
+      "avg_decile_spread": 2.7133010584369677,
+      "min_decile_spread": 2.056074754478316
+    },
+    {
+      "combo_key": "HGBR + XGBoost + SplineElasticNet",
+      "combo": [
+        "HGBR",
+        "XGBoost",
+        "SplineElasticNet"
+      ],
+      "n_models": 3,
+      "avg_top_decile_mean": 2.831395202814239,
+      "min_top_decile_mean": 1.9725055898305064,
+      "avg_decile_spread": 2.7344511791875963,
+      "min_decile_spread": 2.0889552041649795
+    },
+    {
+      "combo_key": "HGBR + XGBoost + ElasticNet",
+      "combo": [
+        "HGBR",
+        "XGBoost",
+        "ElasticNet"
+      ],
+      "n_models": 3,
+      "avg_top_decile_mean": 2.765526044017797,
+      "min_top_decile_mean": 2.3139630305084724,
+      "avg_decile_spread": 2.598784254587342,
+      "min_decile_spread": 1.9884398189043793
+    },
+    {
+      "combo_key": "XGBoost + HMM-XGBoost + ElasticNet",
+      "combo": [
+        "XGBoost",
+        "HMM-XGBoost",
+        "ElasticNet"
+      ],
+      "n_models": 3,
+      "avg_top_decile_mean": 2.7038532789826677,
+      "min_top_decile_mean": 2.442664756756756,
+      "avg_decile_spread": 2.36976400576024,
+      "min_decile_spread": 1.466897868780008
+    },
+    {
+      "combo_key": "HGBR + XGBoost + HMM-XGBoost",
+      "combo": [
+        "HGBR",
+        "XGBoost",
+        "HMM-XGBoost"
+      ],
+      "n_models": 3,
+      "avg_top_decile_mean": 2.682976258847571,
+      "min_top_decile_mean": 2.3517468203389806,
+      "avg_decile_spread": 2.466594361849867,
+      "min_decile_spread": 1.8627282606120206
+    },
+    {
+      "combo_key": "XGBoost + ElasticNet + SplineElasticNet",
+      "combo": [
+        "XGBoost",
+        "ElasticNet",
+        "SplineElasticNet"
+      ],
+      "n_models": 3,
+      "avg_top_decile_mean": 2.6268195861778114,
+      "min_top_decile_mean": 2.477487707641196,
+      "avg_decile_spread": 2.1484364054062604,
+      "min_decile_spread": 1.2975514611442112
+    }
+  ]
+}

@@ -1,0 +1,3029 @@
+ticker,sector
+A,Health Care
+AACOU,Unknown
+AAIC,Unknown
+AAMC,Unknown
+AAN,Unknown
+AAOI,Information Technology
+AAON,Industrials
+AAP,Consumer Discretionary
+AARD,Health Care
+AASP,Unknown
+AAT,Real Estate
+ABCB,Financials
+ABCL,Health Care
+ABCP,Unknown
+ABEO,Health Care
+ABIO,Unknown
+ABL,Unknown
+ABM,Consumer Discretionary
+ABP,Unknown
+ABQQ,Unknown
+ABR,Real Estate
+ABSI,Industrials
+ABT,Health Care
+ACA,Industrials
+ACAX,Unknown
+ACCD,Unknown
+ACCO,Materials
+ACDC,Energy
+ACER,Unknown
+ACET,Health Care
+ACFN,Industrials
+ACGL,Financials
+ACHR,Industrials
+ACHV,Health Care
+ACLS,Industrials
+ACNB,Financials
+ACNT,Materials
+ACOG,Health Care
+ACON,Health Care
+ACOR,Unknown
+ACR,Real Estate
+ACRS,Health Care
+ACRV,Health Care
+ACRX,Unknown
+ACT,Financials
+ACTG,Real Estate
+ACVA,Consumer Discretionary
+ACXP,Health Care
+ADAP,Unknown
+ADBE,Information Technology
+ADC,Real Estate
+ADGI,Unknown
+ADGM,Health Care
+ADM,Consumer Staples
+ADMA,Health Care
+ADMQ,Unknown
+ADSK,Information Technology
+ADT,Consumer Discretionary
+ADTN,Information Technology
+ADTX,Health Care
+ADV,Consumer Discretionary
+ADVM,Unknown
+AE,Unknown
+AEBI,Industrials
+AEI,Real Estate
+AEIS,Information Technology
+AENT,Industrials
+AES,Utilities
+AESI,Energy
+AEYE,Information Technology
+AFBI,Financials
+AFCG,Real Estate
+AFI,Unknown
+AGFS,Unknown
+AGFY,Unknown
+AGIG,Energy
+AGL,Health Care
+AGLE,Unknown
+AGNC,Real Estate
+AGRX,Unknown
+AGTI,Unknown
+AHCO,Health Care
+AHH,Real Estate
+AHNR,Unknown
+AHT,Real Estate
+AIKI,Unknown
+AIM,Health Care
+AIN,Consumer Discretionary
+AINC,Unknown
+AIOT,Information Technology
+AIRC,Unknown
+AIRG,Information Technology
+AIRI,Industrials
+AIRJ,Industrials
+AIRS,Health Care
+AIRT,Industrials
+AISP,Information Technology
+AIV,Real Estate
+AJG,Financials
+AKA,Consumer Discretionary
+AKAM,Consumer Discretionary
+AKTS,Unknown
+AKTX,Health Care
+AKYA,Unknown
+AL,Consumer Discretionary
+ALB,Materials
+ALDX,Health Care
+ALG,Industrials
+ALGM,Information Technology
+ALGN,Health Care
+ALHC,Financials
+ALIM,Unknown
+ALIT,Consumer Discretionary
+ALK,Industrials
+ALKT,Information Technology
+ALLE,Consumer Discretionary
+ALLY,Financials
+ALMS,Health Care
+ALR,Unknown
+ALRM,Information Technology
+ALRN,Unknown
+ALRS,Financials
+ALSN,Consumer Discretionary
+ALT,Health Care
+ALTA,Unknown
+ALTG,Industrials
+ALTI,Financials
+ALTM,Unknown
+ALTO,Materials
+ALTS,Financials
+ALUR,Health Care
+ALXO,Health Care
+ALZN,Health Care
+AMAT,Information Technology
+AMBC,Unknown
+AMCR,Industrials
+AMD,Information Technology
+AMG,Financials
+AMHG,Unknown
+AMLX,Health Care
+AMN,Consumer Discretionary
+AMNB,Unknown
+AMPE,Unknown
+AMPG,Information Technology
+AMPL,Information Technology
+AMPS,Unknown
+AMPY,Energy
+AMR,Materials
+AMRC,Industrials
+AMRN,Health Care
+AMRS,Unknown
+AMRX,Health Care
+AMRZ,Materials
+AMSC,Information Technology
+AMSF,Financials
+AMST,Information Technology
+AMSWA,Unknown
+AMTB,Financials
+AMTI,Unknown
+AMWD,Materials
+AMZE,Consumer Discretionary
+AN,Consumer Discretionary
+ANGI,Consumer Discretionary
+ANGO,Health Care
+ANIK,Health Care
+ANIP,Health Care
+ANIX,Health Care
+ANNX,Health Care
+ANRO,Health Care
+ANTX,Health Care
+ANVS,Health Care
+AOMR,Real Estate
+AOUT,Industrials
+AP,Industrials
+APA,Energy
+APAC,Real Estate
+APCX,Unknown
+APD,Materials
+APEI,Industrials
+APEN,Unknown
+APG,Consumer Discretionary
+APHP,Unknown
+APLD,Information Technology
+APLE,Real Estate
+APLT,Unknown
+APP,Information Technology
+APPH,Unknown
+APPS,Real Estate
+APRE,Health Care
+APRN,Unknown
+APTO,Unknown
+APTV,Consumer Discretionary
+APTX,Unknown
+APUS,Health Care
+APYX,Health Care
+AQB,Consumer Staples
+AQMS,Materials
+AQST,Health Care
+ARAI,Consumer Discretionary
+ARAV,Unknown
+ARAY,Health Care
+ARC,Unknown
+ARCB,Industrials
+ARCT,Health Care
+ARDS,Unknown
+ARDX,Health Care
+AREC,Materials
+AREN,Communication Services
+ARHS,Consumer Discretionary
+ARI,Real Estate
+ARIS,Unknown
+ARKR,Consumer Discretionary
+ARLO,Information Technology
+ARLP,Materials
+ARMK,Consumer Discretionary
+ARNA,Unknown
+ARNC,Unknown
+AROC,Utilities
+AROW,Financials
+ARQ,Materials
+ARR,Real Estate
+ARRY,Industrials
+ARTL,Health Care
+ARTNA,Utilities
+ARW,Industrials
+ARX,Financials
+ASAN,Information Technology
+ASB,Financials
+ASH,Industrials
+ASIC,Financials
+ASPCU,Real Estate
+ASPI,Materials
+ASPN,Industrials
+ASPS,Consumer Discretionary
+ASPU,Unknown
+ASRT,Health Care
+ASRV,Financials
+ASST,Financials
+ASTC,Health Care
+ASTE,Industrials
+ASTI,Information Technology
+ASTR,Unknown
+ASUR,Information Technology
+ASX,Unknown
+ASYS,Industrials
+ATAI,Health Care
+ATAX,Unknown
+ATCX,Unknown
+ATEC,Health Care
+ATEX,Communication Services
+ATGE,Unknown
+ATHX,Unknown
+ATLC,Financials
+ATLN,Consumer Discretionary
+ATLO,Financials
+ATNF,Unknown
+ATNI,Communication Services
+ATNX,Unknown
+ATOS,Health Care
+ATRI,Unknown
+ATSG,Unknown
+ATXG,Consumer Discretionary
+ATYR,Health Care
+AUB,Financials
+AUBN,Financials
+AUD,Unknown
+AUGG,Unknown
+AUGX,Unknown
+AUID,Information Technology
+AULT,Unknown
+AUPH,Health Care
+AUR,Information Technology
+AURCU,Unknown
+AUUD,Information Technology
+AUVI,Unknown
+AVA,Utilities
+AVAH,Health Care
+AVBC,Financials
+AVBH,Financials
+AVD,Materials
+AVDL,Unknown
+AVDX,Unknown
+AVNT,Materials
+AVNW,Information Technology
+AVO,Consumer Staples
+AVPT,Information Technology
+AVT,Industrials
+AVTR,Health Care
+AVTX,Health Care
+AWH,Unknown
+AWR,Utilities
+AWRE,Information Technology
+AXDX,Unknown
+AXLA,Unknown
+AXON,Industrials
+AXSM,Health Care
+AXTA,Materials
+AXTI,Information Technology
+AYRO,Unknown
+AYTU,Health Care
+AZEK,Unknown
+AZO,Consumer Discretionary
+AZTA,Industrials
+AZTR,Health Care
+AZYO,Unknown
+AZZ,Industrials
+B,Unknown
+BA,Industrials
+BAFN,Financials
+BAH,Industrials
+BALL,Industrials
+BALY,Consumer Discretionary
+BANC,Financials
+BAND,Information Technology
+BANF,Financials
+BARK,Consumer Discretionary
+BATL,Energy
+BBBY,Consumer Discretionary
+BBCP,Industrials
+BBGI,Communication Services
+BBI,Unknown
+BBLG,Health Care
+BBT,Financials
+BBWI,Consumer Discretionary
+BBXIA,Unknown
+BBY,Consumer Discretionary
+BCAB,Health Care
+BCBP,Financials
+BCDA,Health Care
+BCG,Financials
+BCLI,Unknown
+BCML,Financials
+BCO,Industrials
+BCOR,Financials
+BCOV,Unknown
+BCOW,Unknown
+BCRX,Health Care
+BCTX,Health Care
+BCYP,Unknown
+BDC,Materials
+BDCO,Unknown
+BDL,Consumer Discretionary
+BDN,Real Estate
+BDSX,Health Care
+BEAT,Health Care
+BECN,Unknown
+BEEP,Real Estate
+BELFB,Information Technology
+BEN,Financials
+BERY,Unknown
+BETA,Unknown
+BFC,Financials
+BFI,Unknown
+BFLY,Health Care
+BFS,Real Estate
+BFST,Financials
+BFYW,Unknown
+BGS,Consumer Staples
+BGSF,Consumer Discretionary
+BGXX,Unknown
+BH,Consumer Discretionary
+BHB,Financials
+BHE,Information Technology
+BHIL,Unknown
+BHLB,Unknown
+BHM,Real Estate
+BHR,Real Estate
+BHRB,Financials
+BHVN,Health Care
+BIG,Unknown
+BIGC,Unknown
+BILL,Information Technology
+BIOF,Unknown
+BIOL,Unknown
+BIRD,Consumer Discretionary
+BIVI,Health Care
+BIXT,Unknown
+BJDX,Health Care
+BJRI,Consumer Discretionary
+BKD,Health Care
+BKE,Consumer Discretionary
+BKEP,Unknown
+BKGM,Unknown
+BKI,Unknown
+BKKT,Financials
+BKSC,Unknown
+BKSY,Information Technology
+BKTI,Information Technology
+BKV,Energy
+BKYI,Information Technology
+BL,Information Technology
+BLBD,Consumer Discretionary
+BLBX,Unknown
+BLCO,Health Care
+BLDR,Consumer Discretionary
+BLFY,Financials
+BLIN,Information Technology
+BLL,Unknown
+BLMH,Unknown
+BLMN,Consumer Discretionary
+BLNE,Financials
+BLNK,Industrials
+BMBL,Information Technology
+BMEA,Health Care
+BMI,Health Care
+BMNM,Unknown
+BMRA,Health Care
+BMRC,Financials
+BMY,Health Care
+BNC,Consumer Staples
+BNED,Consumer Discretionary
+BNET,Unknown
+BNGO,Health Care
+BNL,Real Estate
+BNZI,Information Technology
+BOC,Real Estate
+BODY,Unknown
+BOF,Consumer Staples
+BOH,Financials
+BOKF,Financials
+BOOM,Materials
+BOOT,Consumer Discretionary
+BOTJ,Financials
+BOW,Financials
+BOWL,Unknown
+BOXD,Unknown
+BOXL,Industrials
+BPMC,Unknown
+BRBR,Consumer Staples
+BRBS,Financials
+BRC,Industrials
+BRDS,Unknown
+BRFH,Consumer Staples
+BRG,Unknown
+BRGC,Unknown
+BRID,Consumer Staples
+BRKL,Unknown
+BRKR,Health Care
+BRMK,Unknown
+BRN,Energy
+BROS,Consumer Discretionary
+BRP,Unknown
+BRR,Financials
+BRSP,Real Estate
+BRST,Unknown
+BRT,Real Estate
+BRTX,Health Care
+BSBK,Financials
+BSET,Materials
+BSGM,Unknown
+BSM,Energy
+BSPK,Unknown
+BSQR,Unknown
+BSVN,Financials
+BSY,Information Technology
+BTBD,Consumer Discretionary
+BTBT,Financials
+BTCS,Financials
+BTMD,Health Care
+BTRS,Unknown
+BTSG,Health Care
+BTTR,Unknown
+BTTX,Unknown
+BTU,Materials
+BUKS,Unknown
+BURU,Information Technology
+BUSE,Financials
+BV,Consumer Staples
+BVH,Unknown
+BVS,Health Care
+BW,Industrials
+BWB,Financials
+BWEN,Materials
+BWFG,Financials
+BWIN,Financials
+BWMN,Industrials
+BWXT,Industrials
+BXC,Industrials
+BXMT,Real Estate
+BXRX,Unknown
+BY,Financials
+BYON,Unknown
+BYRN,Information Technology
+BZH,Industrials
+CAAS,Unknown
+CABA,Health Care
+CABO,Communication Services
+CAC,Financials
+CADL,Health Care
+CAEP,Real Estate
+CAI,Health Care
+CAL,Materials
+CALA,Unknown
+CALB,Unknown
+CALC,Health Care
+CALX,Communication Services
+CAMP,Health Care
+CANO,Unknown
+CAR,Consumer Discretionary
+CARE,Financials
+CARR,Industrials
+CARS,Information Technology
+CASH,Financials
+CASI,Unknown
+CASK,Unknown
+CASS,Consumer Discretionary
+CATC,Unknown
+CATO,Consumer Discretionary
+CATX,Health Care
+CAUD,Unknown
+CAVA,Consumer Discretionary
+CB,Financials
+CBAN,Financials
+CBAY,Unknown
+CBC,Unknown
+CBFV,Financials
+CBIO,Health Care
+CBK,Financials
+CBKM,Unknown
+CBNA,Financials
+CBNK,Financials
+CBSTF,Unknown
+CBU,Financials
+CBUS,Materials
+CBZ,Consumer Discretionary
+CC,Materials
+CCCC,Health Care
+CCEL,Health Care
+CCFN,Unknown
+CCLD,Information Technology
+CCLP,Unknown
+CCNE,Financials
+CCO,Consumer Discretionary
+CCRD,Unknown
+CCRN,Consumer Discretionary
+CCSI,Information Technology
+CCXI,Unknown
+CDE,Materials
+CDIO,Health Care
+CDNA,Health Care
+CDNL,Unknown
+CDP,Real Estate
+CDTX,Unknown
+CDXC,Unknown
+CDXS,Materials
+CDZI,Utilities
+CE,Materials
+CEAD,Unknown
+CECE,Unknown
+CECO,Industrials
+CELC,Health Care
+CELH,Consumer Staples
+CELU,Health Care
+CELZ,Health Care
+CENX,Materials
+CEP,Unknown
+CEPF,Real Estate
+CEPO,Real Estate
+CEPT,Real Estate
+CERC,Unknown
+CERE,Unknown
+CERN,Unknown
+CERT,Information Technology
+CETXP,Unknown
+CETY,Utilities
+CEVA,Information Technology
+CFB,Unknown
+CFBK,Financials
+CFFI,Financials
+CFFN,Financials
+CFR,Financials
+CGC,Health Care
+CGEH,Unknown
+CGEM,Health Care
+CGNX,Health Care
+CGON,Health Care
+CGRN,Unknown
+CGTX,Health Care
+CHCT,Real Estate
+CHD,Materials
+CHE,Health Care
+CHGG,Industrials
+CHK,Unknown
+CHMG,Financials
+CHMI,Real Estate
+CHRA,Unknown
+CHRO,Unknown
+CHRS,Health Care
+CHRW,Industrials
+CHTR,Communication Services
+CHUC,Unknown
+CI,Financials
+CIA,Financials
+CIDM,Unknown
+CINC,Unknown
+CING,Health Care
+CIPI,Unknown
+CIVB,Financials
+CIVI,Unknown
+CIX,Industrials
+CIZN,Unknown
+CJMB,Consumer Discretionary
+CKX,Energy
+CLAR,Industrials
+CLBK,Financials
+CLDI,Health Care
+CLDT,Real Estate
+CLDX,Health Care
+CLF,Materials
+CLFD,Information Technology
+CLH,Utilities
+CLMT,Energy
+CLNE,Utilities
+CLNN,Health Care
+CLPR,Real Estate
+CLRB,Health Care
+CLRD,Unknown
+CLRO,Information Technology
+CLSH,Unknown
+CLSK,Financials
+CLSN,Unknown
+CLST,Financials
+CLXT,Unknown
+CMBM,Information Technology
+CMC,Materials
+CMCO,Industrials
+CMCT,Real Estate
+CME,Financials
+CMGO,Unknown
+CMI,Industrials
+CMMB,Health Care
+CMPO,Unknown
+CMPR,Materials
+CMPX,Health Care
+CMRA,Unknown
+CMRX,Unknown
+CMT,Materials
+CMTG,Real Estate
+CMTL,Information Technology
+CMTV,Unknown
+CNBKA,Unknown
+CNC,Financials
+CNDT,Consumer Discretionary
+CNFR,Unknown
+CNNB,Unknown
+CNNE,Consumer Discretionary
+CNOB,Financials
+CNP,Utilities
+CNR,Materials
+CNS,Financials
+CNSP,Health Care
+CNTA,Health Care
+CNTQ,Unknown
+CNTX,Health Care
+CNTY,Consumer Discretionary
+CNVS,Consumer Discretionary
+CNVY,Unknown
+CNX,Energy
+CNXC,Consumer Discretionary
+COCH,Health Care
+COCO,Consumer Staples
+CODA,Health Care
+CODX,Unknown
+COEP,Financials
+COFS,Financials
+COHR,Health Care
+COHU,Health Care
+COLB,Financials
+COLD,Real Estate
+COLM,Consumer Discretionary
+COMM,Unknown
+COMP,Real Estate
+COO,Health Care
+COOK,Information Technology
+COOP,Unknown
+COP,Energy
+CORR,Unknown
+CORZ,Financials
+COSM,Industrials
+COSO,Financials
+COTY,Materials
+COYA,Health Care
+CPF,Financials
+CPRI,Materials
+CPS,Consumer Discretionary
+CPSH,Materials
+CR,Industrials
+CRBP,Health Care
+CRBU,Health Care
+CRC,Energy
+CRCW,Unknown
+CRDF,Health Care
+CREX,Information Technology
+CRGE,Unknown
+CRGY,Energy
+CRH,Materials
+CRK,Energy
+CRL,Industrials
+CRMD,Health Care
+CRMT,Consumer Discretionary
+CRNC,Information Technology
+CROX,Materials
+CRTD,Unknown
+CRTG,Unknown
+CRUS,Information Technology
+CRVO,Health Care
+CRVS,Health Care
+CRYM,Unknown
+CSBB,Unknown
+CSBR,Health Care
+CSGP,Consumer Discretionary
+CSII,Unknown
+CSR,Real Estate
+CSSE,Unknown
+CSTR,Unknown
+CSV,Consumer Discretionary
+CSX,Industrials
+CTBI,Financials
+CTCX,Unknown
+CTEK,Unknown
+CTEV,Consumer Discretionary
+CTGO,Materials
+CTHR,Unknown
+CTIC,Unknown
+CTKB,Health Care
+CTLP,Industrials
+CTM,Industrials
+CTO,Real Estate
+CTOS,Consumer Discretionary
+CTRI,Utilities
+CTRN,Consumer Discretionary
+CTSO,Health Care
+CTTH,Unknown
+CTV,Unknown
+CTVA,Consumer Staples
+CUBI,Financials
+CUE,Health Care
+CULL,Unknown
+CULP,Consumer Discretionary
+CURI,Consumer Discretionary
+CURO,Unknown
+CUTR,Unknown
+CVAT,Unknown
+CVBF,Financials
+CVCO,Materials
+CVCY,Unknown
+CVGI,Consumer Discretionary
+CVGW,Consumer Staples
+CVKD,Health Care
+CVLY,Unknown
+CVM,Health Care
+CVNA,Consumer Discretionary
+CVRX,Health Care
+CVS,Consumer Discretionary
+CVV,Industrials
+CW,Industrials
+CWAN,Information Technology
+CWBC,Financials
+CWBHF,Unknown
+CWBR,Unknown
+CWD,Real Estate
+CWEN,Utilities
+CWGL,Unknown
+CWH,Consumer Discretionary
+CWRK,Unknown
+CWT,Utilities
+CXDO,Communication Services
+CXM,Information Technology
+CXT,Industrials
+CYAN,Unknown
+CYCC,Unknown
+CYCN,Health Care
+CYH,Health Care
+CYTH,Unknown
+CZFS,Financials
+CZR,Consumer Discretionary
+CZWI,Financials
+D,Utilities
+DAIO,Health Care
+DAKT,Industrials
+DAL,Industrials
+DALN,Unknown
+DAN,Consumer Discretionary
+DAR,Consumer Staples
+DATS,Unknown
+DAVE,Financials
+DBD,Industrials
+DBI,Consumer Discretionary
+DBRG,Financials
+DBTX,Unknown
+DBVT,Health Care
+DC,Materials
+DCGO,Health Care
+DCT,Unknown
+DCTH,Health Care
+DDD,Information Technology
+DEA,Real Estate
+DEI,Real Estate
+DENN,Unknown
+DERM,Health Care
+DFDV,Financials
+DG,Consumer Discretionary
+DGII,Industrials
+DH,Information Technology
+DHC,Real Estate
+DHHC,Unknown
+DHIL,Financials
+DHR,Health Care
+DIBS,Consumer Discretionary
+DIN,Consumer Discretionary
+DINO,Industrials
+DIOD,Information Technology
+DISCK,Unknown
+DISTU,Unknown
+DJT,Information Technology
+DK,Energy
+DKL,Industrials
+DKS,Consumer Discretionary
+DLA,Unknown
+DLHC,Consumer Discretionary
+DLPN,Consumer Discretionary
+DLR,Real Estate
+DLTH,Consumer Discretionary
+DLTR,Consumer Discretionary
+DLX,Materials
+DM,Unknown
+DMAC,Health Care
+DMLP,Energy
+DMRC,Information Technology
+DNAY,Unknown
+DNB,Unknown
+DNOW,Industrials
+DNUT,Consumer Discretionary
+DOC,Real Estate
+DOCS,Information Technology
+DOCU,Information Technology
+DOMH,Financials
+DOMO,Information Technology
+DORM,Consumer Discretionary
+DOUG,Real Estate
+DOV,Industrials
+DOW,Materials
+DPW,Unknown
+DPZ,Industrials
+DRH,Real Estate
+DRIO,Health Care
+DRMA,Health Care
+DRNA,Unknown
+DRTT,Unknown
+DRTTF,Unknown
+DRVN,Consumer Discretionary
+DS,Unknown
+DSGN,Health Care
+DSGR,Industrials
+DT,Information Technology
+DTC,Unknown
+DTIL,Health Care
+DTM,Utilities
+DTRC,Unknown
+DUOT,Information Technology
+DV,Information Technology
+DVA,Health Care
+DVN,Energy
+DWACU,Unknown
+DX,Real Estate
+DXC,Information Technology
+DXCM,Health Care
+DXPE,Industrials
+DYAI,Health Care
+DYN,Health Care
+DZSI,Unknown
+EAF,Information Technology
+EAST,Unknown
+EAT,Consumer Discretionary
+EBC,Financials
+EBET,Unknown
+EBF,Materials
+EBMT,Financials
+EBS,Health Care
+EBTC,Unknown
+ECBK,Financials
+ECG,Industrials
+ECIA,Unknown
+ECOR,Health Care
+ECPG,Financials
+ED,Utilities
+EDBL,Consumer Staples
+EDSA,Health Care
+EDUC,Industrials
+EE,Utilities
+EEX,Consumer Discretionary
+EFOI,Information Technology
+EFSC,Financials
+EFSH,Unknown
+EFTR,Unknown
+EFX,Consumer Discretionary
+EG,Financials
+EGBN,Financials
+EGHT,Information Technology
+EGY,Energy
+EHAB,Health Care
+EHSI,Unknown
+EHTH,Financials
+EIG,Financials
+EL,Materials
+ELA,Consumer Discretionary
+ELAN,Health Care
+ELDN,Health Care
+ELMD,Health Care
+ELUT,Health Care
+ELV,Financials
+ELWT,Unknown
+ELY,Unknown
+ELYS,Unknown
+EMAN,Unknown
+EMBC,Health Care
+EML,Industrials
+EMMA,Unknown
+EMN,Materials
+EMR,Information Technology
+EMYB,Unknown
+ENBP,Unknown
+ENDI,Unknown
+ENGN,Health Care
+ENOV,Health Care
+ENPH,Information Technology
+ENR,Information Technology
+ENRT,Unknown
+ENS,Information Technology
+ENSC,Health Care
+ENTA,Health Care
+ENTX,Health Care
+ENVX,Information Technology
+ENZ,Unknown
+EONR,Energy
+EOSE,Information Technology
+EP,Energy
+EPD,Utilities
+EPIX,Unknown
+EPRT,Real Estate
+EPSN,Energy
+EQBK,Financials
+EQH,Financials
+EQPT,Unknown
+ERAS,Health Care
+ERII,Industrials
+ESAB,Industrials
+ESCA,Industrials
+ESGR,Unknown
+ESMT,Unknown
+ESOA,Industrials
+ESPR,Health Care
+ESQ,Financials
+ESSA,Unknown
+ESTA,Health Care
+ESTE,Unknown
+ESXB,Unknown
+ET,Utilities
+ETNB,Unknown
+ETON,Health Care
+ETRN,Unknown
+ETST,Unknown
+ETWO,Unknown
+EU,Materials
+EVA,Unknown
+EVBG,Unknown
+EVC,Communication Services
+EVCM,Information Technology
+EVER,Information Technology
+EVFM,Unknown
+EVGO,Consumer Discretionary
+EVH,Industrials
+EVRG,Utilities
+EVRI,Unknown
+EW,Health Care
+EWBC,Financials
+EWCZ,Consumer Discretionary
+EXAS,Health Care
+EXE,Energy
+EXLS,Consumer Discretionary
+EXOZ,Health Care
+EXPE,Industrials
+EXR,Real Estate
+EXTN,Unknown
+EYE,Health Care
+EYEN,Unknown
+FA,Information Technology
+FALC,Unknown
+FARM,Consumer Staples
+FARO,Unknown
+FAST,Consumer Discretionary
+FAT,Unknown
+FBC,Unknown
+FBIN,Materials
+FBIO,Health Care
+FBLA,Financials
+FBLG,Health Care
+FBNC,Financials
+FBRX,Health Care
+FCAP,Financials
+FCBC,Financials
+FCBP,Unknown
+FCCO,Financials
+FCF,Financials
+FCFS,Consumer Discretionary
+FCN,Industrials
+FCNCA,Financials
+FCPT,Real Estate
+FCUV,Health Care
+FDBC,Financials
+FDCT,Unknown
+FDP,Consumer Staples
+FDS,Information Technology
+FDX,Industrials
+FEAM,Materials
+FELE,Information Technology
+FENC,Health Care
+FET,Industrials
+FEYE,Unknown
+FF,Materials
+FFAI,Consumer Discretionary
+FFBW,Unknown
+FFIC,Financials
+FFIE,Unknown
+FFIN,Financials
+FFNTF,Unknown
+FFWM,Financials
+FG,Financials
+FGBI,Financials
+FGEN,Unknown
+FGF,Unknown
+FGNA,Unknown
+FHB,Financials
+FIBK,Financials
+FIGS,Consumer Discretionary
+FIII,Unknown
+FINW,Financials
+FIP,Industrials
+FIS,Consumer Discretionary
+FISI,Financials
+FISV,Consumer Discretionary
+FITB,Financials
+FIVE,Consumer Discretionary
+FKYS,Unknown
+FL,Unknown
+FLCX,Unknown
+FLGC,Unknown
+FLGT,Health Care
+FLIC,Unknown
+FLL,Consumer Discretionary
+FLME,Unknown
+FLNC,Information Technology
+FLNT,Consumer Discretionary
+FLO,Consumer Staples
+FLOC,Industrials
+FLUX,Information Technology
+FLWS,Consumer Discretionary
+FLXS,Materials
+FMBH,Financials
+FMBM,Unknown
+FMC,Materials
+FMCB,Unknown
+FMFG,Unknown
+FMNB,Financials
+FNCB,Unknown
+FND,Consumer Discretionary
+FNGR,Information Technology
+FNHC,Unknown
+FNKO,Industrials
+FNRN,Unknown
+FNWB,Financials
+FNWD,Financials
+FOA,Financials
+FOMC,Unknown
+FOMI,Unknown
+FONR,Health Care
+FOR,Real Estate
+FORA,Information Technology
+FOUR,Consumer Discretionary
+FOX,Communication Services
+FOXF,Industrials
+FPAY,Unknown
+FPI,Real Estate
+FRAF,Financials
+FRD,Materials
+FREE,Unknown
+FREY,Unknown
+FRG,Unknown
+FRGE,Financials
+FRGT,Industrials
+FRHC,Financials
+FRLAU,Unknown
+FRME,Financials
+FRONU,Unknown
+FRPH,Real Estate
+FRPT,Consumer Staples
+FRSH,Information Technology
+FRST,Financials
+FRZA,Unknown
+FSBC,Financials
+FSEA,Financials
+FSFG,Unknown
+FSLR,Information Technology
+FSP,Real Estate
+FSR,Unknown
+FSS,Consumer Discretionary
+FSTR,Industrials
+FTAI,Consumer Discretionary
+FTCI,Information Technology
+FTDR,Consumer Discretionary
+FTEK,Industrials
+FTHM,Real Estate
+FTK,Materials
+FTLF,Health Care
+FTRE,Health Care
+FTV,Health Care
+FUBO,Consumer Discretionary
+FUL,Materials
+FULC,Health Care
+FULT,Financials
+FUNC,Financials
+FUSB,Financials
+FVCB,Financials
+FVR,Real Estate
+FWAC,Unknown
+FWDI,Financials
+FWRD,Industrials
+FWRG,Consumer Discretionary
+FXLV,Unknown
+FXNC,Financials
+FYBR,Unknown
+GACQU,Unknown
+GAIA,Consumer Discretionary
+GALT,Health Care
+GAME,Consumer Discretionary
+GAN,Unknown
+GANX,Health Care
+GATO,Unknown
+GBCI,Financials
+GBFH,Financials
+GBLI,Financials
+GBNY,Unknown
+GBOX,Unknown
+GBS,Unknown
+GBTG,Industrials
+GBX,Industrials
+GCBC,Financials
+GCI,Unknown
+GCO,Consumer Discretionary
+GDYN,Information Technology
+GE,Information Technology
+GEF,Industrials
+GEG,Information Technology
+GEL,Industrials
+GEN,Information Technology
+GENK,Consumer Discretionary
+GEO,Industrials
+GEOS,Health Care
+GETR,Unknown
+GH,Health Care
+GHI,Financials
+GHL,Unknown
+GHLD,Unknown
+GHM,Industrials
+GHSI,Unknown
+GIC,Industrials
+GIFI,Unknown
+GIFT,Consumer Discretionary
+GIII,Consumer Discretionary
+GIPR,Real Estate
+GL,Financials
+GLBZ,Unknown
+GLDD,Industrials
+GLG,Unknown
+GLGI,Unknown
+GLOO,Information Technology
+GLRE,Financials
+GLSI,Health Care
+GLSPU,Unknown
+GLT,Unknown
+GLTO,Health Care
+GLXZ,Unknown
+GLYC,Unknown
+GM,Consumer Discretionary
+GMBL,Unknown
+GMDA,Unknown
+GME,Consumer Discretionary
+GMFIU,Unknown
+GMGI,Information Technology
+GMRE,Unknown
+GMS,Unknown
+GMTX,Unknown
+GNLX,Health Care
+GNPX,Health Care
+GNSS,Information Technology
+GNTX,Consumer Discretionary
+GNTY,Unknown
+GO,Consumer Discretionary
+GOCO,Financials
+GOED,Unknown
+GOEV,Unknown
+GOGO,Communication Services
+GOOD,Real Estate
+GOSS,Health Care
+GOVB,Unknown
+GOVX,Health Care
+GPC,Industrials
+GPMT,Real Estate
+GPN,Consumer Discretionary
+GPRE,Materials
+GPUS,Industrials
+GRAM,Unknown
+GRC,Industrials
+GREE,Financials
+GRIL,Unknown
+GRND,Information Technology
+GRNQ,Industrials
+GRNT,Energy
+GROV,Consumer Discretionary
+GROW,Financials
+GRPN,Consumer Discretionary
+GRRB,Unknown
+GRTX,Unknown
+GRWG,Consumer Discretionary
+GRYP,Unknown
+GSAT,Communication Services
+GSHD,Financials
+GSIT,Information Technology
+GT,Materials
+GTBP,Health Care
+GTE,Energy
+GTEC,Industrials
+GTIM,Consumer Discretionary
+GTLB,Information Technology
+GTLL,Unknown
+GTLS,Industrials
+GTN,Communication Services
+GTX,Consumer Discretionary
+GTYH,Unknown
+GUER,Unknown
+GUTS,Health Care
+GVP,Unknown
+GWAV,Industrials
+GWH,Information Technology
+GWRS,Utilities
+GXO,Industrials
+HAFC,Financials
+HAIN,Consumer Staples
+HALL,Unknown
+HARP,Unknown
+HAS,Industrials
+HASI,Real Estate
+HAYW,Industrials
+HBAN,Financials
+HBB,Information Technology
+HBI,Unknown
+HBIO,Health Care
+HBNC,Financials
+HCA,Health Care
+HCAT,Information Technology
+HCCI,Unknown
+HCDI,Unknown
+HCHC,Unknown
+HCI,Financials
+HCWB,Health Care
+HCWC,Consumer Discretionary
+HDSN,Industrials
+HEAR,Unknown
+HEES,Unknown
+HEI,Industrials
+HELE,Information Technology
+HEP,Unknown
+HEPA,Unknown
+HFBL,Financials
+HFC,Unknown
+HFFG,Industrials
+HFWA,Financials
+HGBL,Consumer Discretionary
+HGEN,Unknown
+HHH,Real Estate
+HHS,Consumer Discretionary
+HI,Unknown
+HIBB,Unknown
+HILS,Unknown
+HIMS,Health Care
+HIPO,Financials
+HITC,Unknown
+HIW,Real Estate
+HJLI,Unknown
+HKHC,Unknown
+HL,Materials
+HLBZ,Unknown
+HLF,Industrials
+HLGN,Unknown
+HLIT,Information Technology
+HLLY,Consumer Discretionary
+HLMN,Industrials
+HLNE,Financials
+HLVX,Unknown
+HLXB,Unknown
+HLXC,Unknown
+HLYK,Unknown
+HMLA,Unknown
+HMST,Unknown
+HNNA,Financials
+HNRA,Unknown
+HNST,Consumer Discretionary
+HNVR,Financials
+HOFT,Materials
+HOFV,Unknown
+HOG,Industrials
+HOMB,Financials
+HONE,Unknown
+HOOK,Unknown
+HOTH,Health Care
+HOVR,Industrials
+HP,Energy
+HPK,Energy
+HPP,Real Estate
+HQI,Consumer Discretionary
+HRI,Consumer Discretionary
+HRL,Consumer Staples
+HROW,Health Care
+HRTG,Financials
+HRTX,Health Care
+HSAQ,Unknown
+HSC,Unknown
+HSDT,Health Care
+HSII,Unknown
+HSKA,Unknown
+HSON,Unknown
+HSTM,Information Technology
+HSTO,Unknown
+HSY,Consumer Staples
+HTBI,Unknown
+HTBK,Financials
+HTCR,Information Technology
+HTH,Financials
+HTLD,Industrials
+HTLF,Unknown
+HUBG,Industrials
+HUM,Financials
+HUMA,Health Care
+HUN,Materials
+HURC,Health Care
+HURN,Industrials
+HVBC,Unknown
+HWBK,Financials
+HWH,Industrials
+HWKN,Industrials
+HWNI,Unknown
+HXL,Materials
+HYFM,Industrials
+HYLN,Consumer Discretionary
+HYMC,Materials
+HYNE,Financials
+HYPD,Health Care
+HYPR,Health Care
+HYRE,Unknown
+HYZN,Unknown
+HZN,Unknown
+HZNP,Unknown
+IAA,Unknown
+IART,Health Care
+IAUX,Materials
+IBCP,Financials
+IBIO,Health Care
+IBO,Health Care
+IBP,Industrials
+IBRX,Health Care
+IBTX,Unknown
+ICAD,Unknown
+ICCC,Health Care
+ICCH,Unknown
+ICCT,Unknown
+ICHR,Information Technology
+ICU,Health Care
+ICUI,Health Care
+IDEX,Unknown
+IDN,Information Technology
+IDR,Materials
+IDRA,Unknown
+IDW,Unknown
+IE,Materials
+IEA,Unknown
+IESC,Industrials
+IFF,Materials
+IGNYU,Unknown
+IGXT,Unknown
+IHRT,Communication Services
+IHT,Real Estate
+III,Industrials
+IIIV,Consumer Discretionary
+IIPR,Real Estate
+IKT,Health Care
+ILMN,Health Care
+IMBI,Unknown
+IMMR,Industrials
+IMMX,Health Care
+IMNM,Health Care
+IMNN,Health Care
+IMPL,Unknown
+IMRX,Health Care
+IMUX,Health Care
+INAB,Health Care
+INBK,Financials
+INBS,Health Care
+INBX,Health Care
+INDB,Financials
+INDP,Health Care
+INDT,Unknown
+INFN,Unknown
+INFU,Health Care
+INGM,Industrials
+INGN,Health Care
+INGR,Consumer Staples
+INIS,Unknown
+INM,Health Care
+INMB,Health Care
+INN,Real Estate
+INNV,Health Care
+INSE,Information Technology
+INSG,Information Technology
+INST,Unknown
+INSW,Industrials
+INTC,Information Technology
+INTG,Real Estate
+INTV,Unknown
+INTZ,Industrials
+INUV,Consumer Discretionary
+INV,Real Estate
+INVA,Health Care
+INVE,Industrials
+INVO,Unknown
+INVX,Industrials
+INZY,Unknown
+IOBT,Health Care
+IONM,Unknown
+IOSP,Materials
+IOVA,Health Care
+IP,Materials
+IPGP,Information Technology
+IPSC,Health Care
+IPW,Consumer Discretionary
+IPWR,Information Technology
+IRBT,Unknown
+IRD,Health Care
+IRDM,Communication Services
+IRIX,Health Care
+IRWD,Health Care
+ISBA,Financials
+ISDR,Unknown
+ISEE,Unknown
+ISO,Unknown
+ISPC,Industrials
+ISPO,Unknown
+ISPR,Consumer Staples
+ISR,Unknown
+ISTR,Financials
+ISUN,Unknown
+IT,Industrials
+ITGR,Health Care
+ITI,Unknown
+ITOS,Unknown
+ITRM,Health Care
+IVAC,Unknown
+IVAN,Unknown
+IVC,Unknown
+IVFH,Unknown
+IVR,Real Estate
+IZEA,Consumer Discretionary
+IZTC,Unknown
+J,Industrials
+JACK,Consumer Discretionary
+JAGX,Health Care
+JANL,Unknown
+JANX,Health Care
+JAZZ,Health Care
+JBHT,Industrials
+JBSS,Consumer Staples
+JBT,Unknown
+JEF,Financials
+JELD,Materials
+JETMF,Unknown
+JEWL,Unknown
+JFB,Industrials
+JILL,Consumer Discretionary
+JMSB,Financials
+JNVR,Unknown
+JOAN,Unknown
+JOB,Consumer Discretionary
+JOBY,Industrials
+JOE,Real Estate
+JRVR,Financials
+JSPR,Health Care
+JUNS,Health Care
+JUPW,Unknown
+JUVF,Unknown
+JVA,Consumer Staples
+JXN,Financials
+JYNT,Real Estate
+KA,Unknown
+KALU,Materials
+KAPA,Health Care
+KAR,Unknown
+KBAL,Unknown
+KBNT,Unknown
+KBR,Industrials
+KD,Information Technology
+KDNY,Unknown
+KDOZF,Unknown
+KDP,Consumer Staples
+KELYA,Consumer Discretionary
+KFS,Financials
+KGS,Utilities
+KIDS,Health Care
+KINS,Financials
+KIRK,Unknown
+KKR,Financials
+KLG,Unknown
+KLR,Unknown
+KMI,Utilities
+KMPH,Unknown
+KMPR,Financials
+KMT,Industrials
+KMX,Consumer Discretionary
+KNWN,Unknown
+KODK,Industrials
+KOP,Materials
+KOPN,Information Technology
+KORE,Communication Services
+KPLT,Consumer Discretionary
+KPRX,Health Care
+KPTI,Health Care
+KRBP,Unknown
+KRC,Real Estate
+KRMD,Health Care
+KRNY,Financials
+KRO,Materials
+KRON,Unknown
+KRT,Materials
+KRTX,Unknown
+KSCP,Information Technology
+KSS,Consumer Discretionary
+KTB,Consumer Discretionary
+KTCC,Information Technology
+KTOS,Industrials
+KTRA,Unknown
+KTTA,Health Care
+KULR,Information Technology
+KURA,Health Care
+KURI,Unknown
+KW,Real Estate
+KWR,Energy
+L,Financials
+LAB,Health Care
+LAC,Materials
+LAFAU,Unknown
+LAKE,Health Care
+LANC,Unknown
+LARK,Financials
+LAW,Information Technology
+LAZR,Unknown
+LAZY,Unknown
+LBAI,Unknown
+LBRA,Unknown
+LBSR,Unknown
+LC,Financials
+LCGMF,Unknown
+LCI,Unknown
+LCII,Consumer Discretionary
+LCNB,Financials
+LCTC,Unknown
+LCTX,Health Care
+LCUT,Industrials
+LDI,Financials
+LDOS,Information Technology
+LDWY,Unknown
+LEG,Materials
+LEGH,Materials
+LENZ,Health Care
+LESL,Consumer Discretionary
+LEXX,Health Care
+LFMD,Health Care
+LFT,Real Estate
+LFWD,Health Care
+LGCY,Industrials
+LGF.B,Unknown
+LGIQ,Unknown
+LGND,Health Care
+LGTO,Unknown
+LGVN,Health Care
+LHAA,Unknown
+LHDX,Unknown
+LIDR,Consumer Discretionary
+LIFE,Unknown
+LIFW,Unknown
+LILA,Communication Services
+LIN,Materials
+LIND,Industrials
+LINE,Real Estate
+LIQT,Industrials
+LIVE,Consumer Discretionary
+LIVX,Unknown
+LIXT,Health Care
+LKFN,Financials
+LKQ,Industrials
+LL,Unknown
+LLAP,Unknown
+LLNW,Unknown
+LLY,Health Care
+LMB,Industrials
+LMND,Financials
+LMPX,Unknown
+LNDC,Unknown
+LNKB,Financials
+LNSR,Health Care
+LNT,Utilities
+LOAN,Real Estate
+LOB,Financials
+LOCL,Consumer Staples
+LODE,Materials
+LOGI,Industrials
+LOOP,Materials
+LOTZ,Unknown
+LOV,Unknown
+LOVE,Consumer Discretionary
+LPCN,Health Care
+LPG,Industrials
+LPLA,Financials
+LPRO,Financials
+LPTH,Information Technology
+LPX,Materials
+LQDA,Health Care
+LQMT,Unknown
+LQR,Unknown
+LRHC,Real Estate
+LRMR,Health Care
+LSAK,Financials
+LSBK,Financials
+LSCC,Information Technology
+LSEA,Unknown
+LSF,Consumer Staples
+LSXMA,Unknown
+LSYN,Unknown
+LTC,Real Estate
+LTH,Consumer Discretionary
+LTRX,Industrials
+LUCK,Consumer Discretionary
+LUCY,Health Care
+LULU,Consumer Discretionary
+LUMN,Communication Services
+LUMO,Unknown
+LUNG,Health Care
+LUV,Industrials
+LUXH,Unknown
+LVLU,Consumer Discretionary
+LVO,Consumer Discretionary
+LVOX,Unknown
+LWAY,Consumer Staples
+LXFR,Materials
+LXRX,Health Care
+LYB,Materials
+LYEL,Health Care
+LYFT,Consumer Discretionary
+LYLT,Unknown
+MAA,Real Estate
+MAC,Real Estate
+MACQ,Unknown
+MAGN,Materials
+MAIA,Health Care
+MAN,Consumer Discretionary
+MARA,Financials
+MASI,Health Care
+MASS,Health Care
+MAT,Industrials
+MATV,Materials
+MAXR,Unknown
+MBBC,Financials
+MBCN,Financials
+MBIN,Financials
+MBLY,Information Technology
+MBRX,Health Care
+MBTCU,Unknown
+MBWM,Financials
+MBX,Health Care
+MCADU,Unknown
+MCAEU,Unknown
+MCAFU,Unknown
+MCAGU,Unknown
+MCB,Financials
+MCFT,Industrials
+MCG,Unknown
+MCHP,Information Technology
+MCHX,Consumer Discretionary
+MCVT,Unknown
+MCY,Financials
+MDBH,Financials
+MDRR,Real Estate
+MDU,Materials
+MDV,Real Estate
+MDWT,Unknown
+MDXG,Health Care
+MEC,Industrials
+MED,Consumer Staples
+MEDP,Industrials
+MEDS,Unknown
+MEG,Industrials
+MEI,Information Technology
+MELI,Consumer Discretionary
+MERC,Materials
+MFA,Real Estate
+MFIN,Financials
+MG,Industrials
+MGEE,Utilities
+MGI,Unknown
+MGLD,Financials
+MGM,Consumer Discretionary
+MGPI,Industrials
+MGTX,Health Care
+MGY,Energy
+MGYR,Financials
+MH,Materials
+MHK,Consumer Discretionary
+MIAX,Financials
+MICS,Unknown
+MICT,Unknown
+MIDD,Industrials
+MILC,Unknown
+MIMO,Unknown
+MIND,Health Care
+MINM,Unknown
+MIRA,Health Care
+MIRM,Health Care
+MITI,Unknown
+MITK,Industrials
+MITQ,Industrials
+MITT,Real Estate
+MJNE,Unknown
+MKFG,Unknown
+MKL,Financials
+MKSI,Health Care
+MKTW,Information Technology
+MKTX,Financials
+MKTY,Unknown
+MKZR,Real Estate
+ML,Unknown
+MLKN,Materials
+MLM,Materials
+MLP,Real Estate
+MLTX,Health Care
+MLYS,Health Care
+MMAT,Unknown
+MMLP,Industrials
+MMS,Consumer Discretionary
+MNDT,Unknown
+MNK,Unknown
+MNKD,Health Care
+MNMD,Unknown
+MNPR,Health Care
+MNRO,Consumer Discretionary
+MNSB,Financials
+MNTR,Unknown
+MNTX,Unknown
+MODD,Health Care
+MODG,Unknown
+MODV,Unknown
+MOFG,Unknown
+MOH,Financials
+MOND,Unknown
+MORF,Unknown
+MOSY,Unknown
+MOTS,Unknown
+MOVE,Health Care
+MP,Materials
+MPB,Financials
+MPLN,Unknown
+MPLX,Industrials
+MPTI,Information Technology
+MPW,Unknown
+MRAI,Unknown
+MRBK,Financials
+MRC,Unknown
+MRCY,Information Technology
+MRKR,Health Care
+MRMD,Unknown
+MRNA,Health Care
+MRP,Real Estate
+MRUS,Unknown
+MRVI,Health Care
+MRVL,Information Technology
+MSBI,Financials
+MSCI,Consumer Discretionary
+MSGE,Consumer Discretionary
+MSGS,Consumer Discretionary
+MSPR,Unknown
+MSTR,Financials
+MTB,Financials
+MTCH,Information Technology
+MTCR,Unknown
+MTDR,Energy
+MTH,Industrials
+MTN,Consumer Discretionary
+MTRX,Industrials
+MTTR,Unknown
+MTVA,Health Care
+MTW,Industrials
+MTX,Materials
+MULN,Unknown
+MUR,Energy
+MUX,Materials
+MVBF,Financials
+MVLA,Unknown
+MVST,Information Technology
+MWRK,Unknown
+MXCT,Industrials
+MXL,Information Technology
+MYCB,Unknown
+MYE,Materials
+MYMD,Unknown
+MYO,Health Care
+MYPS,Information Technology
+MYRG,Industrials
+MYSE,Communication Services
+MYSZ,Information Technology
+NAGE,Health Care
+NAII,Health Care
+NAMS,Health Care
+NANX,Unknown
+NAOV,Unknown
+NAUT,Health Care
+NB,Materials
+NBA,Unknown
+NBBK,Financials
+NBIO,Unknown
+NBRV,Unknown
+NBSE,Unknown
+NBTB,Financials
+NBY,Health Care
+NCBS,Unknown
+NCLH,Industrials
+NCRA,Consumer Staples
+NCSM,Energy
+NDLS,Consumer Discretionary
+NDRA,Health Care
+NE,Energy
+NECB,Financials
+NEE,Utilities
+NEO,Industrials
+NEOG,Health Care
+NEPH,Health Care
+NEWT,Financials
+NEXI,Unknown
+NEXT,Utilities
+NFBK,Financials
+NFE,Utilities
+NFG,Utilities
+NFJ,Unknown
+NFLX,Consumer Discretionary
+NFTG,Unknown
+NGL,Utilities
+NGLD,Unknown
+NGNE,Health Care
+NGS,Energy
+NH,Unknown
+NHI,Real Estate
+NI,Utilities
+NIC,Financials
+NICK,Unknown
+NIHK,Unknown
+NILE,Unknown
+NIQ,Information Technology
+NKE,Materials
+NKGN,Unknown
+NKLA,Unknown
+NKSH,Financials
+NL,Materials
+NLCP,Unknown
+NLOK,Unknown
+NLS,Unknown
+NLST,Unknown
+NLTX,Unknown
+NMRA,Health Care
+NMRD,Unknown
+NMRK,Industrials
+NMTC,Health Care
+NMTR,Unknown
+NNBR,Industrials
+NNOX,Unknown
+NNUP,Unknown
+NODK,Financials
+NOG,Energy
+NOGN,Unknown
+NOTV,Industrials
+NOVA,Unknown
+NOVN,Unknown
+NPB,Financials
+NPCE,Health Care
+NPO,Materials
+NR,Unknown
+NRC,Industrials
+NRDS,Information Technology
+NRDY,Industrials
+NREF,Real Estate
+NRG,Utilities
+NRGV,Information Technology
+NRIM,Financials
+NRXP,Health Care
+NRZ,Unknown
+NSA,Real Estate
+NSC,Industrials
+NSP,Consumer Discretionary
+NSPR,Health Care
+NSTG,Unknown
+NSTS,Financials
+NSYS,Information Technology
+NTAP,Industrials
+NTHI,Health Care
+NTRA,Health Care
+NTRB,Health Care
+NTRS,Financials
+NTST,Real Estate
+NTWK,Information Technology
+NUTX,Consumer Discretionary
+NUVB,Health Care
+NUWE,Health Care
+NVCR,Health Care
+NVCT,Health Care
+NVNO,Health Care
+NVR,Industrials
+NVRI,Industrials
+NVRO,Unknown
+NVST,Health Care
+NVVE,Information Technology
+NWBI,Financials
+NWFL,Financials
+NWL,Materials
+NWLI,Unknown
+NWS,Materials
+NWTG,Industrials
+NX,Materials
+NXDT,Real Estate
+NXGL,Health Care
+NXGN,Unknown
+NXL,Health Care
+NXRT,Real Estate
+NXT,Health Care
+NXXT,Consumer Discretionary
+NYC,Real Estate
+NYCB,Unknown
+OABI,Industrials
+OB,Unknown
+OBCI,Unknown
+OBIO,Health Care
+OBK,Financials
+OBLG,Unknown
+OBT,Financials
+OCEL,Unknown
+OCFC,Financials
+OCN,Unknown
+OCUL,Health Care
+OCUP,Unknown
+OCX,Unknown
+ODFL,Industrials
+ODP,Unknown
+OEC,Materials
+OEG,Unknown
+OESX,Information Technology
+OFIX,Health Care
+OFLX,Industrials
+OGEN,Health Care
+OGN,Health Care
+OHI,Real Estate
+OI,Materials
+OII,Energy
+OIS,Industrials
+OKE,Utilities
+OKYO,Unknown
+OLB,Consumer Discretionary
+OLMA,Health Care
+OLN,Materials
+OLPX,Materials
+OM,Health Care
+OMCC,Unknown
+OMCL,Industrials
+OMER,Health Care
+OMF,Financials
+OMIC,Unknown
+ONB,Financials
+ONCR,Unknown
+ONCT,Unknown
+ONCY,Unknown
+ONDS,Information Technology
+ONEW,Consumer Discretionary
+ONFO,Information Technology
+ONFOW,Information Technology
+ONTF,Information Technology
+ONTX,Unknown
+OOMA,Information Technology
+OPAD,Real Estate
+OPAL,Utilities
+OPCH,Health Care
+OPEN,Real Estate
+OPFI,Financials
+OPGN,Unknown
+OPK,Health Care
+OPNT,Unknown
+OPOF,Unknown
+OPRT,Financials
+OPRX,Consumer Discretionary
+OPTN,Unknown
+OPTT,Utilities
+ORC,Real Estate
+ORGN,Materials
+ORIC,Health Care
+ORLY,Consumer Discretionary
+ORMP,Health Care
+ORN,Industrials
+ORRF,Financials
+ORTX,Unknown
+OSAT,Unknown
+OSBC,Financials
+OSCR,Financials
+OSG,Financials
+OSMT,Unknown
+OSPN,Information Technology
+OSS,Industrials
+OSTK,Unknown
+OSUR,Health Care
+OTH,Industrials
+OTLC,Unknown
+OTLK,Health Care
+OUST,Industrials
+OUT,Real Estate
+OVBC,Financials
+OVID,Health Care
+OVLY,Financials
+OWL,Financials
+OWLT,Health Care
+OXBR,Financials
+OXM,Consumer Discretionary
+OXY,Energy
+PACK,Materials
+PACW,Unknown
+PAGP,Industrials
+PAL,Industrials
+PALI,Health Care
+PALO,Unknown
+PALT,Unknown
+PANL,Industrials
+PAPL,Financials
+PARK,Unknown
+PARR,Energy
+PASG,Health Care
+PATK,Consumer Discretionary
+PAVM,Health Care
+PAYC,Information Technology
+PAYS,Consumer Discretionary
+PB,Financials
+PBBK,Unknown
+PBHC,Financials
+PBI,Industrials
+PBLA,Unknown
+PBPB,Unknown
+PCB,Financials
+PCRX,Health Care
+PCSA,Health Care
+PCT,Materials
+PCTI,Unknown
+PDFS,Information Technology
+PDLB,Financials
+PDM,Real Estate
+PDSB,Health Care
+PDYN,Information Technology
+PEAK,Unknown
+PEB,Real Estate
+PEBK,Financials
+PEBO,Financials
+PECO,Real Estate
+PED,Energy
+PEI,Unknown
+PENN,Consumer Discretionary
+PEPG,Health Care
+PESI,Utilities
+PET,Unknown
+PETQ,Unknown
+PETS,Consumer Discretionary
+PETV,Unknown
+PEW,Consumer Discretionary
+PFBX,Unknown
+PFC,Unknown
+PFHO,Unknown
+PFIE,Unknown
+PFIS,Financials
+PFS,Financials
+PFSW,Unknown
+PGC,Financials
+PGEN,Health Care
+PGNY,Health Care
+PGRE,Unknown
+PGY,Financials
+PHAT,Health Care
+PHGE,Health Care
+PHIC,Unknown
+PHIN,Consumer Discretionary
+PHIO,Health Care
+PHUN,Information Technology
+PHX,Unknown
+PIII,Health Care
+PINE,Real Estate
+PINS,Information Technology
+PKBK,Financials
+PKOH,Industrials
+PKTX,Unknown
+PL,Information Technology
+PLAG,Consumer Staples
+PLAY,Consumer Discretionary
+PLBC,Financials
+PLBY,Consumer Discretionary
+PLCE,Consumer Discretionary
+PLL,Unknown
+PLNT,Consumer Discretionary
+PLOW,Industrials
+PLPC,Industrials
+PLSE,Health Care
+PLSH,Unknown
+PLUG,Information Technology
+PLX,Health Care
+PLXP,Unknown
+PLYM,Unknown
+PLYX,Unknown
+PM,Consumer Staples
+PMCB,Health Care
+PMD,Unknown
+PMN,Health Care
+PMNT,Consumer Discretionary
+PMT,Real Estate
+PMTS,Materials
+PNBK,Financials
+PNC,Financials
+PNFP,Unknown
+PNST,Unknown
+PNT,Unknown
+PNTG,Health Care
+POAI,Unknown
+POCI,Health Care
+PODC,Information Technology
+PODD,Health Care
+POLY,Unknown
+POOL,Industrials
+POR,Utilities
+POWL,Information Technology
+POWRU,Unknown
+POWW,Industrials
+PPBI,Unknown
+PPG,Materials
+PPSI,Information Technology
+PPTA,Materials
+PPYAU,Unknown
+PRAA,Financials
+PRAX,Health Care
+PRCH,Information Technology
+PRDS,Unknown
+PRG,Consumer Discretionary
+PRGO,Health Care
+PRGS,Information Technology
+PRLB,Industrials
+PRLD,Health Care
+PRM,Materials
+PRMB,Consumer Staples
+PRME,Health Care
+PRMW,Unknown
+PRO,Unknown
+PROF,Health Care
+PROP,Energy
+PRPL,Materials
+PRPO,Health Care
+PRSU,Consumer Discretionary
+PRTH,Consumer Discretionary
+PRTS,Consumer Discretionary
+PRU,Financials
+PRVB,Unknown
+PSA,Real Estate
+PSIX,Industrials
+PSN,Information Technology
+PSQH,Consumer Discretionary
+PSTL,Real Estate
+PSTV,Health Care
+PSTX,Unknown
+PTCT,Health Care
+PTEN,Energy
+PTIX,Unknown
+PTLO,Consumer Discretionary
+PTN,Health Care
+PTVE,Unknown
+PUMP,Energy
+PURE,Unknown
+PVBC,Unknown
+PVH,Consumer Discretionary
+PWFL,Unknown
+PWOD,Unknown
+PXLW,Information Technology
+PXMD,Unknown
+PYCR,Unknown
+PYPL,Consumer Discretionary
+PYXS,Health Care
+PZG,Materials
+PZN,Unknown
+PZZA,Consumer Discretionary
+QCRH,Financials
+QDEL,Health Care
+QETAU,Real Estate
+QIPT,Health Care
+QLGN,Unknown
+QNBC,Unknown
+QNCX,Health Care
+QNRX,Health Care
+QNST,Consumer Discretionary
+QNTO,Unknown
+QRHC,Utilities
+QRTEA,Unknown
+QSI,Health Care
+QTEK,Unknown
+QTI,Health Care
+QTIH,Unknown
+QTNT,Unknown
+QTRX,Health Care
+QUAD,Materials
+QUIK,Information Technology
+QUMU,Unknown
+RAD,Unknown
+RAIL,Industrials
+RAIN,Industrials
+RAL,Health Care
+RAMP,Information Technology
+RANI,Health Care
+RAPP,Health Care
+RAPT,Health Care
+RAVE,Industrials
+RBA,Consumer Discretionary
+RBBN,Information Technology
+RBCAA,Financials
+RBKB,Financials
+RC,Real Estate
+RCAT,Information Technology
+RCEL,Health Care
+RCKT,Health Care
+RCKY,Materials
+RCL,Industrials
+RCM,Unknown
+RCRT,Unknown
+RCUS,Health Care
+RDFN,Unknown
+RDGL,Unknown
+RDN,Financials
+RDW,Industrials
+REAL,Consumer Discretionary
+REED,Unknown
+REFI,Real Estate
+REGI,Unknown
+REI,Energy
+REKR,Information Technology
+RELI,Unknown
+RELY,Consumer Discretionary
+REPH,Unknown
+REPX,Energy
+RETA,Unknown
+REVG,Unknown
+REXR,Real Estate
+REYN,Materials
+REZI,Industrials
+RFIL,Information Technology
+RFL,Health Care
+RGA,Financials
+RGCO,Utilities
+RGEN,Health Care
+RGF,Unknown
+RGLS,Unknown
+RGP,Consumer Discretionary
+RGR,Industrials
+RH,Consumer Discretionary
+RHE,Unknown
+RHEP,Unknown
+RHLD,Financials
+RHP,Real Estate
+RIBT,Unknown
+RICK,Consumer Discretionary
+RIDE,Unknown
+RIGL,Health Care
+RILY,Financials
+RIVN,Consumer Discretionary
+RKDA,Energy
+RKFL,Unknown
+RKT,Financials
+RLI,Financials
+RLMD,Health Care
+RLYB,Health Care
+RM,Financials
+RMBI,Financials
+RMBL,Unknown
+RMCF,Consumer Staples
+RMCO,Real Estate
+RNAZ,Health Care
+RNDB,Unknown
+RNG,Information Technology
+RNGC,Unknown
+RNGE,Unknown
+RNGTU,Real Estate
+RNST,Financials
+RNXT,Health Care
+ROAD,Industrials
+ROCGU,Unknown
+ROCLU,Unknown
+ROCRU,Unknown
+ROII,Unknown
+ROIV,Health Care
+ROK,Health Care
+ROL,Consumer Discretionary
+ROLR,Consumer Discretionary
+ROOT,Financials
+ROP,Health Care
+ROST,Consumer Discretionary
+RPAY,Consumer Discretionary
+RPD,Information Technology
+RPHM,Unknown
+RPID,Health Care
+RPRX,Health Care
+RR,Industrials
+RRGB,Consumer Discretionary
+RRR,Consumer Discretionary
+RSCF,Unknown
+RSI,Consumer Discretionary
+RSLS,Unknown
+RSRV,Unknown
+RSSS,Consumer Discretionary
+RSVR,Consumer Discretionary
+RTL,Unknown
+RVAC,Unknown
+RVIV,Unknown
+RVNC,Unknown
+RVP,Health Care
+RVPH,Health Care
+RVSB,Financials
+RWLK,Unknown
+RWT,Real Estate
+RXDX,Unknown
+RXO,Industrials
+RXST,Health Care
+RXT,Information Technology
+RYAM,Materials
+RYAN,Financials
+RYES,Unknown
+RYI,Unknown
+RYM,Consumer Staples
+RYTM,Health Care
+RZLT,Health Care
+SABR,Information Technology
+SABS,Health Care
+SACH,Real Estate
+SAFE,Real Estate
+SAFT,Financials
+SAGE,Unknown
+SAIC,Information Technology
+SANW,Unknown
+SASI,Unknown
+SATS,Communication Services
+SAVA,Health Care
+SBCF,Financials
+SBET,Information Technology
+SBEV,Consumer Staples
+SBFG,Financials
+SBFM,Health Care
+SBGI,Communication Services
+SBH,Consumer Discretionary
+SBIG,Unknown
+SBRA,Real Estate
+SBSI,Financials
+SBUX,Consumer Discretionary
+SC,Unknown
+SCHL,Materials
+SCHW,Financials
+SCL,Materials
+SCLX,Health Care
+SCND,Unknown
+SCOA,Unknown
+SCOB,Unknown
+SCOR,Consumer Discretionary
+SCPH,Unknown
+SCPS,Unknown
+SCS,Unknown
+SCTL,Unknown
+SCVL,Consumer Discretionary
+SCWO,Information Technology
+SCWX,Unknown
+SCYX,Health Care
+SDC,Unknown
+SDCH,Unknown
+SDIG,Unknown
+SDOT,Consumer Discretionary
+SEAC,Unknown
+SEDG,Information Technology
+SEE,Materials
+SEEL,Unknown
+SEER,Health Care
+SEI,Industrials
+SELB,Unknown
+SELF,Real Estate
+SENEA,Consumer Staples
+SENS,Health Care
+SEPN,Health Care
+SERA,Health Care
+SERV,Industrials
+SES,Information Technology
+SEVN,Real Estate
+SF,Financials
+SFBS,Financials
+SFD,Consumer Staples
+SFNC,Financials
+SFST,Financials
+SG,Consumer Discretionary
+SGC,Consumer Discretionary
+SGE,Unknown
+SGFY,Unknown
+SGH,Unknown
+SGHT,Health Care
+SGLB,Unknown
+SGMT,Health Care
+SGN,Information Technology
+SGU,Consumer Discretionary
+SHBI,Financials
+SHEN,Communication Services
+SHFS,Financials
+SHGI,Unknown
+SHLS,Information Technology
+SHLX,Unknown
+SHMP,Unknown
+SHO,Consumer Discretionary
+SHPW,Unknown
+SHRG,Unknown
+SHW,Consumer Discretionary
+SHWZ,Unknown
+SHYF,Unknown
+SI,Health Care
+SIDU,Communication Services
+SIEN,Unknown
+SIG,Consumer Discretionary
+SIGI,Financials
+SILK,Unknown
+SILO,Health Care
+SING,Unknown
+SINT,Health Care
+SIOX,Unknown
+SIRI,Communication Services
+SIX,Unknown
+SKIL,Information Technology
+SKIN,Health Care
+SKKY,Unknown
+SKLZ,Information Technology
+SKT,Real Estate
+SKWD,Financials
+SKX,Unknown
+SKYE,Health Care
+SKYQ,Utilities
+SKYX,Information Technology
+SLE,Information Technology
+SLG,Real Estate
+SLGG,Unknown
+SLGN,Industrials
+SLND,Industrials
+SLNG,Utilities
+SLNH,Financials
+SLNO,Health Care
+SLQT,Financials
+SLRN,Unknown
+SLRX,Unknown
+SLVM,Materials
+SM,Energy
+SMA,Real Estate
+SMAR,Unknown
+SMBC,Financials
+SMBK,Financials
+SMFR,Unknown
+SMG,Materials
+SMID,Materials
+SMMF,Unknown
+SMMT,Health Care
+SMPL,Consumer Staples
+SMR,Industrials
+SMRT,Information Technology
+SMSI,Information Technology
+SMTC,Information Technology
+SNAX,Unknown
+SNBR,Materials
+SNCE,Unknown
+SNCR,Unknown
+SNDA,Health Care
+SNDX,Health Care
+SNEX,Financials
+SNGX,Health Care
+SNOW,Information Technology
+SNPO,Unknown
+SNRG,Unknown
+SNSE,Health Care
+SNV,Unknown
+SNYR,Health Care
+SOAR,Industrials
+SOC,Energy
+SODI,Unknown
+SOFI,Financials
+SOFO,Unknown
+SOHO,Unknown
+SOI,Unknown
+SOL,Unknown
+SON,Materials
+SONA,Unknown
+SOND,Unknown
+SONM,Information Technology
+SONN,Unknown
+SONO,Information Technology
+SONX,Unknown
+SOTK,Industrials
+SOUN,Information Technology
+SOWG,Consumer Staples
+SPB,Information Technology
+SPEC,Unknown
+SPFI,Financials
+SPFX,Unknown
+SPG,Real Estate
+SPGC,Unknown
+SPHR,Consumer Discretionary
+SPIN,Unknown
+SPIR,Communication Services
+SPKAU,Unknown
+SPKE,Unknown
+SPLP,Unknown
+SPOK,Communication Services
+SPRT,Unknown
+SPRU,Utilities
+SPRY,Health Care
+SPT,Information Technology
+SPWH,Consumer Discretionary
+SPWR,Industrials
+SQFT,Real Estate
+SQL,Unknown
+SR,Utilities
+SRAX,Unknown
+SRBK,Financials
+SRCL,Unknown
+SRGA,Unknown
+SRI,Consumer Discretionary
+SRLP,Unknown
+SRPT,Health Care
+SRRA,Unknown
+SRT,Unknown
+SRTA,Health Care
+SRTS,Health Care
+SRZN,Health Care
+SSB,Financials
+SSBK,Unknown
+SSD,Industrials
+SSGC,Unknown
+SSII,Health Care
+SSKN,Unknown
+SSNC,Information Technology
+SST,Information Technology
+SSTI,Information Technology
+SSTK,Information Technology
+SSY,Unknown
+STC,Financials
+STCB,Unknown
+STEM,Information Technology
+STEX,Health Care
+STGW,Consumer Discretionary
+STKL,Consumer Staples
+STKS,Consumer Discretionary
+STR,Unknown
+STRA,Industrials
+STRC,Financials
+STRL,Industrials
+STRM,Unknown
+STRN,Consumer Discretionary
+STRO,Health Care
+STRR,Consumer Discretionary
+STRW,Real Estate
+STRZ,Consumer Discretionary
+STSS,Health Care
+STTK,Health Care
+STWD,Real Estate
+SUI,Real Estate
+SUN,Energy
+SUNC,Energy
+SUNE,Industrials
+SUNL,Unknown
+SUNS,Real Estate
+SUNW,Unknown
+SURG,Communication Services
+SVBL,Unknown
+SVC,Real Estate
+SVCO,Information Technology
+SVFB,Unknown
+SVFC,Unknown
+SVRA,Health Care
+SVV,Consumer Discretionary
+SWAG,Consumer Discretionary
+SWIM,Materials
+SWKH,Financials
+SWKS,Information Technology
+SWM,Unknown
+SXC,Materials
+SXI,Industrials
+SXT,Materials
+SXTP,Health Care
+SYBT,Financials
+SYBX,Unknown
+SYN,Unknown
+SYNL,Unknown
+SYRS,Unknown
+SYY,Industrials
+SZZLU,Real Estate
+T,Communication Services
+TACT,Industrials
+TALK,Health Care
+TALS,Unknown
+TARA,Health Care
+TAST,Unknown
+TAYD,Industrials
+TBBK,Financials
+TBI,Consumer Discretionary
+TBLA,Information Technology
+TBLT,Unknown
+TBN,Energy
+TCBC,Unknown
+TCBI,Financials
+TCBS,Financials
+TCBX,Financials
+TCFC,Unknown
+TCON,Unknown
+TCRX,Health Care
+TCS,Unknown
+TCX,Information Technology
+TDG,Industrials
+TDUP,Consumer Discretionary
+TDW,Industrials
+TDY,Health Care
+TECTP,Unknown
+TECX,Health Care
+TELA,Health Care
+TENX,Health Care
+TERN,Health Care
+TEVA,Health Care
+TEX,Industrials
+TFC,Financials
+TFFP,Unknown
+TFX,Health Care
+TGCB,Unknown
+TGEN,Industrials
+TGI,Unknown
+TGL,Consumer Discretionary
+TGLS,Materials
+TGTX,Health Care
+TH,Consumer Discretionary
+THAR,Unknown
+THC,Health Care
+THG,Financials
+THMG,Unknown
+THO,Consumer Discretionary
+THR,Information Technology
+THRM,Consumer Discretionary
+THRN,Unknown
+THRX,Unknown
+THRY,Consumer Discretionary
+THS,Unknown
+TIG,Unknown
+TIL,Health Care
+TIPT,Financials
+TISI,Consumer Discretionary
+TITN,Consumer Discretionary
+TKNO,Health Care
+TKO,Consumer Discretionary
+TLFA,Unknown
+TLLTF,Unknown
+TLNCU,Real Estate
+TLPH,Health Care
+TLRS,Unknown
+TLRY,Health Care
+TLS,Information Technology
+TLSI,Health Care
+TLYS,Consumer Discretionary
+TMBR,Unknown
+TMC,Materials
+TMCI,Health Care
+TMDX,Health Care
+TMHC,Industrials
+TMQ,Materials
+TMUS,Communication Services
+TMX,Unknown
+TNDM,Health Care
+TNET,Consumer Discretionary
+TNON,Health Care
+TNXP,Health Care
+TOI,Health Care
+TOMDF,Unknown
+TOMZ,Materials
+TOON,Consumer Discretionary
+TOVX,Health Care
+TPB,Consumer Staples
+TPC,Industrials
+TPHS,Unknown
+TPIC,Unknown
+TPL,Real Estate
+TPR,Materials
+TPST,Health Care
+TREE,Financials
+TREX,Materials
+TRHC,Unknown
+TRIQ,Unknown
+TRML,Unknown
+TRNO,Real Estate
+TRNS,Health Care
+TROX,Materials
+TRS,Industrials
+TRSSF,Unknown
+TRST,Financials
+TRU,Consumer Discretionary
+TRUE,Unknown
+TRUP,Financials
+TRVN,Unknown
+TSC,Unknown
+TSE,Materials
+TSHA,Health Care
+TSLA,Consumer Discretionary
+TSN,Consumer Staples
+TSNDF,Unknown
+TSP,Unknown
+TSQ,Communication Services
+TSSI,Industrials
+TSVT,Unknown
+TTC,Industrials
+TTGT,Communication Services
+TTI,Energy
+TTNP,Unknown
+TTOO,Unknown
+TTSH,Unknown
+TUEM,Unknown
+TUP,Unknown
+TURN,Unknown
+TVGN,Health Care
+TWFG,Financials
+TWKS,Unknown
+TWLO,Information Technology
+TWNP,Unknown
+TWOU,Unknown
+TXG,Health Care
+TXMD,Health Care
+TXO,Energy
+TYME,Unknown
+TZOO,Consumer Discretionary
+TZUP,Unknown
+UAMY,Materials
+UAN,Materials
+UAVS,Industrials
+UBCP,Financials
+UBER,Consumer Discretionary
+UBFO,Financials
+UBOH,Unknown
+UBSI,Financials
+UCBI,Unknown
+UCTT,Information Technology
+UDMY,Industrials
+UEC,Materials
+UEEC,Unknown
+UEIC,Information Technology
+UEPS,Unknown
+UFCS,Financials
+UFI,Consumer Discretionary
+UFPT,Health Care
+UGI,Utilities
+UGRO,Industrials
+UHAL,Consumer Discretionary
+UHG,Industrials
+UHT,Real Estate
+UIHC,Unknown
+ULBI,Information Technology
+ULS,Industrials
+ULTA,Consumer Discretionary
+UMAC,Information Technology
+UMH,Real Estate
+UNB,Financials
+UNFI,Industrials
+UNH,Financials
+UNIT,Communication Services
+UNTY,Financials
+UNVR,Unknown
+UP,Industrials
+UPBD,Consumer Discretionary
+UPLD,Information Technology
+UPS,Industrials
+UPXI,Financials
+URG,Materials
+URGN,Health Care
+USAC,Utilities
+USAP,Unknown
+USAU,Materials
+USCB,Financials
+USEG,Energy
+USGO,Materials
+USIO,Financials
+USLG,Unknown
+USPH,Health Care
+USX,Unknown
+UTRS,Unknown
+UTZ,Consumer Staples
+UUUU,Materials
+UVE,Financials
+UWMC,Financials
+VABK,Financials
+VAC,Real Estate
+VAL,Energy
+VALU,Financials
+VANI,Health Care
+VAPO,Unknown
+VASO,Unknown
+VATE,Industrials
+VAXX,Unknown
+VBHI,Unknown
+VBTX,Unknown
+VCNX,Unknown
+VCTR,Financials
+VCYT,Health Care
+VEC,Unknown
+VECO,Industrials
+VEEE,Industrials
+VENU,Consumer Discretionary
+VERA,Health Care
+VERI,Information Technology
+VERO,Unknown
+VERV,Unknown
+VERX,Information Technology
+VFC,Consumer Discretionary
+VFF,Consumer Staples
+VGR,Unknown
+VGZ,Materials
+VHAI,Unknown
+VHC,Real Estate
+VHI,Materials
+VIA,Information Technology
+VIACA,Unknown
+VICR,Information Technology
+VIEW,Unknown
+VIGL,Unknown
+VINC,Unknown
+VINE,Unknown
+VIRC,Materials
+VIRI,Unknown
+VIRT,Financials
+VIRX,Unknown
+VISL,Unknown
+VITL,Consumer Staples
+VIVK,Unknown
+VIVO,Unknown
+VLCN,Unknown
+VLON,Unknown
+VLY,Financials
+VMEO,Unknown
+VNCE,Consumer Discretionary
+VNDA,Health Care
+VNRX,Health Care
+VNT,Health Care
+VOCL,Unknown
+VOLT,Consumer Discretionary
+VOXX,Unknown
+VOYG,Industrials
+VPLM,Unknown
+VRA,Materials
+VRAR,Unknown
+VRAY,Unknown
+VRCA,Health Care
+VRDN,Health Care
+VRE,Real Estate
+VREX,Information Technology
+VRME,Information Technology
+VRNS,Information Technology
+VRPX,Unknown
+VRT,Information Technology
+VRTX,Health Care
+VSCO,Consumer Discretionary
+VSH,Information Technology
+VST,Utilities
+VSTO,Unknown
+VSTS,Industrials
+VTAK,Health Care
+VTGN,Health Care
+VTLE,Unknown
+VTNR,Unknown
+VTRS,Health Care
+VTS,Energy
+VTSI,Industrials
+VTVT,Health Care
+VTYX,Health Care
+VUZI,Information Technology
+VVI,Unknown
+VVOS,Health Care
+VVV,Energy
+VVX,Industrials
+VWE,Unknown
+VWFB,Unknown
+VXIT,Unknown
+VXRT,Unknown
+VYNE,Health Care
+VYNT,Unknown
+VYX,Industrials
+VZ,Communication Services
+WAB,Industrials
+WAFD,Financials
+WAL,Financials
+WASH,Financials
+WATT,Information Technology
+WAVD,Unknown
+WBA,Unknown
+WBD,Communication Services
+WBI,Energy
+WD,Financials
+WDAY,Information Technology
+WDFC,Materials
+WE,Unknown
+WEAV,Information Technology
+WEBR,Unknown
+WEN,Consumer Discretionary
+WES,Utilities
+WEST,Consumer Staples
+WEX,Consumer Discretionary
+WFCF,Information Technology
+WGO,Consumer Discretionary
+WGS,Health Care
+WHG,Financials
+WINR,Unknown
+WINT,Unknown
+WKHS,Consumer Discretionary
+WKSP,Consumer Discretionary
+WLFC,Industrials
+WLK,Materials
+WLKP,Materials
+WLMS,Unknown
+WLY,Materials
+WMC,Unknown
+WMG,Consumer Discretionary
+WMPN,Unknown
+WNEB,Financials
+WOLF,Information Technology
+WOLV,Unknown
+WOOF,Consumer Discretionary
+WOR,Materials
+WPF,Unknown
+WRAC,Unknown
+WRAP,Industrials
+WRBY,Health Care
+WSBC,Financials
+WSBF,Financials
+WSBK,Financials
+WSC,Consumer Discretionary
+WSR,Real Estate
+WSTG,Unknown
+WT,Financials
+WTBA,Financials
+WTFC,Financials
+WTI,Energy
+WTRG,Utilities
+WTW,Financials
+WU,Consumer Discretionary
+WULF,Financials
+WVVI,Consumer Staples
+WW,Consumer Discretionary
+WWD,Information Technology
+WWR,Materials
+WWW,Materials
+WYY,Information Technology
+XAIR,Health Care
+XELA,Unknown
+XELB,Real Estate
+XFOR,Health Care
+XGN,Health Care
+XM,Unknown
+XOM,Energy
+XOMA,Health Care
+XOS,Consumer Discretionary
+XPER,Information Technology
+XPL,Materials
+XPO,Industrials
+XPOF,Consumer Discretionary
+XPRO,Energy
+XRAY,Health Care
+XRX,Industrials
+XSNX,Unknown
+XSPA,Unknown
+XWEL,Consumer Discretionary
+XXII,Consumer Staples
+XZO,Information Technology
+Y,Unknown
+YAYO,Unknown
+YCBD,Materials
+YELL,Unknown
+YMAB,Unknown
+YORW,Utilities
+YOSH,Unknown
+YTEN,Unknown
+YUMC,Consumer Discretionary
+ZBIO,Health Care
+ZBRA,Industrials
+ZD,Communication Services
+ZDGE,Information Technology
+ZDPY,Unknown
+ZEST,Unknown
+ZETA,Information Technology
+ZEUS,Unknown
+ZI,Unknown
+ZION,Financials
+ZIOP,Unknown
+ZIVO,Unknown
+ZNTL,Health Care
+ZOM,Unknown
+ZOMDF,Unknown
+ZONE,Materials
+ZTAQU,Unknown
+ZUMZ,Consumer Discretionary
+ZURA,Health Care
+ZVIA,Consumer Staples
+ZVRA,Health Care
+ZY,Unknown

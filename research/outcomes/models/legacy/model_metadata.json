@@ -1,0 +1,340 @@
+{
+  "training_date": "2026-02-28 17:05:36",
+  "sklearn_version": "1.8.0",
+  "features": [
+    "prior_30d_pct",
+    "prior_5d_pct",
+    "prior_10d_pct",
+    "prior_30d_vol",
+    "prior_10d_vol",
+    "prior_5d_vol",
+    "log_buy_price",
+    "price_drift_filing_pct",
+    "owned_pct_num",
+    "log_value_usd",
+    "n_insiders_in_cluster",
+    "officer_type_enc",
+    "filing_gap_days",
+    "is_10pct",
+    "insider_prior_buys_log",
+    "sector_enc"
+  ],
+  "model_params": {
+    "loss": "squared_error",
+    "learning_rate": 0.05,
+    "max_iter": 500,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 20,
+    "l2_regularization": 0.1,
+    "max_bins": 255,
+    "early_stopping": true,
+    "validation_fraction": 0.1,
+    "n_iter_no_change": 20,
+    "random_state": 42,
+    "categorical_features": "from_dtype"
+  },
+  "winsorization_caps": {
+    "buy_price_cap": 19226.25509999972,
+    "value_usd_cap": 17373087.33999998
+  },
+  "test_size": 0.2,
+  "random_state": 42,
+  "windows": {
+    "1d": {
+      "n_train": 11860,
+      "n_test": 2966,
+      "n_iter": 50,
+      "target_clip": [
+        -16.206275,
+        25.626099999999997
+      ],
+      "r2": 0.03644551187340317,
+      "mae": 4.1039134039173195,
+      "rmse": 6.169369801305913,
+      "dir_acc": 0.5249494268374916,
+      "dec_spread": 4.396039189189189,
+      "prec_pos": 0.5280649926144756,
+      "prec_gt2_pos": 0.6565656565656566,
+      "prec_gt2_gt2": 0.5757575757575758,
+      "prec_gt5_pos": 0.7307692307692307,
+      "feature_importance": {
+        "log_buy_price": 0.039973007328718356,
+        "price_drift_filing_pct": 0.014822508697458492,
+        "prior_30d_vol": 0.012013647476459855,
+        "prior_5d_pct": 0.011975780201962582,
+        "prior_30d_pct": 0.010893283724850345,
+        "insider_prior_buys_log": 0.010121944029560759,
+        "prior_10d_pct": 0.009435555418007825,
+        "owned_pct_num": 0.005286495107985489,
+        "prior_5d_vol": 0.004295991207628258,
+        "n_insiders_in_cluster": 0.003929288234460549,
+        "sector_enc": 0.0033352606892514515,
+        "filing_gap_days": 0.0008827381518075938,
+        "is_10pct": 7.537858638841932e-05,
+        "officer_type_enc": -0.0006252768101254857,
+        "log_value_usd": -0.0015289641215381566,
+        "prior_10d_vol": -0.0037260823032056354
+      },
+      "quintile_stats": [
+        {
+          "quintile": 1,
+          "mean_pred": -0.25399035822490557,
+          "mean_actual": 0.035386424957841424,
+          "win_rate": 0.4772344013490725,
+          "n": 593
+        },
+        {
+          "quintile": 2,
+          "mean_pred": 0.23847621032459373,
+          "mean_actual": 0.25263929173693084,
+          "win_rate": 0.5160202360876898,
+          "n": 593
+        },
+        {
+          "quintile": 3,
+          "mean_pred": 0.35506803319574104,
+          "mean_actual": 0.3376255059021922,
+          "win_rate": 0.5059021922428331,
+          "n": 593
+        },
+        {
+          "quintile": 4,
+          "mean_pred": 0.6495526475403275,
+          "mean_actual": 0.817356534569983,
+          "win_rate": 0.5497470489038786,
+          "n": 593
+        },
+        {
+          "quintile": 5,
+          "mean_pred": 2.0649545949855597,
+          "mean_actual": 2.504693602693602,
+          "win_rate": 0.5723905723905723,
+          "n": 594
+        }
+      ],
+      "model_path": "models\\model_1d.pkl"
+    },
+    "3d": {
+      "n_train": 11830,
+      "n_test": 2958,
+      "n_iter": 47,
+      "target_clip": [
+        -21.613602999999998,
+        35.79739599999993
+      ],
+      "r2": -0.02083338938348045,
+      "mae": 5.800877625644054,
+      "rmse": 8.551938943017015,
+      "dir_acc": 0.517579445571332,
+      "dec_spread": 2.0242737491525413,
+      "prec_pos": 0.5173247381144238,
+      "prec_gt2_pos": 0.5245901639344263,
+      "prec_gt2_gt2": 0.46885245901639344,
+      "prec_gt5_pos": 0.4827586206896552,
+      "feature_importance": {
+        "log_buy_price": 0.015618874807488959,
+        "insider_prior_buys_log": 0.004467915433383185,
+        "prior_10d_vol": 0.004447458968205353,
+        "owned_pct_num": 0.0030119766812208627,
+        "prior_10d_pct": 0.0018571590665669379,
+        "log_value_usd": 0.0016932219237814072,
+        "prior_5d_vol": 0.0014478025830457985,
+        "is_10pct": 0.0003601121430191645,
+        "prior_30d_pct": -0.0001325061062719568,
+        "n_insiders_in_cluster": -0.0001794941905263192,
+        "sector_enc": -0.00030806325625238885,
+        "prior_30d_vol": -0.0014948389043223597,
+        "officer_type_enc": -0.0024104541678882986,
+        "price_drift_filing_pct": -0.0029113764301187616,
+        "filing_gap_days": -0.0043755320981034625,
+        "prior_5d_pct": -0.007712402241646177
+      },
+      "quintile_stats": [
+        {
+          "quintile": 1,
+          "mean_pred": -0.6313689964824216,
+          "mean_actual": 0.01824439086294355,
+          "win_rate": 0.467005076142132,
+          "n": 591
+        },
+        {
+          "quintile": 2,
+          "mean_pred": 0.19082085640121826,
+          "mean_actual": 0.6382341725888324,
+          "win_rate": 0.5211505922165821,
+          "n": 591
+        },
+        {
+          "quintile": 3,
+          "mean_pred": 0.4100833595258172,
+          "mean_actual": 0.5016935702199662,
+          "win_rate": 0.5329949238578681,
+          "n": 591
+        },
+        {
+          "quintile": 4,
+          "mean_pred": 0.7163466862647629,
+          "mean_actual": 0.5556744213197967,
+          "win_rate": 0.5194585448392555,
+          "n": 591
+        },
+        {
+          "quintile": 5,
+          "mean_pred": 2.7027244289826644,
+          "mean_actual": 1.6451765757575743,
+          "win_rate": 0.5117845117845118,
+          "n": 594
+        }
+      ],
+      "model_path": "models\\model_3d.pkl"
+    },
+    "5d": {
+      "n_train": 11804,
+      "n_test": 2951,
+      "n_iter": 74,
+      "target_clip": [
+        -25.313374,
+        43.14677599999998
+      ],
+      "r2": 0.031717980903194776,
+      "mae": 6.991029772453225,
+      "rmse": 10.257310292181666,
+      "dir_acc": 0.5249068112504236,
+      "dec_spread": 5.730654183050847,
+      "prec_pos": 0.5126286248830683,
+      "prec_gt2_pos": 0.5194805194805194,
+      "prec_gt2_gt2": 0.4779220779220779,
+      "prec_gt5_pos": 0.580952380952381,
+      "feature_importance": {
+        "log_buy_price": 0.04452789117206517,
+        "insider_prior_buys_log": 0.022693186969924915,
+        "prior_30d_vol": 0.01448357665897051,
+        "owned_pct_num": 0.006869078763078107,
+        "prior_30d_pct": 0.006489220068334944,
+        "prior_10d_vol": 0.006166586825092912,
+        "log_value_usd": 0.004731355352569788,
+        "price_drift_filing_pct": 0.0046984044286200064,
+        "prior_5d_pct": 0.003915285853865436,
+        "officer_type_enc": 0.0032218416981002916,
+        "prior_10d_pct": 0.0029475731149721796,
+        "filing_gap_days": 0.0010973003202869869,
+        "n_insiders_in_cluster": 3.983369047306784e-05,
+        "is_10pct": -0.0003005445352806224,
+        "sector_enc": -0.0005231054825704518,
+        "prior_5d_vol": -0.0013762003681459633
+      },
+      "quintile_stats": [
+        {
+          "quintile": 1,
+          "mean_pred": -1.1479108095264658,
+          "mean_actual": -1.2998224677966101,
+          "win_rate": 0.411864406779661,
+          "n": 590
+        },
+        {
+          "quintile": 2,
+          "mean_pred": 0.037493114866359735,
+          "mean_actual": 0.2372371220338983,
+          "win_rate": 0.4915254237288136,
+          "n": 590
+        },
+        {
+          "quintile": 3,
+          "mean_pred": 0.38071369979139114,
+          "mean_actual": 0.4315116610169491,
+          "win_rate": 0.523728813559322,
+          "n": 590
+        },
+        {
+          "quintile": 4,
+          "mean_pred": 0.8561851887914338,
+          "mean_actual": 0.6097507694915254,
+          "win_rate": 0.49830508474576274,
+          "n": 590
+        },
+        {
+          "quintile": 5,
+          "mean_pred": 3.3039096398071273,
+          "mean_actual": 3.1164756920473766,
+          "win_rate": 0.5279187817258884,
+          "n": 591
+        }
+      ],
+      "model_path": "models\\model_5d.pkl"
+    },
+    "10d": {
+      "n_train": 11729,
+      "n_test": 2933,
+      "n_iter": 121,
+      "target_clip": [
+        -33.775163,
+        55.60321899999993
+      ],
+      "r2": 0.05814957770136009,
+      "mae": 9.070512974386487,
+      "rmse": 13.094355133088268,
+      "dir_acc": 0.5523354926696216,
+      "dec_spread": 12.696991061433444,
+      "prec_pos": 0.5440283400809717,
+      "prec_gt2_pos": 0.5714285714285714,
+      "prec_gt2_gt2": 0.5311355311355311,
+      "prec_gt5_pos": 0.6121212121212121,
+      "feature_importance": {
+        "log_buy_price": 0.05410228155297995,
+        "sector_enc": 0.019749896989163962,
+        "prior_30d_vol": 0.017952038499825174,
+        "price_drift_filing_pct": 0.017763656622230516,
+        "insider_prior_buys_log": 0.01566403229538773,
+        "prior_30d_pct": 0.01470079038013421,
+        "log_value_usd": 0.01299527799709862,
+        "prior_5d_vol": 0.012734509568640317,
+        "prior_10d_vol": 0.011036306823417585,
+        "owned_pct_num": 0.010298377918643065,
+        "prior_10d_pct": 0.00940557535068659,
+        "officer_type_enc": 0.006338308086193067,
+        "prior_5d_pct": 0.002278656140479374,
+        "n_insiders_in_cluster": 0.0014508221780580755,
+        "filing_gap_days": -5.23436209327266e-05,
+        "is_10pct": -0.0009010059319649599
+      },
+      "quintile_stats": [
+        {
+          "quintile": 1,
+          "mean_pred": -3.3499666316588983,
+          "mean_actual": -3.811365339590444,
+          "win_rate": 0.35665529010238906,
+          "n": 586
+        },
+        {
+          "quintile": 2,
+          "mean_pred": -0.16814010118184575,
+          "mean_actual": 0.6678219914675761,
+          "win_rate": 0.5273037542662116,
+          "n": 586
+        },
+        {
+          "quintile": 3,
+          "mean_pred": 0.5300326871072392,
+          "mean_actual": 0.6189789027303754,
+          "win_rate": 0.5051194539249146,
+          "n": 586
+        },
+        {
+          "quintile": 4,
+          "mean_pred": 1.2645062033176284,
+          "mean_actual": 2.3495678020477815,
+          "win_rate": 0.5699658703071673,
+          "n": 586
+        },
+        {
+          "quintile": 5,
+          "mean_pred": 4.722333954353409,
+          "mean_actual": 4.406834283531407,
+          "win_rate": 0.567062818336163,
+          "n": 589
+        }
+      ],
+      "model_path": "models\\model_10d.pkl"
+    }
+  }
+}

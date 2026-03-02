@@ -1,0 +1,698 @@
+{
+  "meta": {
+    "split": "time",
+    "test_size": 0.2,
+    "eval_max": 1500,
+    "top_interaction_features": 10
+  },
+  "windows": {
+    "1": {
+      "n_train": 11861,
+      "n_test": 2965,
+      "top_decile_mean": {
+        "HGBR": 2.877083783783784,
+        "XGBoost": 2.583650760135135,
+        "ElasticNet": 2.1091072635135135
+      },
+      "feature_importance": {
+        "HGBR_permutation": {
+          "prior_30d_pct": 0.04327537768842757,
+          "prior_5d_pct": 0.07845625323451318,
+          "prior_10d_pct": 0.04234449963295957,
+          "prior_30d_vol": 0.029997226866087773,
+          "prior_10d_vol": 0.07671101818301881,
+          "prior_5d_vol": 0.0,
+          "log_buy_price": 0.3290700927289479,
+          "price_drift_filing_pct": 0.07506267697913932,
+          "owned_pct_num": 0.029107812677372738,
+          "log_value_usd": 0.12015256633500085,
+          "n_insiders_in_cluster": 0.015782414197651518,
+          "officer_type_enc": 0.015252831106667314,
+          "filing_gap_days": 0.006206462773248823,
+          "is_10pct": 0.0,
+          "insider_prior_buys_log": 0.13858076759696455,
+          "sector_enc": 0.0
+        },
+        "XGBoost_total_gain": {
+          "prior_30d_pct": 0.09703655606842125,
+          "prior_5d_pct": 0.10633949859925954,
+          "prior_10d_pct": 0.06710832575443218,
+          "prior_30d_vol": 0.09966722349567683,
+          "prior_10d_vol": 0.0647124909943231,
+          "prior_5d_vol": 0.07657227076147388,
+          "log_buy_price": 0.13656500179465558,
+          "price_drift_filing_pct": 0.09778783798583392,
+          "owned_pct_num": 0.058872168282259364,
+          "log_value_usd": 0.06501572649310193,
+          "n_insiders_in_cluster": 0.005104746781416471,
+          "officer_type_enc": 0.009011324296632,
+          "filing_gap_days": 0.018153717943116453,
+          "is_10pct": 0.0029145049869532336,
+          "insider_prior_buys_log": 0.06302643203756485,
+          "sector_enc": 0.032112173724879435
+        },
+        "ElasticNet_abs_coef": {
+          "prior_30d_pct": 0.18160818909651116,
+          "prior_5d_pct": 0.0,
+          "prior_10d_pct": 0.0,
+          "prior_30d_vol": 0.27855941878612106,
+          "prior_10d_vol": 0.0,
+          "prior_5d_vol": 0.0,
+          "log_buy_price": 0.2633524149792018,
+          "price_drift_filing_pct": 0.06605045726635586,
+          "owned_pct_num": 0.0,
+          "log_value_usd": 0.0,
+          "n_insiders_in_cluster": 0.03215285602927667,
+          "officer_type_enc": 0.0,
+          "filing_gap_days": 0.0,
+          "is_10pct": 0.0,
+          "insider_prior_buys_log": 0.1782766638425335,
+          "sector_enc": 0.0
+        }
+      },
+      "hgb_interactions": [
+        {
+          "pair": [
+            "prior_30d_pct",
+            "prior_30d_vol"
+          ],
+          "interaction_mse_delta": 0.44793844603307775
+        },
+        {
+          "pair": [
+            "log_value_usd",
+            "prior_30d_pct"
+          ],
+          "interaction_mse_delta": 0.4100680465390454
+        },
+        {
+          "pair": [
+            "log_value_usd",
+            "prior_5d_pct"
+          ],
+          "interaction_mse_delta": 0.4014599099537506
+        },
+        {
+          "pair": [
+            "log_buy_price",
+            "prior_30d_vol"
+          ],
+          "interaction_mse_delta": 0.3282780877786209
+        },
+        {
+          "pair": [
+            "price_drift_filing_pct",
+            "prior_30d_pct"
+          ],
+          "interaction_mse_delta": 0.31726420532441324
+        },
+        {
+          "pair": [
+            "prior_5d_pct",
+            "prior_30d_vol"
+          ],
+          "interaction_mse_delta": 0.31155212853850855
+        },
+        {
+          "pair": [
+            "prior_5d_pct",
+            "prior_30d_pct"
+          ],
+          "interaction_mse_delta": 0.31016187380032534
+        },
+        {
+          "pair": [
+            "prior_10d_vol",
+            "prior_30d_pct"
+          ],
+          "interaction_mse_delta": 0.3026316453637463
+        },
+        {
+          "pair": [
+            "insider_prior_buys_log",
+            "log_value_usd"
+          ],
+          "interaction_mse_delta": 0.2656852144373332
+        },
+        {
+          "pair": [
+            "prior_10d_pct",
+            "prior_30d_vol"
+          ],
+          "interaction_mse_delta": 0.26298057460221713
+        },
+        {
+          "pair": [
+            "prior_10d_vol",
+            "prior_30d_vol"
+          ],
+          "interaction_mse_delta": 0.2499248103393228
+        },
+        {
+          "pair": [
+            "log_buy_price",
+            "prior_30d_pct"
+          ],
+          "interaction_mse_delta": 0.23541077819713507
+        },
+        {
+          "pair": [
+            "log_value_usd",
+            "prior_10d_vol"
+          ],
+          "interaction_mse_delta": 0.18717317138735012
+        },
+        {
+          "pair": [
+            "prior_30d_vol",
+            "owned_pct_num"
+          ],
+          "interaction_mse_delta": 0.18101951736646527
+        },
+        {
+          "pair": [
+            "log_value_usd",
+            "prior_30d_vol"
+          ],
+          "interaction_mse_delta": 0.15324679836124488
+        }
+      ]
+    },
+    "3": {
+      "n_train": 11830,
+      "n_test": 2958,
+      "top_decile_mean": {
+        "HGBR": 3.1131990677966077,
+        "XGBoost": 2.943925871186438,
+        "ElasticNet": 2.1669120779661
+      },
+      "feature_importance": {
+        "HGBR_permutation": {
+          "prior_30d_pct": 0.0,
+          "prior_5d_pct": 0.1723218728438394,
+          "prior_10d_pct": 0.1490814829579917,
+          "prior_30d_vol": 0.06444785916764298,
+          "prior_10d_vol": 0.03597725058864336,
+          "prior_5d_vol": 0.01733221226933555,
+          "log_buy_price": 0.4545428175437782,
+          "price_drift_filing_pct": 0.0,
+          "owned_pct_num": 0.0,
+          "log_value_usd": 0.0,
+          "n_insiders_in_cluster": 0.019640996726641966,
+          "officer_type_enc": 0.0,
+          "filing_gap_days": 0.0017207337178611606,
+          "is_10pct": 0.0,
+          "insider_prior_buys_log": 0.08493477418426579,
+          "sector_enc": 0.0
+        },
+        "XGBoost_total_gain": {
+          "prior_30d_pct": 0.11643343493572443,
+          "prior_5d_pct": 0.08146758391517937,
+          "prior_10d_pct": 0.07310816482642425,
+          "prior_30d_vol": 0.08561855388557826,
+          "prior_10d_vol": 0.07380201963542923,
+          "prior_5d_vol": 0.08562293663806482,
+          "log_buy_price": 0.1131655592158539,
+          "price_drift_filing_pct": 0.10175945888767343,
+          "owned_pct_num": 0.0539120300478755,
+          "log_value_usd": 0.07296907969503906,
+          "n_insiders_in_cluster": 0.004484940862863015,
+          "officer_type_enc": 0.025400048934353627,
+          "filing_gap_days": 0.015300785592408949,
+          "is_10pct": 0.006523757994167995,
+          "insider_prior_buys_log": 0.04516502376174758,
+          "sector_enc": 0.04526662117161658
+        },
+        "ElasticNet_abs_coef": {
+          "prior_30d_pct": 0.1311448529047239,
+          "prior_5d_pct": 0.052290011297704865,
+          "prior_10d_pct": 0.05617674630111351,
+          "prior_30d_vol": 0.08787045819104936,
+          "prior_10d_vol": 0.05623062442153476,
+          "prior_5d_vol": 0.022992924744674743,
+          "log_buy_price": 0.1905485883728204,
+          "price_drift_filing_pct": 0.07585187780066223,
+          "owned_pct_num": 0.03810549500088233,
+          "log_value_usd": 0.02237677231083213,
+          "n_insiders_in_cluster": 0.041815377697557804,
+          "officer_type_enc": 0.04074968987208272,
+          "filing_gap_days": 0.02601986479398012,
+          "is_10pct": 0.01874708767147365,
+          "insider_prior_buys_log": 0.10127712808641606,
+          "sector_enc": 0.03780250053249144
+        }
+      },
+      "hgb_interactions": [
+        {
+          "pair": [
+            "insider_prior_buys_log",
+            "prior_30d_vol"
+          ],
+          "interaction_mse_delta": 0.508430561408943
+        },
+        {
+          "pair": [
+            "prior_5d_pct",
+            "n_insiders_in_cluster"
+          ],
+          "interaction_mse_delta": 0.40107269851257854
+        },
+        {
+          "pair": [
+            "insider_prior_buys_log",
+            "n_insiders_in_cluster"
+          ],
+          "interaction_mse_delta": 0.32286778232986535
+        },
+        {
+          "pair": [
+            "prior_30d_vol",
+            "n_insiders_in_cluster"
+          ],
+          "interaction_mse_delta": 0.28819957724196854
+        },
+        {
+          "pair": [
+            "prior_5d_pct",
+            "insider_prior_buys_log"
+          ],
+          "interaction_mse_delta": 0.2849106754536024
+        },
+        {
+          "pair": [
+            "prior_5d_pct",
+            "prior_10d_vol"
+          ],
+          "interaction_mse_delta": 0.2543085706401911
+        },
+        {
+          "pair": [
+            "prior_5d_pct",
+            "prior_30d_vol"
+          ],
+          "interaction_mse_delta": 0.24082955150383611
+        },
+        {
+          "pair": [
+            "prior_10d_pct",
+            "prior_30d_vol"
+          ],
+          "interaction_mse_delta": 0.23016028518681253
+        },
+        {
+          "pair": [
+            "insider_prior_buys_log",
+            "filing_gap_days"
+          ],
+          "interaction_mse_delta": 0.19814971301582318
+        },
+        {
+          "pair": [
+            "insider_prior_buys_log",
+            "prior_5d_vol"
+          ],
+          "interaction_mse_delta": 0.19338708415554606
+        },
+        {
+          "pair": [
+            "insider_prior_buys_log",
+            "prior_10d_vol"
+          ],
+          "interaction_mse_delta": 0.1750307369559181
+        },
+        {
+          "pair": [
+            "prior_10d_vol",
+            "n_insiders_in_cluster"
+          ],
+          "interaction_mse_delta": 0.1599549694847866
+        },
+        {
+          "pair": [
+            "prior_5d_pct",
+            "filing_gap_days"
+          ],
+          "interaction_mse_delta": 0.14717878409818752
+        },
+        {
+          "pair": [
+            "n_insiders_in_cluster",
+            "filing_gap_days"
+          ],
+          "interaction_mse_delta": 0.13936228911411774
+        },
+        {
+          "pair": [
+            "prior_30d_vol",
+            "filing_gap_days"
+          ],
+          "interaction_mse_delta": 0.11792849641274472
+        }
+      ]
+    },
+    "5": {
+      "n_train": 11804,
+      "n_test": 2951,
+      "top_decile_mean": {
+        "HGBR": 2.950230325423728,
+        "XGBoost": 3.0378012542372876,
+        "ElasticNet": 1.9124721559322029
+      },
+      "feature_importance": {
+        "HGBR_permutation": {
+          "prior_30d_pct": 0.059491513098622543,
+          "prior_5d_pct": 0.01152106825942324,
+          "prior_10d_pct": 0.008754042191361998,
+          "prior_30d_vol": 0.18964596424498742,
+          "prior_10d_vol": 0.04062364128075208,
+          "prior_5d_vol": 0.0,
+          "log_buy_price": 0.4711523175083289,
+          "price_drift_filing_pct": 0.09286864852917048,
+          "owned_pct_num": 0.01878633753530574,
+          "log_value_usd": 0.0,
+          "n_insiders_in_cluster": 0.0025857151994880716,
+          "officer_type_enc": 0.0,
+          "filing_gap_days": 0.0,
+          "is_10pct": 0.0,
+          "insider_prior_buys_log": 0.0967719999595263,
+          "sector_enc": 0.007798752193033095
+        },
+        "XGBoost_total_gain": {
+          "prior_30d_pct": 0.11225273709953937,
+          "prior_5d_pct": 0.08796940321785343,
+          "prior_10d_pct": 0.07360663510568458,
+          "prior_30d_vol": 0.09288861059876286,
+          "prior_10d_vol": 0.07979961150074205,
+          "prior_5d_vol": 0.084115103473928,
+          "log_buy_price": 0.10738502529661502,
+          "price_drift_filing_pct": 0.08492189692867239,
+          "owned_pct_num": 0.06248740171486996,
+          "log_value_usd": 0.06454185729910737,
+          "n_insiders_in_cluster": 0.00317876540057766,
+          "officer_type_enc": 0.030116795669319227,
+          "filing_gap_days": 0.021809949107692884,
+          "is_10pct": 0.006748223338231386,
+          "insider_prior_buys_log": 0.04388198764960831,
+          "sector_enc": 0.04429599659879551
+        },
+        "ElasticNet_abs_coef": {
+          "prior_30d_pct": 0.14893192035078767,
+          "prior_5d_pct": 0.0195263920678465,
+          "prior_10d_pct": 0.029431190449989392,
+          "prior_30d_vol": 0.043966630912959506,
+          "prior_10d_vol": 0.061859533888627034,
+          "prior_5d_vol": 0.005742681018319095,
+          "log_buy_price": 0.26544224100567165,
+          "price_drift_filing_pct": 0.04901189745532486,
+          "owned_pct_num": 0.023973467855035586,
+          "log_value_usd": 0.006658188182571403,
+          "n_insiders_in_cluster": 0.013761827851625226,
+          "officer_type_enc": 0.03097445477785885,
+          "filing_gap_days": 0.03667319332273789,
+          "is_10pct": 0.03986677496331337,
+          "insider_prior_buys_log": 0.1370971856176259,
+          "sector_enc": 0.08708242027970609
+        }
+      },
+      "hgb_interactions": [
+        {
+          "pair": [
+            "insider_prior_buys_log",
+            "prior_10d_vol"
+          ],
+          "interaction_mse_delta": 1.9852599816625514
+        },
+        {
+          "pair": [
+            "insider_prior_buys_log",
+            "prior_5d_pct"
+          ],
+          "interaction_mse_delta": 1.9614236835891603
+        },
+        {
+          "pair": [
+            "insider_prior_buys_log",
+            "price_drift_filing_pct"
+          ],
+          "interaction_mse_delta": 1.3403668719405886
+        },
+        {
+          "pair": [
+            "insider_prior_buys_log",
+            "sector_enc"
+          ],
+          "interaction_mse_delta": 1.2469224784210553
+        },
+        {
+          "pair": [
+            "insider_prior_buys_log",
+            "prior_10d_pct"
+          ],
+          "interaction_mse_delta": 1.1740619777435484
+        },
+        {
+          "pair": [
+            "prior_10d_vol",
+            "prior_5d_pct"
+          ],
+          "interaction_mse_delta": 1.1424488413430538
+        },
+        {
+          "pair": [
+            "insider_prior_buys_log",
+            "owned_pct_num"
+          ],
+          "interaction_mse_delta": 1.1235866912167154
+        },
+        {
+          "pair": [
+            "prior_10d_vol",
+            "sector_enc"
+          ],
+          "interaction_mse_delta": 1.0310360673143464
+        },
+        {
+          "pair": [
+            "prior_10d_vol",
+            "prior_10d_pct"
+          ],
+          "interaction_mse_delta": 0.9686673208624512
+        },
+        {
+          "pair": [
+            "prior_30d_vol",
+            "insider_prior_buys_log"
+          ],
+          "interaction_mse_delta": 0.8587915375694024
+        },
+        {
+          "pair": [
+            "prior_10d_vol",
+            "owned_pct_num"
+          ],
+          "interaction_mse_delta": 0.6405447210762532
+        },
+        {
+          "pair": [
+            "insider_prior_buys_log",
+            "prior_30d_pct"
+          ],
+          "interaction_mse_delta": 0.6216007642675123
+        },
+        {
+          "pair": [
+            "prior_5d_pct",
+            "prior_10d_pct"
+          ],
+          "interaction_mse_delta": 0.5966075166353448
+        },
+        {
+          "pair": [
+            "prior_5d_pct",
+            "sector_enc"
+          ],
+          "interaction_mse_delta": 0.5104850157240719
+        },
+        {
+          "pair": [
+            "prior_10d_pct",
+            "sector_enc"
+          ],
+          "interaction_mse_delta": 0.4463503195876797
+        }
+      ]
+    },
+    "10": {
+      "n_train": 11730,
+      "n_test": 2932,
+      "top_decile_mean": {
+        "HGBR": 3.0622713105802024,
+        "XGBoost": 1.8291650784982914,
+        "ElasticNet": 1.894325406143343
+      },
+      "feature_importance": {
+        "HGBR_permutation": {
+          "prior_30d_pct": 0.0,
+          "prior_5d_pct": 0.0,
+          "prior_10d_pct": 0.0,
+          "prior_30d_vol": 0.33085506057294706,
+          "prior_10d_vol": 0.0,
+          "prior_5d_vol": 0.01846217057416746,
+          "log_buy_price": 0.3022598879179952,
+          "price_drift_filing_pct": 0.17014617691282918,
+          "owned_pct_num": 0.0,
+          "log_value_usd": 0.08066210458986879,
+          "n_insiders_in_cluster": 0.0,
+          "officer_type_enc": 0.011102317458924336,
+          "filing_gap_days": 0.0,
+          "is_10pct": 0.0,
+          "insider_prior_buys_log": 0.08651228197326799,
+          "sector_enc": 0.0
+        },
+        "XGBoost_total_gain": {
+          "prior_30d_pct": 0.11254593130140177,
+          "prior_5d_pct": 0.08130343041683057,
+          "prior_10d_pct": 0.0683997835424776,
+          "prior_30d_vol": 0.10504810750392435,
+          "prior_10d_vol": 0.07576757547172085,
+          "prior_5d_vol": 0.06282572030321466,
+          "log_buy_price": 0.12511070178128594,
+          "price_drift_filing_pct": 0.07739497699044047,
+          "owned_pct_num": 0.05342970046530667,
+          "log_value_usd": 0.08252927126618272,
+          "n_insiders_in_cluster": 0.0027271411491139154,
+          "officer_type_enc": 0.024749564240789872,
+          "filing_gap_days": 0.013372270120701182,
+          "is_10pct": 0.010534688354651782,
+          "insider_prior_buys_log": 0.05078810447916011,
+          "sector_enc": 0.053473032612797525
+        },
+        "ElasticNet_abs_coef": {
+          "prior_30d_pct": 0.12342850562171805,
+          "prior_5d_pct": 0.07595507418631071,
+          "prior_10d_pct": 0.035090042309654935,
+          "prior_30d_vol": 0.018457923493108305,
+          "prior_10d_vol": 0.0848497183797482,
+          "prior_5d_vol": 0.0008784267096340498,
+          "log_buy_price": 0.2237662325918017,
+          "price_drift_filing_pct": 0.05459135559975446,
+          "owned_pct_num": 0.02723552871236598,
+          "log_value_usd": 0.044458621162505575,
+          "n_insiders_in_cluster": 0.03294474715145305,
+          "officer_type_enc": 0.013383528952371802,
+          "filing_gap_days": 0.006654867218483497,
+          "is_10pct": 0.09863749989925943,
+          "insider_prior_buys_log": 0.06055897959925895,
+          "sector_enc": 0.09910894841257131
+        }
+      },
+      "hgb_interactions": [
+        {
+          "pair": [
+            "log_buy_price",
+            "log_value_usd"
+          ],
+          "interaction_mse_delta": 4.028733248024764
+        },
+        {
+          "pair": [
+            "log_buy_price",
+            "price_drift_filing_pct"
+          ],
+          "interaction_mse_delta": 3.650457090757641
+        },
+        {
+          "pair": [
+            "log_buy_price",
+            "prior_5d_vol"
+          ],
+          "interaction_mse_delta": 3.554271115834183
+        },
+        {
+          "pair": [
+            "log_buy_price",
+            "prior_30d_pct"
+          ],
+          "interaction_mse_delta": 3.152289013480271
+        },
+        {
+          "pair": [
+            "log_buy_price",
+            "officer_type_enc"
+          ],
+          "interaction_mse_delta": 2.7870689371257242
+        },
+        {
+          "pair": [
+            "log_buy_price",
+            "prior_5d_pct"
+          ],
+          "interaction_mse_delta": 2.6074893014594522
+        },
+        {
+          "pair": [
+            "log_buy_price",
+            "prior_10d_pct"
+          ],
+          "interaction_mse_delta": 2.5644923980945578
+        },
+        {
+          "pair": [
+            "price_drift_filing_pct",
+            "prior_5d_vol"
+          ],
+          "interaction_mse_delta": 2.248319787690434
+        },
+        {
+          "pair": [
+            "price_drift_filing_pct",
+            "log_value_usd"
+          ],
+          "interaction_mse_delta": 2.0679744594841623
+        },
+        {
+          "pair": [
+            "price_drift_filing_pct",
+            "prior_10d_pct"
+          ],
+          "interaction_mse_delta": 1.7662084382399428
+        },
+        {
+          "pair": [
+            "log_value_usd",
+            "prior_5d_vol"
+          ],
+          "interaction_mse_delta": 1.5543435560649073
+        },
+        {
+          "pair": [
+            "prior_30d_vol",
+            "log_value_usd"
+          ],
+          "interaction_mse_delta": 1.342153554182488
+        },
+        {
+          "pair": [
+            "price_drift_filing_pct",
+            "officer_type_enc"
+          ],
+          "interaction_mse_delta": 1.235846692737823
+        },
+        {
+          "pair": [
+            "prior_5d_vol",
+            "prior_10d_pct"
+          ],
+          "interaction_mse_delta": 1.118338213626913
+        },
+        {
+          "pair": [
+            "prior_30d_vol",
+            "log_buy_price"
+          ],
+          "interaction_mse_delta": 1.1173984427649373
+        }
+      ]
+    }
+  }
+}

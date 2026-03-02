@@ -1,0 +1,3406 @@
+{
+  "meta": {
+    "split": "time_train_val_test",
+    "train_frac": 0.6,
+    "val_frac": 0.2,
+    "test_frac": 0.2,
+    "weight_grid_step": 0.05,
+    "models": [
+      "HGBR",
+      "XGBoost",
+      "HMM-XGBoost",
+      "ElasticNet",
+      "SplineElasticNet"
+    ],
+    "combo_sizes": [
+      3,
+      4,
+      5
+    ],
+    "objective": "maximize validation top-decile mean, tie-break by validation decile spread"
+  },
+  "horizons": {
+    "1": [
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.25,
+          "HMM-XGBoost": 0.15000000000000002,
+          "ElasticNet": 0.6000000000000001
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.377731893687707,
+            "bottom_decile_mean": 1.0792245777027025,
+            "decile_spread": 2.2985073159850047
+          },
+          "weighted": {
+            "top_decile_mean": 3.6489773255813946,
+            "bottom_decile_mean": 0.4586163006756755,
+            "decile_spread": 3.190361024905719
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.27124543189368744
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.5151004152823924,
+            "bottom_decile_mean": -0.08457736486486506,
+            "decile_spread": 2.5996777801472573
+          },
+          "weighted": {
+            "top_decile_mean": 2.6588296511627902,
+            "bottom_decile_mean": 0.1899505067567566,
+            "decile_spread": 2.4688791444060336
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.14372923588039788
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.6489773255813946,
+          "decile_spread": 3.190361024905719
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "XGBoost": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "XGBoost": 0.5,
+          "HMM-XGBoost": 0.15000000000000002,
+          "SplineElasticNet": 0.35000000000000003
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.10232392026578,
+            "bottom_decile_mean": 0.5898226351351351,
+            "decile_spread": 2.512501285130645
+          },
+          "weighted": {
+            "top_decile_mean": 3.478834136212624,
+            "bottom_decile_mean": 0.5495026182432431,
+            "decile_spread": 2.9293315179693806
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.37651021594684364
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.439492026578073,
+            "bottom_decile_mean": 0.20963800675675667,
+            "decile_spread": 2.2298540198213166
+          },
+          "weighted": {
+            "top_decile_mean": 2.547745099667774,
+            "bottom_decile_mean": 0.024054560810810796,
+            "decile_spread": 2.5236905388569633
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.10825307308970089
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.478834136212624,
+          "decile_spread": 2.9293315179693806
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.5,
+          "HMM-XGBoost": 0.2,
+          "SplineElasticNet": 0.30000000000000004
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.4589600498338866,
+            "bottom_decile_mean": 1.3722568412162162,
+            "decile_spread": 2.0867032086176707
+          },
+          "weighted": {
+            "top_decile_mean": 3.7218209302325573,
+            "bottom_decile_mean": 1.4089216216216214,
+            "decile_spread": 2.3128993086109357
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.2628608803986707
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.4536710963455146,
+            "bottom_decile_mean": 0.09188521959459454,
+            "decile_spread": 2.36178587675092
+          },
+          "weighted": {
+            "top_decile_mean": 2.5408172757475085,
+            "bottom_decile_mean": 0.08545819256756752,
+            "decile_spread": 2.455359083179941
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.08714617940199387
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.7218209302325573,
+          "decile_spread": 2.3128993086109357
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "XGBoost": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.6000000000000001,
+          "XGBoost": 0.15000000000000002,
+          "SplineElasticNet": 0.25
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.218033388704319,
+            "bottom_decile_mean": 1.2226322635135134,
+            "decile_spread": 1.9954011251908057
+          },
+          "weighted": {
+            "top_decile_mean": 3.699002990033222,
+            "bottom_decile_mean": 1.6891595439189189,
+            "decile_spread": 2.0098434461143033
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.4809696013289031
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.6958236710963455,
+            "bottom_decile_mean": 0.09269552364864864,
+            "decile_spread": 2.6031281474476966
+          },
+          "weighted": {
+            "top_decile_mean": 2.7768292358803985,
+            "bottom_decile_mean": -0.10624079391891901,
+            "decile_spread": 2.8830700297993177
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.08100556478405307
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.699002990033222,
+          "decile_spread": 2.0098434461143033
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.25,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.65,
+          "XGBoost": 0.15000000000000002,
+          "HMM-XGBoost": 0.0,
+          "ElasticNet": 0.2
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.4435255813953485,
+            "bottom_decile_mean": 0.707016554054054,
+            "decile_spread": 2.7365090273412944
+          },
+          "weighted": {
+            "top_decile_mean": 3.8553149501661133,
+            "bottom_decile_mean": 1.6461206925675675,
+            "decile_spread": 2.2091942575985457
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.4117893687707648
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.510593106312292,
+            "bottom_decile_mean": 0.2790470439189188,
+            "decile_spread": 2.231546062393373
+          },
+          "weighted": {
+            "top_decile_mean": 2.585284053156146,
+            "bottom_decile_mean": -0.2046255067567569,
+            "decile_spread": 2.789909559912903
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.07469094684385391
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.8553149501661133,
+          "decile_spread": 2.2091942575985457
+        }
+      },
+      {
+        "combo": [
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HMM-XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HMM-XGBoost": 0.0,
+          "ElasticNet": 0.65,
+          "SplineElasticNet": 0.35000000000000003
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.153729568106312,
+            "bottom_decile_mean": 0.06928386824324316,
+            "decile_spread": 3.084445699863069
+          },
+          "weighted": {
+            "top_decile_mean": 3.7222607973421917,
+            "bottom_decile_mean": -0.15714163851351357,
+            "decile_spread": 3.879402435855705
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.5685312292358797
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.1326914451827244,
+            "bottom_decile_mean": 0.4549755067567568,
+            "decile_spread": 1.6777159384259677
+          },
+          "weighted": {
+            "top_decile_mean": 2.199199086378737,
+            "bottom_decile_mean": 0.40537854729729733,
+            "decile_spread": 1.79382053908144
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.06650764119601282
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.7222607973421917,
+          "decile_spread": 3.879402435855705
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 5,
+        "equal_weights": {
+          "HGBR": 0.2,
+          "XGBoost": 0.2,
+          "HMM-XGBoost": 0.2,
+          "ElasticNet": 0.2,
+          "SplineElasticNet": 0.2
+        },
+        "weighted_weights": {
+          "HGBR": 0.45,
+          "XGBoost": 0.1,
+          "HMM-XGBoost": 0.2,
+          "ElasticNet": 0.15000000000000002,
+          "SplineElasticNet": 0.1
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.259098671096345,
+            "bottom_decile_mean": 0.6370671452702702,
+            "decile_spread": 2.622031525826075
+          },
+          "weighted": {
+            "top_decile_mean": 3.876172093023256,
+            "bottom_decile_mean": 1.4095429898648646,
+            "decile_spread": 2.4666291031583913
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.6170734219269112
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.5103406146179403,
+            "bottom_decile_mean": 0.15495312499999994,
+            "decile_spread": 2.3553874896179403
+          },
+          "weighted": {
+            "top_decile_mean": 2.535097009966777,
+            "bottom_decile_mean": 0.02009374999999983,
+            "decile_spread": 2.515003259966777
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.02475639534883678
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.876172093023256,
+          "decile_spread": 2.4666291031583913
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.65,
+          "XGBoost": 0.15000000000000002,
+          "ElasticNet": 0.2
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.5582366279069766,
+            "bottom_decile_mean": 1.015612753378378,
+            "decile_spread": 2.5426238745285987
+          },
+          "weighted": {
+            "top_decile_mean": 3.8553149501661133,
+            "bottom_decile_mean": 1.6461206925675675,
+            "decile_spread": 2.2091942575985457
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.29707832225913666
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.57756353820598,
+            "bottom_decile_mean": -0.032972297297297386,
+            "decile_spread": 2.6105358355032773
+          },
+          "weighted": {
+            "top_decile_mean": 2.585284053156146,
+            "bottom_decile_mean": -0.2046255067567569,
+            "decile_spread": 2.789909559912903
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.007720514950166013
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.8553149501661133,
+          "decile_spread": 2.2091942575985457
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.25,
+          "ElasticNet": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.55,
+          "XGBoost": 0.15000000000000002,
+          "ElasticNet": 0.15000000000000002,
+          "SplineElasticNet": 0.15000000000000002
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.4863230066445183,
+            "bottom_decile_mean": 0.7225011824324324,
+            "decile_spread": 2.7638218242120858
+          },
+          "weighted": {
+            "top_decile_mean": 3.869342524916943,
+            "bottom_decile_mean": 1.515630489864865,
+            "decile_spread": 2.353712035052078
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.38301951827242453
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.6228245847176077,
+            "bottom_decile_mean": 0.056109881756756706,
+            "decile_spread": 2.566714702960851
+          },
+          "weighted": {
+            "top_decile_mean": 2.622033222591362,
+            "bottom_decile_mean": -0.021448226351351424,
+            "decile_spread": 2.643481448942713
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.0007913621262458648
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.869342524916943,
+          "decile_spread": 2.353712035052078
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.25,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.15000000000000002,
+          "SplineElasticNet": 0.35000000000000003
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.5874371262458467,
+            "bottom_decile_mean": 0.6216842060810809,
+            "decile_spread": 2.965752920164766
+          },
+          "weighted": {
+            "top_decile_mean": 3.783603986710963,
+            "bottom_decile_mean": 0.7140222972972973,
+            "decile_spread": 3.0695816894136656
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.19616686046511633
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.4585276578073088,
+            "bottom_decile_mean": 0.13101824324324315,
+            "decile_spread": 2.327509414564066
+          },
+          "weighted": {
+            "top_decile_mean": 2.4426455980066444,
+            "bottom_decile_mean": 0.20912702702702696,
+            "decile_spread": 2.2335185709796175
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.015882059800664372
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.783603986710963,
+          "decile_spread": 3.0695816894136656
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.25,
+          "HMM-XGBoost": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.4,
+          "XGBoost": 0.1,
+          "HMM-XGBoost": 0.2,
+          "SplineElasticNet": 0.30000000000000004
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.5589535714285714,
+            "bottom_decile_mean": 0.8046650337837836,
+            "decile_spread": 2.7542885376447876
+          },
+          "weighted": {
+            "top_decile_mean": 3.8116770764119603,
+            "bottom_decile_mean": 1.1697075168918918,
+            "decile_spread": 2.6419695595200685
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.2527235049833889
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.5134368770764115,
+            "bottom_decile_mean": 0.26988994932432425,
+            "decile_spread": 2.2435469277520874
+          },
+          "weighted": {
+            "top_decile_mean": 2.4515428571428566,
+            "bottom_decile_mean": 0.1369542229729729,
+            "decile_spread": 2.314588634169884
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.06189401993355492
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.8116770764119603,
+          "decile_spread": 2.6419695595200685
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "XGBoost": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.7000000000000001,
+          "XGBoost": 0.2,
+          "HMM-XGBoost": 0.1
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.300350913621262,
+            "bottom_decile_mean": 1.234267483108108,
+            "decile_spread": 2.066083430513154
+          },
+          "weighted": {
+            "top_decile_mean": 3.71649634551495,
+            "bottom_decile_mean": 1.6155878378378377,
+            "decile_spread": 2.1009085076771123
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.4161454318936877
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.5476265780730896,
+            "bottom_decile_mean": 0.20800244932432424,
+            "decile_spread": 2.339624128748765
+          },
+          "weighted": {
+            "top_decile_mean": 2.4070654485049836,
+            "bottom_decile_mean": 0.10519003378378361,
+            "decile_spread": 2.3018754147212
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.14056112956810596
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.71649634551495,
+          "decile_spread": 2.1009085076771123
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "XGBoost": 0.25,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "XGBoost": 0.0,
+          "HMM-XGBoost": 0.0,
+          "ElasticNet": 0.65,
+          "SplineElasticNet": 0.35000000000000003
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.2205984219269097,
+            "bottom_decile_mean": 0.40323885135135124,
+            "decile_spread": 2.8173595705755585
+          },
+          "weighted": {
+            "top_decile_mean": 3.7222607973421917,
+            "bottom_decile_mean": -0.15714163851351357,
+            "decile_spread": 3.879402435855705
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.501662375415282
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.462935880398671,
+            "bottom_decile_mean": -0.028328631756756793,
+            "decile_spread": 2.491264512155428
+          },
+          "weighted": {
+            "top_decile_mean": 2.199199086378737,
+            "bottom_decile_mean": 0.40537854729729733,
+            "decile_spread": 1.79382053908144
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.263736794019934
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.7222607973421917,
+          "decile_spread": 3.879402435855705
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "XGBoost": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "XGBoost": 0.2,
+          "HMM-XGBoost": 0.2,
+          "ElasticNet": 0.6000000000000001
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.3551739202657807,
+            "bottom_decile_mean": 0.6627655405405404,
+            "decile_spread": 2.69240837972524
+          },
+          "weighted": {
+            "top_decile_mean": 3.5288088039867103,
+            "bottom_decile_mean": 0.3649410472972972,
+            "decile_spread": 3.163867756689413
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.1736348837209296
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.5878312292358805,
+            "bottom_decile_mean": 0.001871790540540409,
+            "decile_spread": 2.58595943869534
+          },
+          "weighted": {
+            "top_decile_mean": 2.3149950996677737,
+            "bottom_decile_mean": -0.003120608108108121,
+            "decile_spread": 2.318115707775882
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.27283612956810677
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.5288088039867103,
+          "decile_spread": 3.163867756689413
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.0,
+          "ElasticNet": 0.65,
+          "SplineElasticNet": 0.35000000000000003
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.0214346345514946,
+            "bottom_decile_mean": 1.0214767736486485,
+            "decile_spread": 1.999957860902846
+          },
+          "weighted": {
+            "top_decile_mean": 3.7222607973421917,
+            "bottom_decile_mean": -0.15714163851351357,
+            "decile_spread": 3.879402435855705
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.7008261627906971
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.541909634551495,
+            "bottom_decile_mean": -0.023204054054054117,
+            "decile_spread": 2.565113688605549
+          },
+          "weighted": {
+            "top_decile_mean": 2.199199086378737,
+            "bottom_decile_mean": 0.40537854729729733,
+            "decile_spread": 1.79382053908144
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.3427105481727577
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.7222607973421917,
+          "decile_spread": 3.879402435855705
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "XGBoost": 0.0,
+          "ElasticNet": 0.65,
+          "SplineElasticNet": 0.35000000000000003
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 2.929680813953488,
+            "bottom_decile_mean": 0.390064358108108,
+            "decile_spread": 2.5396164558453798
+          },
+          "weighted": {
+            "top_decile_mean": 3.7222607973421917,
+            "bottom_decile_mean": -0.15714163851351357,
+            "decile_spread": 3.879402435855705
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.7925799833887037
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.638658139534883,
+            "bottom_decile_mean": -0.1505830236486487,
+            "decile_spread": 2.7892411631835317
+          },
+          "weighted": {
+            "top_decile_mean": 2.199199086378737,
+            "bottom_decile_mean": 0.40537854729729733,
+            "decile_spread": 1.79382053908144
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.439459053156146
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.7222607973421917,
+          "decile_spread": 3.879402435855705
+        }
+      }
+    ],
+    "3": [
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "XGBoost": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.05,
+          "XGBoost": 0.25,
+          "SplineElasticNet": 0.7000000000000001
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.799980108910886,
+            "bottom_decile_mean": 1.1392588474576264,
+            "decile_spread": 2.6607212614532596
+          },
+          "weighted": {
+            "top_decile_mean": 4.220454970297024,
+            "bottom_decile_mean": 0.5845564711864395,
+            "decile_spread": 3.635898499110585
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.42047486138613843
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.797591566225164,
+            "bottom_decile_mean": 0.5683300101694904,
+            "decile_spread": 2.2292615560556737
+          },
+          "weighted": {
+            "top_decile_mean": 3.352762437086091,
+            "bottom_decile_mean": 0.8090849694915243,
+            "decile_spread": 2.543677467594567
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.5551708708609273
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.220454970297024,
+          "decile_spread": 3.635898499110585
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.05,
+          "ElasticNet": 0.0,
+          "SplineElasticNet": 0.9500000000000001
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.4907876699669913,
+            "bottom_decile_mean": 0.750720552542372,
+            "decile_spread": 2.740067117424619
+          },
+          "weighted": {
+            "top_decile_mean": 3.973220013201315,
+            "bottom_decile_mean": 0.3952799322033894,
+            "decile_spread": 3.5779400809979256
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.4824323432343238
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.2572928774834415,
+            "bottom_decile_mean": 0.9285490576271184,
+            "decile_spread": 1.328743819856323
+          },
+          "weighted": {
+            "top_decile_mean": 2.7187184172185415,
+            "bottom_decile_mean": 0.6243592711864406,
+            "decile_spread": 2.094359146032101
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.4614255397350999
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.973220013201315,
+          "decile_spread": 3.5779400809979256
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.25,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.1,
+          "XGBoost": 0.4,
+          "HMM-XGBoost": 0.0,
+          "ElasticNet": 0.5
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.4074946468646816,
+            "bottom_decile_mean": 1.1089571389830497,
+            "decile_spread": 2.298537507881632
+          },
+          "weighted": {
+            "top_decile_mean": 4.294499567656762,
+            "bottom_decile_mean": 0.8721059423728802,
+            "decile_spread": 3.4223936252838816
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.88700492079208
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.5627005165562893,
+            "bottom_decile_mean": 0.267887979661016,
+            "decile_spread": 2.2948125368952734
+          },
+          "weighted": {
+            "top_decile_mean": 2.95093595695364,
+            "bottom_decile_mean": 1.1783863016949137,
+            "decile_spread": 1.7725496552587265
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.3882354403973509
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.294499567656762,
+          "decile_spread": 3.4223936252838816
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "XGBoost": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.8,
+          "XGBoost": 0.2,
+          "HMM-XGBoost": 0.0
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.3658493762376183,
+            "bottom_decile_mean": 1.0373689830508463,
+            "decile_spread": 2.328480393186772
+          },
+          "weighted": {
+            "top_decile_mean": 3.928344438943889,
+            "bottom_decile_mean": 1.6184055762711849,
+            "decile_spread": 2.3099388626727038
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.5624950627062706
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.4703713807947003,
+            "bottom_decile_mean": 0.36226083389830377,
+            "decile_spread": 2.1081105468963965
+          },
+          "weighted": {
+            "top_decile_mean": 2.8136259768211893,
+            "bottom_decile_mean": 0.3113062338983036,
+            "decile_spread": 2.502319742922886
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.343254596026489
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 3.928344438943889,
+          "decile_spread": 2.3099388626727038
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "XGBoost": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "XGBoost": 0.4,
+          "HMM-XGBoost": 0.1,
+          "ElasticNet": 0.5
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.404337207920787,
+            "bottom_decile_mean": 0.9214611966101683,
+            "decile_spread": 2.4828760113106187
+          },
+          "weighted": {
+            "top_decile_mean": 4.1316216930693015,
+            "bottom_decile_mean": 0.5624072847457613,
+            "decile_spread": 3.56921440832354
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.7272844851485143
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.3145677384105947,
+            "bottom_decile_mean": 0.4420767999999987,
+            "decile_spread": 1.8724909384105959
+          },
+          "weighted": {
+            "top_decile_mean": 2.5787697483443695,
+            "bottom_decile_mean": 0.9511391830508462,
+            "decile_spread": 1.6276305652935232
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.26420200993377474
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.1316216930693015,
+          "decile_spread": 3.56921440832354
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.1,
+          "XGBoost": 0.4,
+          "ElasticNet": 0.5
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.7273078316831634,
+            "bottom_decile_mean": 0.959678159322033,
+            "decile_spread": 2.76762967236113
+          },
+          "weighted": {
+            "top_decile_mean": 4.294499567656762,
+            "bottom_decile_mean": 0.8721059423728802,
+            "decile_spread": 3.4223936252838816
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.5671917359735983
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.818104158940396,
+            "bottom_decile_mean": 0.835988993220338,
+            "decile_spread": 1.982115165720058
+          },
+          "weighted": {
+            "top_decile_mean": 2.95093595695364,
+            "bottom_decile_mean": 1.1783863016949137,
+            "decile_spread": 1.7725496552587265
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.1328317980132443
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.294499567656762,
+          "decile_spread": 3.4223936252838816
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "XGBoost": 0.35000000000000003,
+          "ElasticNet": 0.15000000000000002,
+          "SplineElasticNet": 0.5
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 4.13322860066006,
+            "bottom_decile_mean": 0.2754344271186428,
+            "decile_spread": 3.8577941735414174
+          },
+          "weighted": {
+            "top_decile_mean": 4.310272801980193,
+            "bottom_decile_mean": 0.41383611186440555,
+            "decile_spread": 3.896436690115787
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.17704420132013254
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.971807149006621,
+            "bottom_decile_mean": 0.8791029254237278,
+            "decile_spread": 2.092704223582893
+          },
+          "weighted": {
+            "top_decile_mean": 3.0499952185430446,
+            "bottom_decile_mean": 0.7090324169491515,
+            "decile_spread": 2.340962801593893
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.07818806953642365
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.310272801980193,
+          "decile_spread": 3.896436690115787
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 5,
+        "equal_weights": {
+          "HGBR": 0.2,
+          "XGBoost": 0.2,
+          "HMM-XGBoost": 0.2,
+          "ElasticNet": 0.2,
+          "SplineElasticNet": 0.2
+        },
+        "weighted_weights": {
+          "HGBR": 0.05,
+          "XGBoost": 0.0,
+          "HMM-XGBoost": 0.15000000000000002,
+          "ElasticNet": 0.1,
+          "SplineElasticNet": 0.7000000000000001
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.2839520726072564,
+            "bottom_decile_mean": 0.9401500406779648,
+            "decile_spread": 2.3438020319292914
+          },
+          "weighted": {
+            "top_decile_mean": 4.652271452145208,
+            "bottom_decile_mean": 0.056699579661016235,
+            "decile_spread": 4.595571872484192
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 1.3683193795379518
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.375950506622515,
+            "bottom_decile_mean": 0.4490279932203384,
+            "decile_spread": 1.9269225134021766
+          },
+          "weighted": {
+            "top_decile_mean": 2.4374170728476803,
+            "bottom_decile_mean": 0.6534467186440677,
+            "decile_spread": 1.7839703542036127
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.06146656622516522
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.652271452145208,
+          "decile_spread": 4.595571872484192
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.2,
+          "HMM-XGBoost": 0.30000000000000004,
+          "ElasticNet": 0.5
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.7116685610561007,
+            "bottom_decile_mean": 1.0330768135593211,
+            "decile_spread": 2.6785917474967795
+          },
+          "weighted": {
+            "top_decile_mean": 4.130088369636958,
+            "bottom_decile_mean": 0.7225358067796599,
+            "decile_spread": 3.4075525628572985
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.4184198085808575
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.3547243211920503,
+            "bottom_decile_mean": 0.2860968271186435,
+            "decile_spread": 2.068627494073407
+          },
+          "weighted": {
+            "top_decile_mean": 2.4128488344370833,
+            "bottom_decile_mean": 0.44757482033898294,
+            "decile_spread": 1.9652740140981004
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.05812451324503298
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.130088369636958,
+          "decile_spread": 3.4075525628572985
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.05,
+          "HMM-XGBoost": 0.15000000000000002,
+          "ElasticNet": 0.1,
+          "SplineElasticNet": 0.7000000000000001
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.6652477689768923,
+            "bottom_decile_mean": 0.5061286881355922,
+            "decile_spread": 3.1591190808413003
+          },
+          "weighted": {
+            "top_decile_mean": 4.652271452145208,
+            "bottom_decile_mean": 0.056699579661016235,
+            "decile_spread": 4.595571872484192
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.9870236831683159
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.4770918841059584,
+            "bottom_decile_mean": 0.3819175186440674,
+            "decile_spread": 2.095174365461891
+          },
+          "weighted": {
+            "top_decile_mean": 2.4374170728476803,
+            "bottom_decile_mean": 0.6534467186440677,
+            "decile_spread": 1.7839703542036127
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.0396748112582781
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.652271452145208,
+          "decile_spread": 4.595571872484192
+        }
+      },
+      {
+        "combo": [
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HMM-XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HMM-XGBoost": 0.15000000000000002,
+          "ElasticNet": 0.0,
+          "SplineElasticNet": 0.8500000000000001
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.5452748118811823,
+            "bottom_decile_mean": 0.8699293966101684,
+            "decile_spread": 2.675345415271014
+          },
+          "weighted": {
+            "top_decile_mean": 4.450431864686464,
+            "bottom_decile_mean": 0.14944670847457558,
+            "decile_spread": 4.300985156211889
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.9051570528052815
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.298906119205295,
+            "bottom_decile_mean": 0.3178039966101696,
+            "decile_spread": 1.9811021225951255
+          },
+          "weighted": {
+            "top_decile_mean": 2.2440988509933755,
+            "bottom_decile_mean": 0.7244857016949152,
+            "decile_spread": 1.5196131492984604
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.05480726821191961
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.450431864686464,
+          "decile_spread": 4.300985156211889
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "XGBoost": 0.25,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "XGBoost": 0.05,
+          "HMM-XGBoost": 0.15000000000000002,
+          "ElasticNet": 0.25,
+          "SplineElasticNet": 0.55
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.81860453135313,
+            "bottom_decile_mean": 0.7390873186440666,
+            "decile_spread": 3.0795172127090633
+          },
+          "weighted": {
+            "top_decile_mean": 4.574975085808575,
+            "bottom_decile_mean": 0.4063995559322025,
+            "decile_spread": 4.168575529876372
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.7563705544554447
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.2624180596026475,
+            "bottom_decile_mean": 0.8290270033898294,
+            "decile_spread": 1.4333910562128183
+          },
+          "weighted": {
+            "top_decile_mean": 2.1864280298013226,
+            "bottom_decile_mean": 0.7003826508474574,
+            "decile_spread": 1.486045378953865
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.07599002980132497
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.574975085808575,
+          "decile_spread": 4.168575529876372
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.05,
+          "HMM-XGBoost": 0.1,
+          "SplineElasticNet": 0.8500000000000001
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.2911058382838236,
+            "bottom_decile_mean": 1.1120825864406771,
+            "decile_spread": 2.1790232518431463
+          },
+          "weighted": {
+            "top_decile_mean": 4.577256947194714,
+            "bottom_decile_mean": 0.24120296949152467,
+            "decile_spread": 4.336053977703189
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 1.2861511089108904
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.5043289602648984,
+            "bottom_decile_mean": -0.04400521694915316,
+            "decile_spread": 2.5483341772140515
+          },
+          "weighted": {
+            "top_decile_mean": 2.3731555066225147,
+            "bottom_decile_mean": 0.7538389220338982,
+            "decile_spread": 1.6193165845886166
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.13117345364238364
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.577256947194714,
+          "decile_spread": 4.336053977703189
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.25,
+          "ElasticNet": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.05,
+          "XGBoost": 0.45,
+          "ElasticNet": 0.45,
+          "SplineElasticNet": 0.05
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.72368143234323,
+            "bottom_decile_mean": 0.5612147694915246,
+            "decile_spread": 3.1624666628517053
+          },
+          "weighted": {
+            "top_decile_mean": 4.33654841254125,
+            "bottom_decile_mean": 1.0865777932203378,
+            "decile_spread": 3.249970619320912
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.6128669801980196
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.929210109271521,
+            "bottom_decile_mean": 0.9660910406779653,
+            "decile_spread": 1.9631190685935558
+          },
+          "weighted": {
+            "top_decile_mean": 2.714104172185429,
+            "bottom_decile_mean": 0.9737015559322023,
+            "decile_spread": 1.7404026162532267
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.21510593708609216
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.33654841254125,
+          "decile_spread": 3.249970619320912
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.25,
+          "HMM-XGBoost": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.05,
+          "XGBoost": 0.0,
+          "HMM-XGBoost": 0.1,
+          "SplineElasticNet": 0.8500000000000001
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.4583474422442193,
+            "bottom_decile_mean": 0.9243496711864395,
+            "decile_spread": 2.5339977710577797
+          },
+          "weighted": {
+            "top_decile_mean": 4.577256947194714,
+            "bottom_decile_mean": 0.24120296949152467,
+            "decile_spread": 4.336053977703189
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 1.1189095049504947
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.5888650761589385,
+            "bottom_decile_mean": 0.39615882711864325,
+            "decile_spread": 2.1927062490402953
+          },
+          "weighted": {
+            "top_decile_mean": 2.3731555066225147,
+            "bottom_decile_mean": 0.7538389220338982,
+            "decile_spread": 1.6193165845886166
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.21570956953642373
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.577256947194714,
+          "decile_spread": 4.336053977703189
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "XGBoost": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "XGBoost": 0.0,
+          "HMM-XGBoost": 0.15000000000000002,
+          "SplineElasticNet": 0.8500000000000001
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.2016282871287083,
+            "bottom_decile_mean": 0.9194757593220325,
+            "decile_spread": 2.2821525278066757
+          },
+          "weighted": {
+            "top_decile_mean": 4.450431864686464,
+            "bottom_decile_mean": 0.14944670847457558,
+            "decile_spread": 4.300985156211889
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 1.2488035775577555
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.51850018874172,
+            "bottom_decile_mean": 0.704204935593219,
+            "decile_spread": 1.814295253148501
+          },
+          "weighted": {
+            "top_decile_mean": 2.2440988509933755,
+            "bottom_decile_mean": 0.7244857016949152,
+            "decile_spread": 1.5196131492984604
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.2744013377483445
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.450431864686464,
+          "decile_spread": 4.300985156211889
+        }
+      }
+    ],
+    "5": [
+      {
+        "combo": [
+          "HGBR",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.05,
+          "ElasticNet": 0.4,
+          "SplineElasticNet": 0.55
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.6139341148648634,
+            "bottom_decile_mean": 1.2533085355932196,
+            "decile_spread": 2.3606255792716437
+          },
+          "weighted": {
+            "top_decile_mean": 4.345834209459459,
+            "bottom_decile_mean": 0.2888775728813557,
+            "decile_spread": 4.056956636578103
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.7319000945945953
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 1.38697927027027,
+            "bottom_decile_mean": 0.9897374101694911,
+            "decile_spread": 0.3972418601007788
+          },
+          "weighted": {
+            "top_decile_mean": 2.2677680202702697,
+            "bottom_decile_mean": 0.8099839254237287,
+            "decile_spread": 1.457784094846541
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.8807887499999998
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.345834209459459,
+          "decile_spread": 4.056956636578103
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.25,
+          "ElasticNet": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.35000000000000003,
+          "XGBoost": 0.55,
+          "ElasticNet": 0.05,
+          "SplineElasticNet": 0.05
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 4.797306756756755,
+            "bottom_decile_mean": 1.1841209084745759,
+            "decile_spread": 3.6131858482821793
+          },
+          "weighted": {
+            "top_decile_mean": 5.6800241621621606,
+            "bottom_decile_mean": 2.033362779661016,
+            "decile_spread": 3.6466613825011445
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.8827174054054057
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 1.919465594594594,
+            "bottom_decile_mean": 0.38822724745762693,
+            "decile_spread": 1.531238347136967
+          },
+          "weighted": {
+            "top_decile_mean": 2.535104452702702,
+            "bottom_decile_mean": 0.27331148474576245,
+            "decile_spread": 2.2617929679569397
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.615638858108108
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 5.6800241621621606,
+          "decile_spread": 3.6466613825011445
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.25,
+          "HMM-XGBoost": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.35000000000000003,
+          "XGBoost": 0.6000000000000001,
+          "HMM-XGBoost": 0.0,
+          "SplineElasticNet": 0.05
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 4.28263158108108,
+            "bottom_decile_mean": 1.3549845491525419,
+            "decile_spread": 2.9276470319285384
+          },
+          "weighted": {
+            "top_decile_mean": 5.659685655405404,
+            "bottom_decile_mean": 2.006378033898305,
+            "decile_spread": 3.6533076215070994
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 1.3770540743243238
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.231499635135134,
+            "bottom_decile_mean": 0.33229156610169486,
+            "decile_spread": 1.8992080690334392
+          },
+          "weighted": {
+            "top_decile_mean": 2.7646933040540533,
+            "bottom_decile_mean": 0.4714843661016947,
+            "decile_spread": 2.293208937952359
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.5331936689189192
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 5.659685655405404,
+          "decile_spread": 3.6533076215070994
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "XGBoost": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.35000000000000003,
+          "XGBoost": 0.6000000000000001,
+          "SplineElasticNet": 0.05
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 5.021048655405404,
+            "bottom_decile_mean": 1.5197164203389824,
+            "decile_spread": 3.501332235066422
+          },
+          "weighted": {
+            "top_decile_mean": 5.659685655405404,
+            "bottom_decile_mean": 2.006378033898305,
+            "decile_spread": 3.6533076215070994
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.6386370000000001
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.242370243243242,
+            "bottom_decile_mean": 0.23242105762711845,
+            "decile_spread": 2.0099491856161236
+          },
+          "weighted": {
+            "top_decile_mean": 2.7646933040540533,
+            "bottom_decile_mean": 0.4714843661016947,
+            "decile_spread": 2.293208937952359
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.5223230608108111
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 5.659685655405404,
+          "decile_spread": 3.6533076215070994
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.0,
+          "HMM-XGBoost": 0.5,
+          "ElasticNet": 0.30000000000000004,
+          "SplineElasticNet": 0.2
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 4.315194756756756,
+            "bottom_decile_mean": 1.0094856542372876,
+            "decile_spread": 3.3057091025194683
+          },
+          "weighted": {
+            "top_decile_mean": 4.739279472972973,
+            "bottom_decile_mean": 1.5111665016949143,
+            "decile_spread": 3.2281129712780583
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.4240847162162167
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.1506306283783774,
+            "bottom_decile_mean": 0.8292562169491523,
+            "decile_spread": 1.321374411429225
+          },
+          "weighted": {
+            "top_decile_mean": 2.6553403445945936,
+            "bottom_decile_mean": 0.8172453762711862,
+            "decile_spread": 1.8380949683234074
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.5047097162162162
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.739279472972973,
+          "decile_spread": 3.2281129712780583
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.0,
+          "HMM-XGBoost": 0.55,
+          "SplineElasticNet": 0.45
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 4.1834849594594585,
+            "bottom_decile_mean": 1.6072537898305077,
+            "decile_spread": 2.576231169628951
+          },
+          "weighted": {
+            "top_decile_mean": 4.558065202702702,
+            "bottom_decile_mean": 1.4740714101694907,
+            "decile_spread": 3.083993792533211
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.37458024324324324
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.219119479729729,
+            "bottom_decile_mean": 0.6220305491525422,
+            "decile_spread": 1.5970889305771867
+          },
+          "weighted": {
+            "top_decile_mean": 2.7051188040540532,
+            "bottom_decile_mean": 0.9800683457627116,
+            "decile_spread": 1.7250504582913417
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.48599932432432436
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.558065202702702,
+          "decile_spread": 3.083993792533211
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.05,
+          "XGBoost": 0.55,
+          "ElasticNet": 0.4
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 4.975038513513513,
+            "bottom_decile_mean": 1.6570348067796605,
+            "decile_spread": 3.318003706733853
+          },
+          "weighted": {
+            "top_decile_mean": 5.588744006756755,
+            "bottom_decile_mean": 1.1835811525423723,
+            "decile_spread": 4.4051628542143835
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.6137054932432422
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.358643804054053,
+            "bottom_decile_mean": 0.3687858101694912,
+            "decile_spread": 1.9898579938845617
+          },
+          "weighted": {
+            "top_decile_mean": 2.835326918918919,
+            "bottom_decile_mean": 0.35508809491525395,
+            "decile_spread": 2.4802388240036652
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.47668311486486603
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 5.588744006756755,
+          "decile_spread": 4.4051628542143835
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 5,
+        "equal_weights": {
+          "HGBR": 0.2,
+          "XGBoost": 0.2,
+          "HMM-XGBoost": 0.2,
+          "ElasticNet": 0.2,
+          "SplineElasticNet": 0.2
+        },
+        "weighted_weights": {
+          "HGBR": 0.35000000000000003,
+          "XGBoost": 0.55,
+          "HMM-XGBoost": 0.0,
+          "ElasticNet": 0.05,
+          "SplineElasticNet": 0.05
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 4.158145432432431,
+            "bottom_decile_mean": 1.0479065762711857,
+            "decile_spread": 3.1102388561612457
+          },
+          "weighted": {
+            "top_decile_mean": 5.6800241621621606,
+            "bottom_decile_mean": 2.033362779661016,
+            "decile_spread": 3.6466613825011445
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 1.5218787297297292
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.074614493243242,
+            "bottom_decile_mean": -0.0608109762711866,
+            "decile_spread": 2.135425469514429
+          },
+          "weighted": {
+            "top_decile_mean": 2.535104452702702,
+            "bottom_decile_mean": 0.27331148474576245,
+            "decile_spread": 2.2617929679569397
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.4604899594594598
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 5.6800241621621606,
+          "decile_spread": 3.6466613825011445
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "XGBoost": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.4,
+          "XGBoost": 0.6000000000000001,
+          "HMM-XGBoost": 0.0
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.964763675675675,
+            "bottom_decile_mean": 1.6775976949152533,
+            "decile_spread": 2.2871659807604217
+          },
+          "weighted": {
+            "top_decile_mean": 5.588602547297296,
+            "bottom_decile_mean": 2.031303457627118,
+            "decile_spread": 3.5572990896701784
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 1.6238388716216212
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.344097182432432,
+            "bottom_decile_mean": 0.5447074983050842,
+            "decile_spread": 1.7993896841273478
+          },
+          "weighted": {
+            "top_decile_mean": 2.649360871621621,
+            "bottom_decile_mean": 0.19575894237288102,
+            "decile_spread": 2.4536019292487397
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.3052636891891889
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 5.588602547297296,
+          "decile_spread": 3.5572990896701784
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.25,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.1,
+          "XGBoost": 0.65,
+          "HMM-XGBoost": 0.05,
+          "ElasticNet": 0.2
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 4.102065702702702,
+            "bottom_decile_mean": 1.4549293016949145,
+            "decile_spread": 2.6471364010077876
+          },
+          "weighted": {
+            "top_decile_mean": 5.638185986486485,
+            "bottom_decile_mean": 1.5287089627118637,
+            "decile_spread": 4.109477023774621
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 1.5361202837837835
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.403915763513513,
+            "bottom_decile_mean": 0.5347629288135591,
+            "decile_spread": 1.8691528346999537
+          },
+          "weighted": {
+            "top_decile_mean": 2.69000581081081,
+            "bottom_decile_mean": 0.7957827661016944,
+            "decile_spread": 1.8942230447091153
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.2860900472972969
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 5.638185986486485,
+          "decile_spread": 4.109477023774621
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.0,
+          "HMM-XGBoost": 0.35000000000000003,
+          "ElasticNet": 0.65
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 3.9013357162162157,
+            "bottom_decile_mean": 1.2087585423728806,
+            "decile_spread": 2.6925771738433353
+          },
+          "weighted": {
+            "top_decile_mean": 4.693829891891891,
+            "bottom_decile_mean": 1.1614070169491517,
+            "decile_spread": 3.532422874942739
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.7924941756756754
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.281695405405405,
+            "bottom_decile_mean": 0.6739783525423725,
+            "decile_spread": 1.6077170528630322
+          },
+          "weighted": {
+            "top_decile_mean": 2.3577541013513503,
+            "bottom_decile_mean": 0.28060452881355913,
+            "decile_spread": 2.0771495725377913
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.0760586959459455
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.693829891891891,
+          "decile_spread": 3.532422874942739
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "XGBoost": 0.25,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "XGBoost": 0.55,
+          "HMM-XGBoost": 0.1,
+          "ElasticNet": 0.35000000000000003,
+          "SplineElasticNet": 0.0
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 4.530377195945945,
+            "bottom_decile_mean": 0.8850527593220332,
+            "decile_spread": 3.645324436623912
+          },
+          "weighted": {
+            "top_decile_mean": 5.479597135135133,
+            "bottom_decile_mean": 0.9999359864406775,
+            "decile_spread": 4.479661148694456
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.949219939189188
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 3.09555006081081,
+            "bottom_decile_mean": 0.31234910508474567,
+            "decile_spread": 2.7832009557260644
+          },
+          "weighted": {
+            "top_decile_mean": 3.067606148648648,
+            "bottom_decile_mean": 0.35046572203389814,
+            "decile_spread": 2.71714042661475
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.027943912162161855
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 5.479597135135133,
+          "decile_spread": 4.479661148694456
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "XGBoost": 0.4,
+          "ElasticNet": 0.1,
+          "SplineElasticNet": 0.5
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 5.002417067567566,
+            "bottom_decile_mean": 0.8120790305084743,
+            "decile_spread": 4.1903380370590915
+          },
+          "weighted": {
+            "top_decile_mean": 5.4606426621621615,
+            "bottom_decile_mean": 0.8924085152542369,
+            "decile_spread": 4.568234146907924
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.45822559459459544
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.660274797297296,
+            "bottom_decile_mean": 0.4702699457627118,
+            "decile_spread": 2.1900048515345842
+          },
+          "weighted": {
+            "top_decile_mean": 2.5143701554054045,
+            "bottom_decile_mean": 0.22697960677966078,
+            "decile_spread": 2.2873905486257438
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.14590464189189145
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 5.4606426621621615,
+          "decile_spread": 4.568234146907924
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "XGBoost": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "XGBoost": 0.55,
+          "HMM-XGBoost": 0.1,
+          "ElasticNet": 0.35000000000000003
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 4.6841651148648635,
+            "bottom_decile_mean": 1.5741296338983044,
+            "decile_spread": 3.110035480966559
+          },
+          "weighted": {
+            "top_decile_mean": 5.479597135135133,
+            "bottom_decile_mean": 0.9999359864406775,
+            "decile_spread": 4.479661148694456
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.7954320202702698
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 3.2752007364864855,
+            "bottom_decile_mean": 0.5370911457627117,
+            "decile_spread": 2.7381095907237736
+          },
+          "weighted": {
+            "top_decile_mean": 3.067606148648648,
+            "bottom_decile_mean": 0.35046572203389814,
+            "decile_spread": 2.71714042661475
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.20759458783783735
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 5.479597135135133,
+          "decile_spread": 4.479661148694456
+        }
+      },
+      {
+        "combo": [
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HMM-XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HMM-XGBoost": 0.5,
+          "ElasticNet": 0.30000000000000004,
+          "SplineElasticNet": 0.2
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 4.362497216216215,
+            "bottom_decile_mean": 1.1118237898305077,
+            "decile_spread": 3.250673426385707
+          },
+          "weighted": {
+            "top_decile_mean": 4.739279472972973,
+            "bottom_decile_mean": 1.5111665016949143,
+            "decile_spread": 3.2281129712780583
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.3767822567567576
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.914889999999999,
+            "bottom_decile_mean": 0.718766386440678,
+            "decile_spread": 2.1961236135593207
+          },
+          "weighted": {
+            "top_decile_mean": 2.6553403445945936,
+            "bottom_decile_mean": 0.8172453762711862,
+            "decile_spread": 1.8380949683234074
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.2595496554054053
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 4.739279472972973,
+          "decile_spread": 3.2281129712780583
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "XGBoost": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "XGBoost": 0.5,
+          "HMM-XGBoost": 0.2,
+          "SplineElasticNet": 0.30000000000000004
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 4.594432939189188,
+            "bottom_decile_mean": 1.10068700338983,
+            "decile_spread": 3.493745935799358
+          },
+          "weighted": {
+            "top_decile_mean": 5.47091985135135,
+            "bottom_decile_mean": 0.9965426779661012,
+            "decile_spread": 4.474377173385249
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.8764869121621617
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 3.4224508175675665,
+            "bottom_decile_mean": -0.10135581016949156,
+            "decile_spread": 3.523806627737058
+          },
+          "weighted": {
+            "top_decile_mean": 3.0954156891891884,
+            "bottom_decile_mean": 0.19969690847457625,
+            "decile_spread": 2.895718780714612
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.3270351283783781
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 5.47091985135135,
+          "decile_spread": 4.474377173385249
+        }
+      }
+    ],
+    "10": [
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.25,
+          "HMM-XGBoost": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.35000000000000003,
+          "HMM-XGBoost": 0.25,
+          "SplineElasticNet": 0.15000000000000002
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 7.507584115254234,
+            "bottom_decile_mean": 1.1627326518771308,
+            "decile_spread": 6.344851463377103
+          },
+          "weighted": {
+            "top_decile_mean": 7.913517949152539,
+            "bottom_decile_mean": 1.2055768054607492,
+            "decile_spread": 6.70794114369179
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.4059338338983052
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 3.910298756756754,
+            "bottom_decile_mean": 1.4005376313993156,
+            "decile_spread": 2.5097611253574383
+          },
+          "weighted": {
+            "top_decile_mean": 4.378543902027024,
+            "bottom_decile_mean": 1.3906198839590422,
+            "decile_spread": 2.9879240180679822
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.46824514527027006
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 7.913517949152539,
+          "decile_spread": 6.70794114369179
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.25,
+          "ElasticNet": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.2,
+          "XGBoost": 0.2,
+          "ElasticNet": 0.5,
+          "SplineElasticNet": 0.1
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 7.056434999999997,
+            "bottom_decile_mean": 1.6718265051194523,
+            "decile_spread": 5.384608494880545
+          },
+          "weighted": {
+            "top_decile_mean": 8.096699433898301,
+            "bottom_decile_mean": 1.3108323037542648,
+            "decile_spread": 6.7858671301440365
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 1.0402644338983045
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 3.935775655405403,
+            "bottom_decile_mean": 1.207388143344708,
+            "decile_spread": 2.728387512060695
+          },
+          "weighted": {
+            "top_decile_mean": 4.253571685810809,
+            "bottom_decile_mean": 0.5555314197952207,
+            "decile_spread": 3.6980402660155884
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.31779603040540616
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 8.096699433898301,
+          "decile_spread": 6.7858671301440365
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "XGBoost": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.4,
+          "XGBoost": 0.30000000000000004,
+          "HMM-XGBoost": 0.30000000000000004
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 7.096782545762709,
+            "bottom_decile_mean": 1.2487978771331039,
+            "decile_spread": 5.847984668629605
+          },
+          "weighted": {
+            "top_decile_mean": 7.486776908474574,
+            "bottom_decile_mean": 1.7940094812286669,
+            "decile_spread": 5.692767427245907
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.3899943627118647
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 4.4111830912162135,
+            "bottom_decile_mean": 1.4888248771331039,
+            "decile_spread": 2.9223582140831095
+          },
+          "weighted": {
+            "top_decile_mean": 4.540032266891889,
+            "bottom_decile_mean": 1.418410201365186,
+            "decile_spread": 3.121622065526703
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.12884917567567555
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 7.486776908474574,
+          "decile_spread": 5.692767427245907
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + ElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.2,
+          "ElasticNet": 0.55
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 7.235136545762709,
+            "bottom_decile_mean": 2.1476787883959028,
+            "decile_spread": 5.087457757366806
+          },
+          "weighted": {
+            "top_decile_mean": 7.8083750271186405,
+            "bottom_decile_mean": 1.371952907849828,
+            "decile_spread": 6.436422119268812
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.5732384813559319
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 4.1162131554054024,
+            "bottom_decile_mean": 1.1766796109214999,
+            "decile_spread": 2.9395335444839024
+          },
+          "weighted": {
+            "top_decile_mean": 4.1078727635135115,
+            "bottom_decile_mean": 0.5588467781569953,
+            "decile_spread": 3.5490259853565163
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.008340391891890953
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 7.8083750271186405,
+          "decile_spread": 6.436422119268812
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 5,
+        "equal_weights": {
+          "HGBR": 0.2,
+          "XGBoost": 0.2,
+          "HMM-XGBoost": 0.2,
+          "ElasticNet": 0.2,
+          "SplineElasticNet": 0.2
+        },
+        "weighted_weights": {
+          "HGBR": 0.2,
+          "XGBoost": 0.2,
+          "HMM-XGBoost": 0.0,
+          "ElasticNet": 0.5,
+          "SplineElasticNet": 0.1
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 7.177237949152539,
+            "bottom_decile_mean": 1.2820221331058002,
+            "decile_spread": 5.895215816046738
+          },
+          "weighted": {
+            "top_decile_mean": 8.096699433898301,
+            "bottom_decile_mean": 1.3108323037542648,
+            "decile_spread": 6.7858671301440365
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.9194614847457627
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 4.263528635135132,
+            "bottom_decile_mean": 1.1603126518771314,
+            "decile_spread": 3.103215983258001
+          },
+          "weighted": {
+            "top_decile_mean": 4.253571685810809,
+            "bottom_decile_mean": 0.5555314197952207,
+            "decile_spread": 3.6980402660155884
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.009956949324323006
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 8.096699433898301,
+          "decile_spread": 6.7858671301440365
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "XGBoost": 0.25,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "XGBoost": 0.45,
+          "HMM-XGBoost": 0.05,
+          "ElasticNet": 0.0,
+          "SplineElasticNet": 0.5
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 6.947558372881354,
+            "bottom_decile_mean": -0.09534135153583755,
+            "decile_spread": 7.042899724417191
+          },
+          "weighted": {
+            "top_decile_mean": 7.742639579661014,
+            "bottom_decile_mean": 0.7434064300341283,
+            "decile_spread": 6.999233149626885
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.7950812067796598
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.9829545844594567,
+            "bottom_decile_mean": 1.489255907849828,
+            "decile_spread": 1.4936986766096287
+          },
+          "weighted": {
+            "top_decile_mean": 2.9374239020270245,
+            "bottom_decile_mean": 1.0728275187713292,
+            "decile_spread": 1.8645963832556953
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.04553068243243219
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 7.742639579661014,
+          "decile_spread": 6.999233149626885
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.2,
+          "HMM-XGBoost": 0.15000000000000002,
+          "SplineElasticNet": 0.65
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 6.271917820338981,
+            "bottom_decile_mean": 1.4355884982935134,
+            "decile_spread": 4.836329322045468
+          },
+          "weighted": {
+            "top_decile_mean": 7.342323433898303,
+            "bottom_decile_mean": 0.47110786006825794,
+            "decile_spread": 6.871215573830045
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 1.0704056135593225
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 4.135809841216213,
+            "bottom_decile_mean": 1.7720812525597252,
+            "decile_spread": 2.363728588656488
+          },
+          "weighted": {
+            "top_decile_mean": 4.0830632195945915,
+            "bottom_decile_mean": 0.9999878634812273,
+            "decile_spread": 3.083075356113364
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.05274662162162169
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 7.342323433898303,
+          "decile_spread": 6.871215573830045
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "XGBoost": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "XGBoost": 0.45,
+          "HMM-XGBoost": 0.05,
+          "SplineElasticNet": 0.5
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 6.779194305084744,
+            "bottom_decile_mean": -0.16836248464163978,
+            "decile_spread": 6.9475567897263835
+          },
+          "weighted": {
+            "top_decile_mean": 7.742639579661014,
+            "bottom_decile_mean": 0.7434064300341283,
+            "decile_spread": 6.999233149626885
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.9634452745762703
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 3.0508762668918896,
+            "bottom_decile_mean": 1.4207689419795202,
+            "decile_spread": 1.6301073249123694
+          },
+          "weighted": {
+            "top_decile_mean": 2.9374239020270245,
+            "bottom_decile_mean": 1.0728275187713292,
+            "decile_spread": 1.8645963832556953
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.1134523648648651
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 7.742639579661014,
+          "decile_spread": 6.999233149626885
+        }
+      },
+      {
+        "combo": [
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HMM-XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HMM-XGBoost": 0.1,
+          "ElasticNet": 0.15000000000000002,
+          "SplineElasticNet": 0.75
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 5.481740423728812,
+            "bottom_decile_mean": 0.00018930034129587906,
+            "decile_spread": 5.481551123387517
+          },
+          "weighted": {
+            "top_decile_mean": 6.742819789830506,
+            "bottom_decile_mean": 0.06339122184300239,
+            "decile_spread": 6.679428567987504
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 1.2610793661016935
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 3.6677087905405377,
+            "bottom_decile_mean": 2.1075648464163805,
+            "decile_spread": 1.5601439441241571
+          },
+          "weighted": {
+            "top_decile_mean": 3.538976567567565,
+            "bottom_decile_mean": 1.5225882047781554,
+            "decile_spread": 2.0163883627894092
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.12873222297297282
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 6.742819789830506,
+          "decile_spread": 6.679428567987504
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.25,
+          "SplineElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.2,
+          "HMM-XGBoost": 0.15000000000000002,
+          "ElasticNet": 0.0,
+          "SplineElasticNet": 0.65
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 6.830703183050845,
+            "bottom_decile_mean": 0.8794985187713295,
+            "decile_spread": 5.9512046642795156
+          },
+          "weighted": {
+            "top_decile_mean": 7.342323433898303,
+            "bottom_decile_mean": 0.47110786006825794,
+            "decile_spread": 6.871215573830045
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.5116202508474581
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 4.306244175675673,
+            "bottom_decile_mean": 1.225186839590442,
+            "decile_spread": 3.0810573360852307
+          },
+          "weighted": {
+            "top_decile_mean": 4.0830632195945915,
+            "bottom_decile_mean": 0.9999878634812273,
+            "decile_spread": 3.083075356113364
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.22318095608108113
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 7.342323433898303,
+          "decile_spread": 6.871215573830045
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.45,
+          "ElasticNet": 0.0,
+          "SplineElasticNet": 0.55
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 6.017807477966099,
+            "bottom_decile_mean": 1.5644488771331044,
+            "decile_spread": 4.453358600832995
+          },
+          "weighted": {
+            "top_decile_mean": 7.163035738983049,
+            "bottom_decile_mean": 2.4026810511945373,
+            "decile_spread": 4.760354687788512
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 1.1452282610169497
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 4.146655111486484,
+            "bottom_decile_mean": 0.4221237610921487,
+            "decile_spread": 3.724531350394335
+          },
+          "weighted": {
+            "top_decile_mean": 3.9019277229729696,
+            "bottom_decile_mean": 0.08727967235494723,
+            "decile_spread": 3.8146480506180223
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.2447273885135144
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 7.163035738983049,
+          "decile_spread": 4.760354687788512
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "ElasticNet",
+          "SplineElasticNet"
+        ],
+        "combo_key": "XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "XGBoost": 0.55,
+          "ElasticNet": 0.0,
+          "SplineElasticNet": 0.45
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 6.547825871186439,
+            "bottom_decile_mean": 1.178160013651876,
+            "decile_spread": 5.369665857534563
+          },
+          "weighted": {
+            "top_decile_mean": 7.715867101694913,
+            "bottom_decile_mean": 0.45342377133105644,
+            "decile_spread": 7.2624433303638565
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 1.1680412305084742
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 2.7219614864864847,
+            "bottom_decile_mean": 1.599363139931739,
+            "decile_spread": 1.1225983465547458
+          },
+          "weighted": {
+            "top_decile_mean": 2.4279181587837813,
+            "bottom_decile_mean": 0.5877238907849816,
+            "decile_spread": 1.8401942679987997
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.29404332770270347
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 7.715867101694913,
+          "decile_spread": 7.2624433303638565
+        }
+      },
+      {
+        "combo": [
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "XGBoost": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "XGBoost": 0.55,
+          "HMM-XGBoost": 0.15000000000000002,
+          "ElasticNet": 0.30000000000000004
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 6.8340185220338965,
+            "bottom_decile_mean": 0.20041490102388937,
+            "decile_spread": 6.633603621010007
+          },
+          "weighted": {
+            "top_decile_mean": 7.496120599999997,
+            "bottom_decile_mean": 0.5873496484641624,
+            "decile_spread": 6.908770951535835
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.6621020779661002
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 3.6712380304054024,
+            "bottom_decile_mean": 1.9332876484641621,
+            "decile_spread": 1.7379503819412403
+          },
+          "weighted": {
+            "top_decile_mean": 3.243998165540538,
+            "bottom_decile_mean": 1.332581911262797,
+            "decile_spread": 1.911416254277741
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.4272398648648643
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 7.496120599999997,
+          "decile_spread": 6.908770951535835
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "SplineElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "XGBoost": 0.3333333333333333,
+          "SplineElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.1,
+          "XGBoost": 0.6000000000000001,
+          "SplineElasticNet": 0.30000000000000004
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 7.03160101355932,
+            "bottom_decile_mean": 1.8776535324232064,
+            "decile_spread": 5.153947481136114
+          },
+          "weighted": {
+            "top_decile_mean": 7.825660511864404,
+            "bottom_decile_mean": 1.2174539590443672,
+            "decile_spread": 6.608206552820037
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.7940594983050842
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 3.799742209459457,
+            "bottom_decile_mean": 0.44149019112627785,
+            "decile_spread": 3.358252018333179
+          },
+          "weighted": {
+            "top_decile_mean": 2.948899979729727,
+            "bottom_decile_mean": 0.8407604982935137,
+            "decile_spread": 2.108139481436213
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.85084222972973
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 7.825660511864404,
+          "decile_spread": 6.608206552820037
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "XGBoost",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 4,
+        "equal_weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.25,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.25
+        },
+        "weighted_weights": {
+          "HGBR": 0.2,
+          "XGBoost": 0.30000000000000004,
+          "HMM-XGBoost": 0.05,
+          "ElasticNet": 0.45
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 7.240369752542371,
+            "bottom_decile_mean": 1.551924928327643,
+            "decile_spread": 5.688444824214728
+          },
+          "weighted": {
+            "top_decile_mean": 7.810184179661014,
+            "bottom_decile_mean": 1.4029484744027285,
+            "decile_spread": 6.407235705258286
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.5698144271186427
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 4.322399983108104,
+            "bottom_decile_mean": 1.5680813174061414,
+            "decile_spread": 2.7543186657019625
+          },
+          "weighted": {
+            "top_decile_mean": 3.385631483108106,
+            "bottom_decile_mean": 1.3658254709897597,
+            "decile_spread": 2.0198060121183463
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -0.9367684999999981
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 7.810184179661014,
+          "decile_spread": 6.407235705258286
+        }
+      },
+      {
+        "combo": [
+          "HGBR",
+          "HMM-XGBoost",
+          "ElasticNet"
+        ],
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "equal_weights": {
+          "HGBR": 0.3333333333333333,
+          "HMM-XGBoost": 0.3333333333333333,
+          "ElasticNet": 0.3333333333333333
+        },
+        "weighted_weights": {
+          "HGBR": 0.65,
+          "HMM-XGBoost": 0.25,
+          "ElasticNet": 0.1
+        },
+        "validation": {
+          "equal": {
+            "top_decile_mean": 6.533402630508472,
+            "bottom_decile_mean": 1.8679746313993149,
+            "decile_spread": 4.665427999109157
+          },
+          "weighted": {
+            "top_decile_mean": 7.007250806779657,
+            "bottom_decile_mean": 2.4284311979522166,
+            "decile_spread": 4.578819608827441
+          },
+          "delta_top_decile_pp_weighted_minus_equal": 0.4738481762711855
+        },
+        "test": {
+          "equal": {
+            "top_decile_mean": 4.28381174324324,
+            "bottom_decile_mean": 2.0083198191126264,
+            "decile_spread": 2.275491924130614
+          },
+          "weighted": {
+            "top_decile_mean": 3.1270386824324294,
+            "bottom_decile_mean": 0.8694669180887358,
+            "decile_spread": 2.2575717643436937
+          },
+          "delta_top_decile_pp_weighted_minus_equal": -1.1567730608108109
+        },
+        "opt_objective_validation": {
+          "top_decile_mean": 7.007250806779657,
+          "decile_spread": 4.578819608827441
+        }
+      }
+    ]
+  },
+  "summary": {
+    "combo_ranking_by_avg_test_delta": [
+      {
+        "combo_key": "HGBR + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "avg_val_delta_top_decile_pp": 0.7650967154091415,
+        "avg_test_delta_top_decile_pp": 0.1886940882622069,
+        "min_test_delta_top_decile_pp": -0.3427105481727577,
+        "max_test_delta_top_decile_pp": 0.8807887499999998,
+        "test_weighted_beats_equal_in_n_horizons": 2
+      },
+      {
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 4,
+        "avg_val_delta_top_decile_pp": 0.7886552295391281,
+        "avg_test_delta_top_decile_pp": 0.18095880617980264,
+        "min_test_delta_top_decile_pp": -0.21570956953642373,
+        "max_test_delta_top_decile_pp": 0.5331936689189192,
+        "test_weighted_beats_equal_in_n_horizons": 2
+      },
+      {
+        "combo_key": "HGBR + XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "avg_val_delta_top_decile_pp": 0.7297170844435386,
+        "avg_test_delta_top_decile_pp": 0.17938439732529404,
+        "min_test_delta_top_decile_pp": -0.21510593708609216,
+        "max_test_delta_top_decile_pp": 0.615638858108108,
+        "test_weighted_beats_equal_in_n_horizons": 2
+      },
+      {
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost",
+        "n_models": 3,
+        "avg_val_delta_top_decile_pp": 0.748118432233361,
+        "avg_test_delta_top_decile_pp": 0.15920158283081187,
+        "min_test_delta_top_decile_pp": -0.14056112956810596,
+        "max_test_delta_top_decile_pp": 0.343254596026489,
+        "test_weighted_beats_equal_in_n_horizons": 3
+      },
+      {
+        "combo_key": "HGBR + XGBoost + ElasticNet",
+        "n_models": 3,
+        "avg_val_delta_top_decile_pp": 0.5128035082079773,
+        "avg_test_delta_top_decile_pp": 0.15222375898409635,
+        "min_test_delta_top_decile_pp": -0.008340391891890953,
+        "max_test_delta_top_decile_pp": 0.47668311486486603,
+        "test_weighted_beats_equal_in_n_horizons": 3
+      },
+      {
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 5,
+        "avg_val_delta_top_decile_pp": 1.1066832539850888,
+        "avg_test_delta_top_decile_pp": 0.1341889929272847,
+        "min_test_delta_top_decile_pp": -0.009956949324323006,
+        "max_test_delta_top_decile_pp": 0.4604899594594598,
+        "test_weighted_beats_equal_in_n_horizons": 3
+      },
+      {
+        "combo_key": "HGBR + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "avg_val_delta_top_decile_pp": 0.7484994615280317,
+        "avg_test_delta_top_decile_pp": 0.09730635711557822,
+        "min_test_delta_top_decile_pp": -0.13117345364238364,
+        "max_test_delta_top_decile_pp": 0.48599932432432436,
+        "test_weighted_beats_equal_in_n_horizons": 2
+      },
+      {
+        "combo_key": "HGBR + XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "avg_val_delta_top_decile_pp": 0.5835352402550315,
+        "avg_test_delta_top_decile_pp": 0.07691431668151538,
+        "min_test_delta_top_decile_pp": -0.85084222972973,
+        "max_test_delta_top_decile_pp": 0.5551708708609273,
+        "test_weighted_beats_equal_in_n_horizons": 3
+      },
+      {
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "avg_val_delta_top_decile_pp": 0.5297238776742768,
+        "avg_test_delta_top_decile_pp": 0.05649297226904815,
+        "min_test_delta_top_decile_pp": -0.22318095608108113,
+        "max_test_delta_top_decile_pp": 0.5047097162162162,
+        "test_weighted_beats_equal_in_n_horizons": 1
+      },
+      {
+        "combo_key": "HGBR + XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 4,
+        "avg_val_delta_top_decile_pp": 0.8511822501163178,
+        "avg_test_delta_top_decile_pp": -0.04693801636537409,
+        "min_test_delta_top_decile_pp": -0.9367684999999981,
+        "max_test_delta_top_decile_pp": 0.3882354403973509,
+        "test_weighted_beats_equal_in_n_horizons": 3
+      },
+      {
+        "combo_key": "HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "avg_val_delta_top_decile_pp": 0.7778874762249031,
+        "avg_test_delta_top_decile_pp": -0.09414537634857123,
+        "min_test_delta_top_decile_pp": -0.2595496554054053,
+        "max_test_delta_top_decile_pp": 0.06650764119601282,
+        "test_weighted_beats_equal_in_n_horizons": 1
+      },
+      {
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 4,
+        "avg_val_delta_top_decile_pp": 0.7505835189598936,
+        "avg_test_delta_top_decile_pp": -0.10330035460396325,
+        "min_test_delta_top_decile_pp": -0.263736794019934,
+        "max_test_delta_top_decile_pp": -0.027943912162161855,
+        "test_weighted_beats_equal_in_n_horizons": 0
+      },
+      {
+        "combo_key": "XGBoost + HMM-XGBoost + SplineElasticNet",
+        "n_models": 3,
+        "avg_val_delta_top_decile_pp": 0.8663114950607578,
+        "avg_test_delta_top_decile_pp": -0.1516589394754717,
+        "min_test_delta_top_decile_pp": -0.3270351283783781,
+        "max_test_delta_top_decile_pp": 0.10825307308970089,
+        "test_weighted_beats_equal_in_n_horizons": 1
+      },
+      {
+        "combo_key": "XGBoost + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "avg_val_delta_top_decile_pp": 0.5896133667764535,
+        "avg_test_delta_top_decile_pp": -0.16086714308425842,
+        "min_test_delta_top_decile_pp": -0.4272398648648643,
+        "max_test_delta_top_decile_pp": 0.26420200993377474,
+        "test_weighted_beats_equal_in_n_horizons": 1
+      },
+      {
+        "combo_key": "XGBoost + ElasticNet + SplineElasticNet",
+        "n_models": 3,
+        "avg_val_delta_top_decile_pp": 0.6489727524529765,
+        "avg_test_delta_top_decile_pp": -0.2003047383035793,
+        "min_test_delta_top_decile_pp": -0.439459053156146,
+        "max_test_delta_top_decile_pp": 0.07818806953642365,
+        "test_weighted_beats_equal_in_n_horizons": 1
+      },
+      {
+        "combo_key": "HGBR + HMM-XGBoost + ElasticNet",
+        "n_models": 3,
+        "avg_val_delta_top_decile_pp": 0.48900189810535144,
+        "avg_test_delta_top_decile_pp": -0.21971515393485863,
+        "min_test_delta_top_decile_pp": -1.1567730608108109,
+        "max_test_delta_top_decile_pp": 0.14372923588039788,
+        "test_weighted_beats_equal_in_n_horizons": 3
+      }
+    ],
+    "global": {
+      "n_combo_horizon_cases": 64,
+      "weighted_beats_equal_on_test_cases": 31,
+      "weighted_beats_equal_on_validation_cases": 64,
+      "avg_test_delta_top_decile_pp_all_cases": 0.015527221903722598
+    }
+  }
+}

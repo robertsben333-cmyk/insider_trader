@@ -1,0 +1,24 @@
+{
+  "weights_by_horizon": {
+    "1": {
+      "mode": "equal",
+      "weights": {
+        "HGBR": 0.25,
+        "XGBoost": 0.25,
+        "ElasticNet": 0.25,
+        "SplineElasticNet": 0.25
+      }
+    },
+    "3": {
+      "mode": "equal",
+      "weights": {
+        "HGBR": 0.25,
+        "XGBoost": 0.25,
+        "ElasticNet": 0.25,
+        "SplineElasticNet": 0.25
+      }
+    }
+  },
+  "rule": "equal(1d,3d)",
+  "multi_day_targets_are_daily": true
+}
