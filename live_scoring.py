@@ -1509,7 +1509,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--day1-decile-cutoff-file",
-        default="backtest/out/investable_decile_score_sweep_005.csv",
+        default="backtest/out/investable_decile_score_sweep_0005.csv",
         help="CSV mapping decile_score_threshold -> raw_pred_mean4_cutoff.",
     )
     p.add_argument("--day1-benchmark-file", default="research/outcomes/models/equal4_deciles_time_split.csv")
