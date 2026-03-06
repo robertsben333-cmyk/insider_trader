@@ -33,6 +33,7 @@ live/data/price_cache/
 
 # Live run state (machine-specific)
 live/data/*.scrape_state.json
+live/data/vm_sync/
 
 # Backtest data directory (large regeneratable files)
 backtest/data/
