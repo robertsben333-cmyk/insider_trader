@@ -62,6 +62,31 @@ DEFAULT_DAY1_RAW_THRESHOLD = 0.712992
 DEFAULT_ADVICE_BASE_ALLOC_FRACTION = 0.25
 DEFAULT_ADVICE_BONUS_FRACTION = 0.25
 EXIT_POLICY_REVIEW_DATE = "2026-03-01"
+ALERT_EXPORT_COLUMNS = [
+    "scored_at",
+    "event_key",
+    "ticker",
+    "company_name",
+    "owner_name",
+    "title",
+    "trade_date",
+    "buy_price",
+    "score_1d",
+    "score_3d",
+    "score_5d",
+    "score_10d",
+    "pred_mean4",
+    "estimated_decile_score",
+    "decile_strength",
+    "advised_allocation_fraction",
+    "advised_allocation_pct",
+    "market_type",
+    "is_tradable",
+    "raw_alert_threshold",
+    "decile_score_threshold",
+    "threshold_source",
+    "alert_score_column",
+]
 OFFICER_PATTERN = re.compile(
     r"\b(COB|Chairman|CEO|Co-CEO|Pres|President|COO|CFO|GC|VP|SVP|EVP)\b",
     re.IGNORECASE,
@@ -1200,10 +1225,11 @@ def print_day1_investment_findings(
         alloc_txt = "n/a" if np.isnan(alloc_frac) else f"{alloc_frac * 100.0:.1f}%"
         dec_est = _to_float(row.get("estimated_decile_score"))
         dec_txt = "n/a" if np.isnan(dec_est) else f"{dec_est:.3f}"
+        found_at = str(row.get("scored_at", ""))
         print(
             f"{row['ticker']} | {row['company_name']} | owner={row['owner_name']} | "
             f"trade_date={row['trade_date']} | {pred_col}={_to_float(row[pred_col]):+.3f}% | "
-            f"est_decile={dec_txt} | advised_alloc={alloc_txt} of budget"
+            f"est_decile={dec_txt} | advised_alloc={alloc_txt} of budget | found_at={found_at}"
         )
     print()
 
@@ -1236,15 +1262,69 @@ def build_alert_detail_rows(
 
     cols = ["event_key", "ticker", "company_name", "owner_name", "trade_date", "buy_price"]
     optional_cols = [
+        "title",
+        "scored_at",
+        "pred_mean4",
         "estimated_decile_score",
         "decile_strength",
         "advised_allocation_fraction",
         "advised_allocation_pct",
+        "market_type",
+        "is_tradable",
     ]
     cols = cols + [c for c in optional_cols if c in picks_df.columns]
     base = picks_df[cols].drop_duplicates(subset=["event_key"], keep="first").copy()  # type: ignore[call-overload]
     out = base.merge(piv, on="event_key", how="left")
     return out.sort_values("score_1d", ascending=False).reset_index(drop=True)
+
+
+def build_alert_export_rows(
+    scored_df: pd.DataFrame,
+    picks_df: pd.DataFrame,
+    pred_col: str,
+    threshold: float,
+    decile_score_threshold: float,
+    threshold_source: str,
+) -> pd.DataFrame:
+    details_df = build_alert_detail_rows(scored_df, picks_df, pred_col)
+    if details_df.empty:
+        return pd.DataFrame(columns=pd.Index(ALERT_EXPORT_COLUMNS))
+
+    out = details_df.copy()
+    out["raw_alert_threshold"] = float(threshold)
+    out["decile_score_threshold"] = float(decile_score_threshold)
+    out["threshold_source"] = str(threshold_source)
+    out["alert_score_column"] = pred_col
+    for col in ALERT_EXPORT_COLUMNS:
+        if col not in out.columns:
+            out[col] = np.nan
+    out = out[ALERT_EXPORT_COLUMNS].copy()
+    return out.sort_values(["scored_at", "score_1d", "ticker"], ascending=[False, False, True]).reset_index(drop=True)
+
+
+def update_alert_candidate_exports(
+    latest_path: Path,
+    history_path: Path,
+    export_df: pd.DataFrame,
+    logger: logging.Logger,
+) -> None:
+    latest = export_df.copy() if not export_df.empty else pd.DataFrame(columns=pd.Index(ALERT_EXPORT_COLUMNS))
+    latest_path.parent.mkdir(parents=True, exist_ok=True)
+    latest.to_csv(latest_path, index=False)
+    logger.info("Alert snapshot updated -> %s (rows=%d)", latest_path, len(latest))
+
+    old_history = read_csv_or_empty(history_path, ALERT_EXPORT_COLUMNS)
+    if export_df.empty:
+        history = old_history
+    else:
+        history = pd.concat([old_history, export_df], ignore_index=True)
+        history = history.drop_duplicates(subset=["event_key", "scored_at"], keep="last")
+        history = history.sort_values(["scored_at", "score_1d", "ticker"], ascending=[False, False, True])  # type: ignore[call-overload]
+
+    history = history.reindex(columns=ALERT_EXPORT_COLUMNS)
+    history_path.parent.mkdir(parents=True, exist_ok=True)
+    history.to_csv(history_path, index=False)
+    logger.info("Alert history updated -> %s (rows=%d)", history_path, len(history))
 
 
 def build_exit_policy_html(review_date: str) -> str:
@@ -1322,6 +1402,7 @@ def send_email(
         s10     = _to_float(row.get("score_10d"))
         dec_est = _to_float(row.get("estimated_decile_score"))
         adv_alloc_pct = _to_float(row.get("advised_allocation_pct"))
+        found_at      = str(row.get("scored_at", ""))
         buy_px_txt    = "nan" if np.isnan(buy_px)       else f"{buy_px:.4f}"
         s1_txt        = "nan" if np.isnan(s1)           else f"{s1:+.3f}%"
         s3_txt        = "nan" if np.isnan(s3)           else f"{s3:+.3f}%"
@@ -1342,6 +1423,7 @@ def send_email(
             f"<td>{s10_txt}</td>"
             f"<td>{dec_txt}</td>"
             f"<td>{adv_alloc_txt}</td>"
+            f"<td>{found_at}</td>"
             "</tr>"
         )
 
@@ -1363,7 +1445,7 @@ def send_email(
           <tr>
             <th>Ticker</th><th>Company</th><th>Owner</th><th>Trade Date</th><th>Buy Price</th>
             <th>Score 1d</th><th>Score 3d</th><th>Score 5d</th><th>Score 10d</th>
-            <th>Est Decile</th><th>Adv Alloc % of Budget</th>
+            <th>Est Decile</th><th>Adv Alloc % of Budget</th><th>Found At</th>
           </tr>
           {''.join(rows_html)}
         </table>
@@ -1464,6 +1546,20 @@ def run_cycle(
         pred_col,
         threshold_source,
     )
+    alert_export_df = build_alert_export_rows(
+        scored_df=scored,
+        picks_df=picks_df,
+        pred_col=pred_col,
+        threshold=threshold,
+        decile_score_threshold=args.day1_decile_score_threshold,
+        threshold_source=threshold_source,
+    )
+    update_alert_candidate_exports(
+        latest_path=Path(args.alert_snapshot_file),
+        history_path=Path(args.alert_history_file),
+        export_df=alert_export_df,
+        logger=logger,
+    )
     if not picks_df.empty and not args.no_email:
         send_email(
             scored_df=scored,
@@ -1498,6 +1594,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--sector-cache-file", default="live/data/sector_cache.csv")
     p.add_argument("--model-dir", default="models/prod4")
     p.add_argument("--temp-aggregate-file", default="live/data/live_scoring_temp_aggregate.csv")
+    p.add_argument("--alert-snapshot-file", default="live/data/latest_alert_candidates.csv")
+    p.add_argument("--alert-history-file", default="live/data/alert_candidate_history.csv")
     p.add_argument("--months-back", type=int, default=1, help="Current month + N previous months.")
     p.add_argument("--once", action="store_true", help="Run exactly one cycle.")
     p.add_argument("--polygon-api-key", default="", help="Optional override for POLYGON_API_KEY.")
