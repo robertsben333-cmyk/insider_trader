@@ -1377,7 +1377,7 @@ def send_email(
         logger.warning("No alert detail rows available; skipping email send.")
         return False
 
-    smtp_server = os.getenv("SMTP_SERVER", "smtp.office365.com")
+    smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
     smtp_port = int(os.getenv("SMTP_PORT", "587"))
     smtp_user = os.getenv("SMTP_USER", "")
     smtp_pass = os.getenv("SMTP_PASS", "")

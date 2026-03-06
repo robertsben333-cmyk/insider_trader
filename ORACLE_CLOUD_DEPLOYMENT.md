@@ -118,15 +118,21 @@ sudo nano /etc/insider_trades.env
 Paste contents:
 ```ini
 POLYGON_API_KEY=your_polygon_key_here
-SMTP_SERVER=smtp.office365.com
+SMTP_SERVER=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=xavierjjc@outlook.com
-SMTP_PASS=your_outlook_app_password_here
+SMTP_USER=yourgmail@gmail.com
+SMTP_PASS=your_16_char_gmail_app_password_here
 ```
 Save: `Ctrl+O` → `Enter` → `Ctrl+X`
 ```bash
 sudo chmod 600 /etc/insider_trades.env
 ```
+
+Use Gmail app-password SMTP for the current setup:
+- `SMTP_SERVER=smtp.gmail.com`
+- `SMTP_PORT=587`
+- `SMTP_USER` should be the Gmail sender account
+- `SMTP_PASS` must be a Google app password, not the normal Gmail password
 
 ### 12. Test run manually
 The script does NOT support `--env-file`. Load env vars with `set -a / source`:
