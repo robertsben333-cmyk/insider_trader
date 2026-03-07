@@ -1,0 +1,19 @@
+[Unit]
+Description=IB Gateway headless launcher
+After=insider-xvfb.service network-online.target
+Requires=insider-xvfb.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=opc
+WorkingDirectory=/home/opc/insider_trader
+EnvironmentFile=/etc/insider_trades.env
+Environment=DISPLAY=:1
+ExecStart=/home/opc/insider_trader/scripts/vm/start_ibgateway.sh
+ExecStartPost=/home/opc/insider_trader/.venv/bin/python3.11 /home/opc/insider_trader/scripts/vm/wait_for_ibgateway.py --host 127.0.0.1 --port 4002 --timeout 120
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target

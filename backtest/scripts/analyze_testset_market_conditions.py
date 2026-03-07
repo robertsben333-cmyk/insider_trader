@@ -93,6 +93,17 @@ def classify_regime(value: float) -> str:
     return "flat"
 
 
+def compounded_to_1d_equivalent(ret_pct: float, trading_days: int) -> float:
+    if pd.isna(ret_pct):
+        return float("nan")
+    gross = 1.0 + float(ret_pct) / 100.0
+    if gross <= 0:
+        return float("nan")
+    if trading_days <= 1:
+        return float(ret_pct)
+    return ((gross ** (1.0 / float(trading_days))) - 1.0) * 100.0
+
+
 def load_trade_data(path: Path) -> pd.DataFrame:
     df = pd.read_csv(path)
     if "entry_time" not in df.columns or "ret_pct" not in df.columns:
@@ -141,6 +152,16 @@ def build_benchmark_frame(client: RESTClient, cache_dir: Path, ticker: str, buy_
     return bench
 
 
+def add_excess_return_columns(df: pd.DataFrame) -> pd.DataFrame:
+    out = df.copy()
+    for window_label, feature_col, window_days in WINDOWS:
+        adjusted_col = f"{window_label}_benchmark_1d_equiv_ret_pct"
+        excess_col = f"{window_label}_day_adjusted_excess_ret_pct"
+        out[adjusted_col] = out[feature_col].apply(lambda value: compounded_to_1d_equivalent(value, window_days))
+        out[excess_col] = out["strategy_ret_pct"] - out[adjusted_col]
+    return out
+
+
 def summarize_by_regime(df: pd.DataFrame, level: str) -> pd.DataFrame:
     rows: list[dict] = []
     overall_mean = float(df["strategy_ret_pct"].mean()) if len(df) else float("nan")
@@ -152,6 +173,8 @@ def summarize_by_regime(df: pd.DataFrame, level: str) -> pd.DataFrame:
 
     for window_label, feature_col, _window_days in WINDOWS:
         regime_col = f"{window_label}_regime"
+        adjusted_col = f"{window_label}_benchmark_1d_equiv_ret_pct"
+        excess_col = f"{window_label}_day_adjusted_excess_ret_pct"
         for regime in REGIME_ORDER:
             sample = df[df[regime_col] == regime].copy()
             if sample.empty:
@@ -169,6 +192,9 @@ def summarize_by_regime(df: pd.DataFrame, level: str) -> pd.DataFrame:
                     "median_strategy_ret_pct": float(sample["strategy_ret_pct"].median()),
                     "win_rate_pct": float((sample["strategy_ret_pct"] > 0).mean() * 100.0),
                     "mean_benchmark_ret_pct": float(sample[feature_col].mean()),
+                    "mean_benchmark_1d_equiv_ret_pct": float(sample[adjusted_col].mean()),
+                    "mean_day_adjusted_excess_vs_benchmark_pct": float(sample[excess_col].mean()),
+                    "median_day_adjusted_excess_vs_benchmark_pct": float(sample[excess_col].median()),
                     "mean_return_diff_vs_all_pct": float(sample["strategy_ret_pct"].mean() - overall_mean),
                     "invested_eur": invested_sum,
                     "pnl_eur": pnl_sum,
@@ -190,9 +216,12 @@ def date_level_frame(df: pd.DataFrame) -> pd.DataFrame:
             "pnl_eur": float(sample["pnl_eur"].fillna(0).sum()),
             "n_obs": int(len(sample)),
         }
-        for window_label, feature_col, _window_days in WINDOWS:
+        for window_label, feature_col, window_days in WINDOWS:
             row[feature_col] = float(sample[feature_col].iloc[0])
             row[f"{window_label}_regime"] = str(sample[f"{window_label}_regime"].iloc[0])
+            benchmark_1d_equiv = compounded_to_1d_equivalent(float(sample[feature_col].iloc[0]), window_days)
+            row[f"{window_label}_benchmark_1d_equiv_ret_pct"] = benchmark_1d_equiv
+            row[f"{window_label}_day_adjusted_excess_ret_pct"] = float(sample["strategy_ret_pct"].mean() - benchmark_1d_equiv)
         rows.append(row)
     return pd.DataFrame(rows)
 
@@ -215,9 +244,11 @@ def print_summary(summary: pd.DataFrame, benchmark: str) -> None:
             print(
                 f"  {regime}: n={int(row['n_obs'])} "
                 f"mean_ret={float(row['mean_strategy_ret_pct']):.4f}% "
+                f"mean_day_adjusted_excess={float(row['mean_day_adjusted_excess_vs_benchmark_pct']):.4f}% "
                 f"win_rate={float(row['win_rate_pct']):.1f}% "
                 f"weighted_ret={float(row['capital_weighted_ret_pct']):.4f}% "
-                f"benchmark_mean={float(row['mean_benchmark_ret_pct']):.4f}%"
+                f"benchmark_mean={float(row['mean_benchmark_ret_pct']):.4f}% "
+                f"benchmark_1d_equiv={float(row['mean_benchmark_1d_equiv_ret_pct']):.4f}%"
             )
 
 
@@ -249,6 +280,7 @@ def main() -> None:
     merged = trades.merge(benchmark, on="buy_date", how="left")
     feature_columns = [feature_col for _window_label, feature_col, _window_days in WINDOWS]
     merged = merged.dropna(subset=feature_columns).copy()
+    merged = add_excess_return_columns(merged)
 
     trade_summary = summarize_by_regime(merged, level="trade")
     date_summary = summarize_by_regime(date_level_frame(merged), level="date")

@@ -1,0 +1,17 @@
+[Unit]
+Description=Virtual display for IB Gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=opc
+WorkingDirectory=/home/opc/insider_trader
+Environment=DISPLAY=:1
+Environment=XVFB_GEOMETRY=1440x900x24
+ExecStart=/home/opc/insider_trader/scripts/vm/start_virtual_display.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

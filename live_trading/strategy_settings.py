@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 
 
@@ -54,6 +55,11 @@ class LivePaths:
     vm_dynamic_path_detail_file: str
     vm_stoploss_summary_file: str
     vm_stoploss_detail_file: str
+    trader_state_dir: str
+    trader_state_file: str
+    trader_journal_file: str
+    trader_signal_archive_file: str
+    gateway_env_file: str
 
 
 @dataclass(frozen=True)
@@ -67,6 +73,60 @@ class RuntimeDefaults:
     early_exit_thresholds: tuple[float, ...]
     early_exit_initial_train_size: int
     early_exit_min_train_flagged: int
+
+
+@dataclass(frozen=True)
+class IbkrConfig:
+    host: str
+    port: int
+    client_id: int
+    account_id: str
+    paper_trading: bool
+    connect_timeout_seconds: float
+    readonly: bool
+
+
+@dataclass(frozen=True)
+class GatewayRuntimeConfig:
+    display: str
+    xvfb_geometry: str
+    gateway_host: str
+    gateway_port: int
+    ready_timeout_seconds: int
+    launch_script: str
+    wait_script: str
+
+
+@dataclass(frozen=True)
+class TradingBudgetConfig:
+    initial_strategy_budget: float
+    sleeve_count: int
+    sleeve_fraction: float
+    rotation_anchor_date: str
+    compound_pnl: bool
+    max_fraction_single_name: float
+    max_fraction_two_names: float
+    max_fraction_three_plus_names: float
+    long_only: bool
+    whole_shares_only: bool
+
+    def anchor_date(self) -> date:
+        return date.fromisoformat(self.rotation_anchor_date)
+
+
+@dataclass(frozen=True)
+class ExecutionPolicy:
+    cycle_seconds: int
+    buy_cutoff_time: str
+    cancel_unfilled_time: str
+    replace_interval_seconds: int
+    buy_limit_buffer_bps: float
+    sell_limit_buffer_bps: float
+    min_order_notional: float
+    quote_wait_seconds: float
+    routing_exchange: str
+    currency: str
+    open_order_poll_seconds: int
 
 
 ACTIVE_STRATEGY = ActiveStrategy(
@@ -110,6 +170,11 @@ LIVE_PATHS = LivePaths(
     vm_dynamic_path_detail_file="live/data/vm_sync/historical_recommended_dynamic_path_detail.csv",
     vm_stoploss_summary_file="live/data/vm_sync/historical_recommended_stoploss_summary.csv",
     vm_stoploss_detail_file="live/data/vm_sync/historical_recommended_stoploss_detail.csv",
+    trader_state_dir="live/data/trader_state",
+    trader_state_file="live/data/trader_state/ibkr_paper_trader_state.json",
+    trader_journal_file="live/data/trader_state/ibkr_paper_trader_journal.jsonl",
+    trader_signal_archive_file="live/data/trader_state/ibkr_paper_signal_archive.csv",
+    gateway_env_file="/etc/insider_trades.env",
 )
 
 RUNTIME_DEFAULTS = RuntimeDefaults(
@@ -122,4 +187,51 @@ RUNTIME_DEFAULTS = RuntimeDefaults(
     early_exit_thresholds=(-0.5, -1.0, -2.0, -3.0, -5.0),
     early_exit_initial_train_size=10,
     early_exit_min_train_flagged=2,
+)
+
+IBKR_CONFIG = IbkrConfig(
+    host="127.0.0.1",
+    port=4002,
+    client_id=17,
+    account_id="",
+    paper_trading=True,
+    connect_timeout_seconds=10.0,
+    readonly=False,
+)
+
+GATEWAY_RUNTIME = GatewayRuntimeConfig(
+    display=":1",
+    xvfb_geometry="1440x900x24",
+    gateway_host="127.0.0.1",
+    gateway_port=4002,
+    ready_timeout_seconds=120,
+    launch_script="scripts/vm/start_ibgateway.sh",
+    wait_script="scripts/vm/wait_for_ibgateway.py",
+)
+
+TRADING_BUDGET = TradingBudgetConfig(
+    initial_strategy_budget=10_000.0,
+    sleeve_count=2,
+    sleeve_fraction=0.5,
+    rotation_anchor_date="2026-01-05",
+    compound_pnl=True,
+    max_fraction_single_name=0.80,
+    max_fraction_two_names=0.60,
+    max_fraction_three_plus_names=0.40,
+    long_only=True,
+    whole_shares_only=True,
+)
+
+EXECUTION_POLICY = ExecutionPolicy(
+    cycle_seconds=30,
+    buy_cutoff_time="15:30",
+    cancel_unfilled_time="15:55",
+    replace_interval_seconds=45,
+    buy_limit_buffer_bps=50.0,
+    sell_limit_buffer_bps=50.0,
+    min_order_notional=100.0,
+    quote_wait_seconds=2.0,
+    routing_exchange="SMART",
+    currency="USD",
+    open_order_poll_seconds=5,
 )
