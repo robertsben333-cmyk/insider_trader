@@ -1,0 +1,534 @@
+{
+  "meta": {
+    "split": "chrono_dev_test",
+    "test_size": 0.2,
+    "oof_splits": 5,
+    "base_models": [
+      "HGBR",
+      "XGBoost",
+      "ElasticNet",
+      "SplineElasticNet"
+    ],
+    "feature_set": [
+      "prior_30d_pct",
+      "prior_5d_pct",
+      "prior_10d_pct",
+      "prior_30d_vol",
+      "prior_10d_vol",
+      "prior_5d_vol",
+      "log_buy_price",
+      "price_drift_filing_pct",
+      "owned_pct_num",
+      "log_value_usd",
+      "n_insiders_in_cluster",
+      "is_officer",
+      "is_director",
+      "is_10pct",
+      "n_insiders_x_officer",
+      "n_insiders_x_director",
+      "n_insiders_x_10pct",
+      "officer_type_enc",
+      "filing_gap_days",
+      "insider_prior_buys_log",
+      "days_since_last_buy_any",
+      "days_since_last_buy_same_ticker",
+      "same_ticker_insider_count_365d",
+      "filing_hour_et",
+      "market_type_enc",
+      "sector_enc"
+    ],
+    "stacker_candidates": [
+      "EqualWeight4",
+      "OOFWeighted4",
+      "StackElasticNetPredOnly",
+      "StackHGBRPredOnly",
+      "StackElasticNetPredPlusAllRaw",
+      "StackHGBRPredPlusAllRaw"
+    ]
+  },
+  "horizons": {
+    "3": {
+      "target": "return_3d_pct",
+      "rows": {
+        "full": 12179,
+        "development": 9743,
+        "test": 2436,
+        "oof_meta_train": 8115
+      },
+      "date_ranges": {
+        "development_start": "2021-03-04",
+        "development_end": "2025-03-07",
+        "test_start": "2025-03-07",
+        "test_end": "2026-02-23"
+      },
+      "oof_weight_optimization": {
+        "weights": {
+          "HGBR": 0.25,
+          "XGBoost": 0.65,
+          "ElasticNet": 0.0,
+          "SplineElasticNet": 0.1
+        },
+        "objective_top_decile_mean": 1.0916772503247012,
+        "objective_decile_spread": 1.1024016843739408
+      },
+      "test": {
+        "EqualWeight4": {
+          "name": "EqualWeight4",
+          "metrics": {
+            "r2": 0.01851148017966553,
+            "mae": 1.7409474327626642,
+            "rmse": 2.5752735780186913,
+            "dir_acc": 0.5365353037766831
+          },
+          "deciles": {
+            "rows": [
+              {
+                "decile": 1,
+                "n": 243,
+                "pct_pos": 48.559670781893004,
+                "mean_actual": -0.1039873497031038
+              },
+              {
+                "decile": 2,
+                "n": 243,
+                "pct_pos": 51.028806584362144,
+                "mean_actual": 0.01279624279813992
+              },
+              {
+                "decile": 3,
+                "n": 243,
+                "pct_pos": 51.85185185185185,
+                "mean_actual": 0.046678828411963524
+              },
+              {
+                "decile": 4,
+                "n": 243,
+                "pct_pos": 51.85185185185185,
+                "mean_actual": 0.029927514737780783
+              },
+              {
+                "decile": 5,
+                "n": 243,
+                "pct_pos": 53.90946502057613,
+                "mean_actual": 0.4170975001961541
+              },
+              {
+                "decile": 6,
+                "n": 243,
+                "pct_pos": 54.32098765432099,
+                "mean_actual": 0.29272748223403505
+              },
+              {
+                "decile": 7,
+                "n": 243,
+                "pct_pos": 52.674897119341566,
+                "mean_actual": 0.27926467975379854
+              },
+              {
+                "decile": 8,
+                "n": 243,
+                "pct_pos": 56.37860082304527,
+                "mean_actual": 0.4322296868085272
+              },
+              {
+                "decile": 9,
+                "n": 243,
+                "pct_pos": 56.37860082304527,
+                "mean_actual": 0.37122452278335744
+              },
+              {
+                "decile": 10,
+                "n": 249,
+                "pct_pos": 58.63453815261044,
+                "mean_actual": 1.2761270575582562
+              }
+            ],
+            "top_decile_mean": 1.2761270575582562,
+            "bottom_decile_mean": -0.1039873497031038,
+            "decile_spread": 1.38011440726136
+          }
+        },
+        "OOFWeighted4": {
+          "name": "OOFWeighted4",
+          "metrics": {
+            "r2": 0.016280282300126236,
+            "mae": 1.7455509404920104,
+            "rmse": 2.578199074854407,
+            "dir_acc": 0.5336617405582923
+          },
+          "deciles": {
+            "rows": [
+              {
+                "decile": 1,
+                "n": 243,
+                "pct_pos": 45.67901234567901,
+                "mean_actual": -0.22853177892660775
+              },
+              {
+                "decile": 2,
+                "n": 243,
+                "pct_pos": 57.61316872427984,
+                "mean_actual": 0.2252095013824439
+              },
+              {
+                "decile": 3,
+                "n": 243,
+                "pct_pos": 51.440329218106996,
+                "mean_actual": 0.1537871719977591
+              },
+              {
+                "decile": 4,
+                "n": 243,
+                "pct_pos": 48.559670781893004,
+                "mean_actual": 0.0036156625756529354
+              },
+              {
+                "decile": 5,
+                "n": 243,
+                "pct_pos": 53.086419753086425,
+                "mean_actual": 0.33767190013729154
+              },
+              {
+                "decile": 6,
+                "n": 243,
+                "pct_pos": 56.79012345679012,
+                "mean_actual": 0.2785620191255811
+              },
+              {
+                "decile": 7,
+                "n": 243,
+                "pct_pos": 51.85185185185185,
+                "mean_actual": 0.2120515946051006
+              },
+              {
+                "decile": 8,
+                "n": 243,
+                "pct_pos": 55.55555555555556,
+                "mean_actual": 0.4495499426745212
+              },
+              {
+                "decile": 9,
+                "n": 243,
+                "pct_pos": 54.73251028806584,
+                "mean_actual": 0.25217980968234477
+              },
+              {
+                "decile": 10,
+                "n": 249,
+                "pct_pos": 60.24096385542169,
+                "mean_actual": 1.367728576426832
+              }
+            ],
+            "top_decile_mean": 1.367728576426832,
+            "bottom_decile_mean": -0.22853177892660775,
+            "decile_spread": 1.5962603553534398
+          }
+        },
+        "StackElasticNetPredOnly": {
+          "name": "StackElasticNetPredOnly",
+          "metrics": {
+            "r2": 0.016252239079003195,
+            "mae": 1.7432480366212777,
+            "rmse": 2.5782358233764624,
+            "dir_acc": 0.527504105090312
+          },
+          "deciles": {
+            "rows": [
+              {
+                "decile": 1,
+                "n": 243,
+                "pct_pos": 44.03292181069959,
+                "mean_actual": -0.332306094649021
+              },
+              {
+                "decile": 2,
+                "n": 243,
+                "pct_pos": 59.25925925925925,
+                "mean_actual": 0.37551364285327166
+              },
+              {
+                "decile": 3,
+                "n": 243,
+                "pct_pos": 49.794238683127574,
+                "mean_actual": 0.050693925231374164
+              },
+              {
+                "decile": 4,
+                "n": 243,
+                "pct_pos": 52.674897119341566,
+                "mean_actual": 0.202915605302807
+              },
+              {
+                "decile": 5,
+                "n": 243,
+                "pct_pos": 51.028806584362144,
+                "mean_actual": 0.14203391355367348
+              },
+              {
+                "decile": 6,
+                "n": 243,
+                "pct_pos": 56.79012345679012,
+                "mean_actual": 0.3835507996990858
+              },
+              {
+                "decile": 7,
+                "n": 243,
+                "pct_pos": 52.2633744855967,
+                "mean_actual": 0.2543837120016866
+              },
+              {
+                "decile": 8,
+                "n": 243,
+                "pct_pos": 54.73251028806584,
+                "mean_actual": 0.38647149709331907
+              },
+              {
+                "decile": 9,
+                "n": 243,
+                "pct_pos": 54.73251028806584,
+                "mean_actual": 0.19497675026361644
+              },
+              {
+                "decile": 10,
+                "n": 249,
+                "pct_pos": 60.24096385542169,
+                "mean_actual": 1.3929674658755813
+              }
+            ],
+            "top_decile_mean": 1.3929674658755813,
+            "bottom_decile_mean": -0.332306094649021,
+            "decile_spread": 1.7252735605246023
+          }
+        },
+        "StackHGBRPredOnly": {
+          "name": "StackHGBRPredOnly",
+          "metrics": {
+            "r2": -0.014085700561353054,
+            "mae": 1.7751774153342823,
+            "rmse": 2.6176892494965838,
+            "dir_acc": 0.5365353037766831
+          },
+          "deciles": {
+            "rows": [
+              {
+                "decile": 1,
+                "n": 243,
+                "pct_pos": 53.90946502057613,
+                "mean_actual": 0.32865347591318955
+              },
+              {
+                "decile": 2,
+                "n": 243,
+                "pct_pos": 42.79835390946502,
+                "mean_actual": -0.0941431112438565
+              },
+              {
+                "decile": 3,
+                "n": 243,
+                "pct_pos": 53.90946502057613,
+                "mean_actual": 0.35409430791021557
+              },
+              {
+                "decile": 4,
+                "n": 243,
+                "pct_pos": 53.086419753086425,
+                "mean_actual": 0.2687405534889554
+              },
+              {
+                "decile": 5,
+                "n": 243,
+                "pct_pos": 57.61316872427984,
+                "mean_actual": 0.21897775068389733
+              },
+              {
+                "decile": 6,
+                "n": 243,
+                "pct_pos": 55.96707818930041,
+                "mean_actual": 0.15362053214360125
+              },
+              {
+                "decile": 7,
+                "n": 243,
+                "pct_pos": 55.55555555555556,
+                "mean_actual": 0.2536633973652531
+              },
+              {
+                "decile": 8,
+                "n": 243,
+                "pct_pos": 51.85185185185185,
+                "mean_actual": 0.17145785605208397
+              },
+              {
+                "decile": 9,
+                "n": 243,
+                "pct_pos": 53.086419753086425,
+                "mean_actual": 0.40593610256631846
+              },
+              {
+                "decile": 10,
+                "n": 249,
+                "pct_pos": 57.831325301204814,
+                "mean_actual": 0.999905583997058
+              }
+            ],
+            "top_decile_mean": 0.999905583997058,
+            "bottom_decile_mean": 0.32865347591318955,
+            "decile_spread": 0.6712521080838685
+          }
+        },
+        "StackElasticNetPredPlusAllRaw": {
+          "name": "StackElasticNetPredPlusAllRaw",
+          "metrics": {
+            "r2": 0.01702328404456821,
+            "mae": 1.7473445890163513,
+            "rmse": 2.577225236358618,
+            "dir_acc": 0.5180623973727422
+          },
+          "deciles": {
+            "rows": [
+              {
+                "decile": 1,
+                "n": 243,
+                "pct_pos": 51.85185185185185,
+                "mean_actual": 0.14691995872981922
+              },
+              {
+                "decile": 2,
+                "n": 243,
+                "pct_pos": 54.73251028806584,
+                "mean_actual": 0.005166601918599507
+              },
+              {
+                "decile": 3,
+                "n": 243,
+                "pct_pos": 49.382716049382715,
+                "mean_actual": -0.08430150798923464
+              },
+              {
+                "decile": 4,
+                "n": 243,
+                "pct_pos": 53.90946502057613,
+                "mean_actual": 0.25427924919962863
+              },
+              {
+                "decile": 5,
+                "n": 243,
+                "pct_pos": 54.32098765432099,
+                "mean_actual": 0.26728937388960056
+              },
+              {
+                "decile": 6,
+                "n": 243,
+                "pct_pos": 51.85185185185185,
+                "mean_actual": 0.14827366394423966
+              },
+              {
+                "decile": 7,
+                "n": 243,
+                "pct_pos": 50.617283950617285,
+                "mean_actual": 0.26503098067701414
+              },
+              {
+                "decile": 8,
+                "n": 243,
+                "pct_pos": 53.90946502057613,
+                "mean_actual": 0.3409009233377414
+              },
+              {
+                "decile": 9,
+                "n": 243,
+                "pct_pos": 54.32098765432099,
+                "mean_actual": 0.23774601861367922
+              },
+              {
+                "decile": 10,
+                "n": 249,
+                "pct_pos": 60.6425702811245,
+                "mean_actual": 1.4680422563734943
+              }
+            ],
+            "top_decile_mean": 1.4680422563734943,
+            "bottom_decile_mean": 0.14691995872981922,
+            "decile_spread": 1.321122297643675
+          }
+        },
+        "StackHGBRPredPlusAllRaw": {
+          "name": "StackHGBRPredPlusAllRaw",
+          "metrics": {
+            "r2": 0.0059057559618698185,
+            "mae": 1.7537421416876864,
+            "rmse": 2.5917585479678444,
+            "dir_acc": 0.5316091954022989
+          },
+          "deciles": {
+            "rows": [
+              {
+                "decile": 1,
+                "n": 243,
+                "pct_pos": 41.56378600823045,
+                "mean_actual": -0.23686313397751266
+              },
+              {
+                "decile": 2,
+                "n": 243,
+                "pct_pos": 55.144032921810705,
+                "mean_actual": 0.18388624729958444
+              },
+              {
+                "decile": 3,
+                "n": 243,
+                "pct_pos": 53.90946502057613,
+                "mean_actual": 0.25670232765708967
+              },
+              {
+                "decile": 4,
+                "n": 243,
+                "pct_pos": 56.79012345679012,
+                "mean_actual": 0.2586036502796507
+              },
+              {
+                "decile": 5,
+                "n": 243,
+                "pct_pos": 54.73251028806584,
+                "mean_actual": 0.33764846213804356
+              },
+              {
+                "decile": 6,
+                "n": 243,
+                "pct_pos": 52.674897119341566,
+                "mean_actual": 0.19036590982837376
+              },
+              {
+                "decile": 7,
+                "n": 243,
+                "pct_pos": 51.85185185185185,
+                "mean_actual": 0.1760222980666704
+              },
+              {
+                "decile": 8,
+                "n": 243,
+                "pct_pos": 54.73251028806584,
+                "mean_actual": 0.3054609392712341
+              },
+              {
+                "decile": 9,
+                "n": 243,
+                "pct_pos": 53.90946502057613,
+                "mean_actual": 0.2718732620367089
+              },
+              {
+                "decile": 10,
+                "n": 249,
+                "pct_pos": 60.24096385542169,
+                "mean_actual": 1.309560681402661
+              }
+            ],
+            "top_decile_mean": 1.309560681402661,
+            "bottom_decile_mean": -0.23686313397751266,
+            "decile_spread": 1.5464238153801737
+          }
+        }
+      }
+    }
+  }
+}

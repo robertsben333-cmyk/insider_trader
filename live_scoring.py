@@ -37,6 +37,7 @@ from dotenv import load_dotenv
 from polygon import RESTClient
 
 import train_models
+from live_trading.strategy_settings import ACTIVE_STRATEGY, LIVE_PATHS, RUNTIME_DEFAULTS
 from openinsider_scraper import OpenInsiderScraper
 
 RAW_COLUMNS = [
@@ -56,12 +57,12 @@ RAW_COLUMNS = [
 
 MODEL_NAMES = ["HGBR", "XGBoost", "ElasticNet", "SplineElasticNet"]
 HORIZONS = [1, 3]
-DEFAULT_ALERT_RECIPIENT = "xavierjjc@outlook.com"
-DEFAULT_DAY1_DECILE_SCORE_THRESHOLD = 0.90
-DEFAULT_DAY1_RAW_THRESHOLD = 0.712992
-DEFAULT_ADVICE_BASE_ALLOC_FRACTION = 0.25
-DEFAULT_ADVICE_BONUS_FRACTION = 0.25
-EXIT_POLICY_REVIEW_DATE = "2026-03-01"
+DEFAULT_ALERT_RECIPIENT = RUNTIME_DEFAULTS.alert_recipient
+DEFAULT_DAY1_DECILE_SCORE_THRESHOLD = ACTIVE_STRATEGY.day1_decile_score_threshold
+DEFAULT_DAY1_RAW_THRESHOLD = ACTIVE_STRATEGY.day1_raw_threshold_fallback
+DEFAULT_ADVICE_BASE_ALLOC_FRACTION = ACTIVE_STRATEGY.advice_base_alloc_fraction
+DEFAULT_ADVICE_BONUS_FRACTION = ACTIVE_STRATEGY.advice_bonus_fraction
+EXIT_POLICY_REVIEW_DATE = ACTIVE_STRATEGY.exit_policy_review_date
 ALERT_EXPORT_COLUMNS = [
     "scored_at",
     "event_key",
@@ -86,6 +87,8 @@ ALERT_EXPORT_COLUMNS = [
     "decile_score_threshold",
     "threshold_source",
     "alert_score_column",
+    "target_return_mode",
+    "benchmark_ticker",
 ]
 OFFICER_PATTERN = re.compile(
     r"\b(COB|Chairman|CEO|Co-CEO|Pres|President|COO|CFO|GC|VP|SVP|EVP)\b",
@@ -100,9 +103,9 @@ MARKET_CLOSE_H, MARKET_CLOSE_M = 16, 0
 ET = ZoneInfo("America/New_York")
 
 # Polling intervals: high-frequency window covers 2 h before/after market open.
-NEAR_OPEN_WINDOW_HOURS = 2       # hours around 9:30 ET with high-frequency polling
-NEAR_OPEN_INTERVAL_MINUTES = 30  # poll every 30 min inside that window
-FAR_INTERVAL_MINUTES = 120       # poll every 2 h outside that window
+NEAR_OPEN_WINDOW_HOURS = RUNTIME_DEFAULTS.near_open_window_hours
+NEAR_OPEN_INTERVAL_MINUTES = RUNTIME_DEFAULTS.near_open_interval_minutes
+FAR_INTERVAL_MINUTES = RUNTIME_DEFAULTS.far_interval_minutes
 
 
 def is_market_open(now_et: datetime) -> bool:
@@ -1212,7 +1215,7 @@ def print_day1_investment_findings(
     print("\n" + "=" * 120)
     print(
         "DAY-1 INVESTMENT FINDINGS | "
-        f"rule={pred_col} > {threshold:.3f}% (decile_score>={decile_score_threshold:.2f}) "
+        f"rule={pred_col} > {threshold:.3f}% excess return (decile_score>={decile_score_threshold:.2f}) "
         f"| benchmark_source={threshold_source}"
     )
     print("=" * 120)
@@ -1295,6 +1298,8 @@ def build_alert_export_rows(
     out["decile_score_threshold"] = float(decile_score_threshold)
     out["threshold_source"] = str(threshold_source)
     out["alert_score_column"] = pred_col
+    out["target_return_mode"] = train_models.TARGET_RETURN_MODE
+    out["benchmark_ticker"] = train_models.BENCHMARK_TICKER
     for col in ALERT_EXPORT_COLUMNS:
         if col not in out.columns:
             out[col] = np.nan
@@ -1330,6 +1335,7 @@ def update_alert_candidate_exports(
 def build_exit_policy_html(review_date: str) -> str:
     return f"""
     <p><b>Exit timing policy (reviewed {review_date})</b></p>
+    <p>Active live rule: <code>{ACTIVE_STRATEGY.sell_rule_label}</code></p>
     <table border="1" cellpadding="6" cellspacing="0">
       <tr>
         <th>Filing bucket</th><th>Recommended exit</th><th>Reason</th><th>Fast-turnover option</th>
@@ -1586,17 +1592,17 @@ def run_cycle(
 
 def build_arg_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Live scoring loop for insider-trade models.")
-    p.add_argument("--config", default="config.yaml", help="Path to scraper config.")
-    p.add_argument("--raw-file", default="live/data/insider_purchases.csv")
-    p.add_argument("--aggregated-file", default="live/data/event_history_aggregated.csv")
-    p.add_argument("--predictions-file", default="live/data/live_predictions.csv")
-    p.add_argument("--cache-dir", default="live/data/price_cache")
-    p.add_argument("--sector-cache-file", default="live/data/sector_cache.csv")
-    p.add_argument("--model-dir", default="models/prod4")
-    p.add_argument("--temp-aggregate-file", default="live/data/live_scoring_temp_aggregate.csv")
-    p.add_argument("--alert-snapshot-file", default="live/data/latest_alert_candidates.csv")
-    p.add_argument("--alert-history-file", default="live/data/alert_candidate_history.csv")
-    p.add_argument("--months-back", type=int, default=1, help="Current month + N previous months.")
+    p.add_argument("--config", default=LIVE_PATHS.scraper_config, help="Path to scraper config.")
+    p.add_argument("--raw-file", default=LIVE_PATHS.raw_file)
+    p.add_argument("--aggregated-file", default=LIVE_PATHS.aggregated_file)
+    p.add_argument("--predictions-file", default=LIVE_PATHS.predictions_file)
+    p.add_argument("--cache-dir", default=LIVE_PATHS.cache_dir)
+    p.add_argument("--sector-cache-file", default=LIVE_PATHS.sector_cache_file)
+    p.add_argument("--model-dir", default=ACTIVE_STRATEGY.model_dir)
+    p.add_argument("--temp-aggregate-file", default=LIVE_PATHS.temp_aggregate_file)
+    p.add_argument("--alert-snapshot-file", default=LIVE_PATHS.alert_snapshot_file)
+    p.add_argument("--alert-history-file", default=LIVE_PATHS.alert_history_file)
+    p.add_argument("--months-back", type=int, default=RUNTIME_DEFAULTS.months_back, help="Current month + N previous months.")
     p.add_argument("--once", action="store_true", help="Run exactly one cycle.")
     p.add_argument("--polygon-api-key", default="", help="Optional override for POLYGON_API_KEY.")
     p.add_argument(
@@ -1607,10 +1613,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--day1-decile-cutoff-file",
-        default="backtest/out/investable_decile_score_sweep_0005.csv",
+        default=ACTIVE_STRATEGY.day1_decile_cutoff_file,
         help="CSV mapping decile_score_threshold -> raw_pred_mean4_cutoff.",
     )
-    p.add_argument("--day1-benchmark-file", default="research/outcomes/models/equal4_deciles_time_split.csv")
+    p.add_argument("--day1-benchmark-file", default=ACTIVE_STRATEGY.day1_benchmark_file)
     p.add_argument(
         "--advice-base-alloc-fraction",
         type=float,

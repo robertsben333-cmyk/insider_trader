@@ -28,6 +28,7 @@ from scripts.backtest_vm_recommendations import (
     resolve_entry,
     safe_float,
 )
+from live_trading.strategy_settings import LIVE_PATHS
 
 
 def next_business_day_close(entry_dt_et: datetime) -> datetime:
@@ -66,10 +67,10 @@ def simulate_stop_return(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyze stop-loss sensitivity for VM historical recommendations.")
-    parser.add_argument("--input", default="live/data/vm_sync/historical_recommended_predictions.csv")
-    parser.add_argument("--cache-dir", default="live/data/price_cache")
-    parser.add_argument("--summary-out", default="live/data/vm_sync/historical_recommended_stoploss_summary.csv")
-    parser.add_argument("--detail-out", default="live/data/vm_sync/historical_recommended_stoploss_detail.csv")
+    parser.add_argument("--input", default=LIVE_PATHS.vm_predictions_file)
+    parser.add_argument("--cache-dir", default=LIVE_PATHS.cache_dir)
+    parser.add_argument("--summary-out", default=LIVE_PATHS.vm_stoploss_summary_file)
+    parser.add_argument("--detail-out", default=LIVE_PATHS.vm_stoploss_detail_file)
     parser.add_argument("--stop-levels", nargs="+", type=float, default=[2, 3, 5, 7, 10, 15])
     args = parser.parse_args()
 

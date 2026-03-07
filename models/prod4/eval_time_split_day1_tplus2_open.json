@@ -1,0 +1,17 @@
+{
+  "1": {
+    "target": "return_2d_open_pct",
+    "target_return_mode": "spy_adjusted_excess_return_pct",
+    "benchmark_ticker": "SPY",
+    "split_sizes": {
+      "train": 7331,
+      "val": 2444,
+      "test": 2444
+    },
+    "threshold_093_raw_pred_mean4_cutoff": 0.8478590918659518,
+    "artifacts": {
+      "cutoff_csv": "C:\\Users\\XavierFriesen\\insider_trades_predictor\\backtest\\out\\investable_decile_score_sweep_0005_tplus2_open.csv",
+      "benchmark_csv": "C:\\Users\\XavierFriesen\\insider_trades_predictor\\research\\outcomes\\models\\equal4_deciles_time_split_tplus2_open_live.csv"
+    }
+  }
+}

@@ -5,7 +5,8 @@ param(
     [string]$KeyPath = "$HOME/.ssh/oracle_insider.key",
     [string]$RemoteRepoPath = "/home/opc/insider_trader",
     [string]$Destination = "",
-    [double]$AlertThreshold = [double]::NaN
+    [double]$AlertThreshold = [double]::NaN,
+    [switch]$UseLocalLiveData
 )
 
 $ErrorActionPreference = "Stop"
@@ -15,15 +16,6 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Split-Path -Parent $scriptDir
 if ([string]::IsNullOrWhiteSpace($Destination)) {
     $Destination = Join-Path $repoRoot "live/data/vm_sync"
-}
-
-$resolvedKeyPath = [Environment]::ExpandEnvironmentVariables($KeyPath)
-if (-not (Test-Path $resolvedKeyPath)) {
-    throw "SSH key not found: $resolvedKeyPath"
-}
-
-if (-not (Get-Command scp -ErrorAction SilentlyContinue)) {
-    throw "scp was not found on PATH. Install OpenSSH client or use Git Bash."
 }
 
 $files = @(
@@ -45,19 +37,48 @@ foreach ($obsolete in $obsoleteFiles) {
     }
 }
 
-foreach ($file in $files) {
-    $remote = "{0}@{1}:{2}/live/data/{3}" -f $User, $VmHost, $RemoteRepoPath, $file
-    $local = Join-Path $Destination $file
-    Write-Host "Pulling $file ..."
-    & scp -i $resolvedKeyPath $remote $local
-}
-
 $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ("vm_live_sync_" + [System.Guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
 $tempPredictions = Join-Path $tempDir "live_predictions.csv"
-$remotePredictions = "{0}@{1}:{2}/live/data/live_predictions.csv" -f $User, $VmHost, $RemoteRepoPath
-Write-Host "Pulling live_predictions.csv for historical recommendation export ..."
-& scp -i $resolvedKeyPath $remotePredictions $tempPredictions
+$localLiveDir = Join-Path $repoRoot "live/data"
+
+if ($UseLocalLiveData) {
+    foreach ($file in $files) {
+        $source = Join-Path $localLiveDir $file
+        $local = Join-Path $Destination $file
+        if (-not (Test-Path $source)) {
+            throw "Local live-data file not found: $source"
+        }
+        Copy-Item -Force $source $local
+    }
+
+    $localPredictions = Join-Path $localLiveDir "live_predictions.csv"
+    if (-not (Test-Path $localPredictions)) {
+        throw "Local live_predictions.csv not found: $localPredictions"
+    }
+    Write-Host "Using local live/data files for VM-sync export ..."
+    Copy-Item -Force $localPredictions $tempPredictions
+} else {
+    $resolvedKeyPath = [Environment]::ExpandEnvironmentVariables($KeyPath)
+    if (-not (Test-Path $resolvedKeyPath)) {
+        throw "SSH key not found: $resolvedKeyPath"
+    }
+
+    if (-not (Get-Command scp -ErrorAction SilentlyContinue)) {
+        throw "scp was not found on PATH. Install OpenSSH client or use Git Bash."
+    }
+
+    foreach ($file in $files) {
+        $remote = "{0}@{1}:{2}/live/data/{3}" -f $User, $VmHost, $RemoteRepoPath, $file
+        $local = Join-Path $Destination $file
+        Write-Host "Pulling $file ..."
+        & scp -i $resolvedKeyPath $remote $local
+    }
+
+    $remotePredictions = "{0}@{1}:{2}/live/data/live_predictions.csv" -f $User, $VmHost, $RemoteRepoPath
+    Write-Host "Pulling live_predictions.csv for historical recommendation export ..."
+    & scp -i $resolvedKeyPath $remotePredictions $tempPredictions
+}
 
 $latestAlertPath = Join-Path $Destination "latest_alert_candidates.csv"
 if ([double]::IsNaN($AlertThreshold) -and (Test-Path $latestAlertPath)) {
@@ -73,7 +94,7 @@ if ([double]::IsNaN($AlertThreshold) -and (Test-Path $latestAlertPath)) {
     }
 }
 if ([double]::IsNaN($AlertThreshold)) {
-    $AlertThreshold = 0.7129917140924689
+    $AlertThreshold = 0.6091125803233034
 }
 
 $predictionRows = Import-Csv $tempPredictions
@@ -92,7 +113,7 @@ if (Test-Path $alertHistoryPath) {
     }
 }
 
-$decileCurvePath = Join-Path $repoRoot "backtest/out/investable_decile_score_sweep_0005.csv"
+$decileCurvePath = Join-Path $repoRoot "backtest/out/investable_decile_score_sweep_0005_tplus2_open.csv"
 $curvePoints = New-Object System.Collections.Generic.List[object]
 if (Test-Path $decileCurvePath) {
     foreach ($row in (Import-Csv $decileCurvePath)) {
@@ -168,7 +189,7 @@ function Get-EstimatedDecileScore {
     return [double]$Curve[$lastIdx].decile_score
 }
 
-$defaultDecileThreshold = 0.9
+$defaultDecileThreshold = 0.87
 $defaultBaseAlloc = 0.25
 $defaultBonusAlloc = 0.25
 
@@ -253,8 +274,10 @@ $recommended = foreach ($row in $predictionRows) {
         is_tradable                 = $row.is_tradable
         raw_alert_threshold         = if ($null -ne $alertRow -and -not [string]::IsNullOrWhiteSpace([string]$alertRow.raw_alert_threshold)) { [string]$alertRow.raw_alert_threshold } else { $AlertThreshold.ToString("G17", $invariantCulture) }
         decile_score_threshold      = $decileThresholdText
-        threshold_source            = if ($null -ne $alertRow -and -not [string]::IsNullOrWhiteSpace([string]$alertRow.threshold_source)) { [string]$alertRow.threshold_source } else { "backtest/out/investable_decile_score_sweep_0005.csv" }
+        threshold_source            = if ($null -ne $alertRow -and -not [string]::IsNullOrWhiteSpace([string]$alertRow.threshold_source)) { [string]$alertRow.threshold_source } else { "backtest/out/investable_decile_score_sweep_0005_tplus2_open.csv" }
         alert_score_column          = if ($null -ne $alertRow -and -not [string]::IsNullOrWhiteSpace([string]$alertRow.alert_score_column)) { [string]$alertRow.alert_score_column } else { "pred_mean4" }
+        target_return_mode          = if ($null -ne $alertRow -and -not [string]::IsNullOrWhiteSpace([string]$alertRow.target_return_mode)) { [string]$alertRow.target_return_mode } else { "spy_adjusted_excess_return_pct" }
+        benchmark_ticker            = if ($null -ne $alertRow -and -not [string]::IsNullOrWhiteSpace([string]$alertRow.benchmark_ticker)) { [string]$alertRow.benchmark_ticker } else { "SPY" }
     }
 }
 

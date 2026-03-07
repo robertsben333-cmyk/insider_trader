@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 from polygon import RESTClient
 import os
 
+from live_trading.strategy_settings import LIVE_PATHS, RUNTIME_DEFAULTS
+
 
 ET = ZoneInfo("America/New_York")
 UTC = ZoneInfo("UTC")
@@ -187,11 +189,11 @@ def safe_float(raw: str) -> float | None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Backtest VM-recommended predictions using score-time entry.")
-    parser.add_argument("--input", default="live/data/vm_sync/historical_recommended_predictions.csv")
-    parser.add_argument("--cache-dir", default="live/data/price_cache")
-    parser.add_argument("--horizons", nargs="+", type=int, default=[0, 1, 3, 5, 10])
-    parser.add_argument("--summary-out", default="live/data/vm_sync/historical_recommended_backtest_summary.csv")
-    parser.add_argument("--detail-out", default="live/data/vm_sync/historical_recommended_backtest_detail.csv")
+    parser.add_argument("--input", default=LIVE_PATHS.vm_predictions_file)
+    parser.add_argument("--cache-dir", default=LIVE_PATHS.cache_dir)
+    parser.add_argument("--horizons", nargs="+", type=int, default=list(RUNTIME_DEFAULTS.historical_backtest_horizons))
+    parser.add_argument("--summary-out", default=LIVE_PATHS.vm_backtest_summary_file)
+    parser.add_argument("--detail-out", default=LIVE_PATHS.vm_backtest_detail_file)
     args = parser.parse_args()
 
     load_dotenv()
@@ -245,6 +247,8 @@ def main() -> None:
             "trade_date": row.get("trade_date", ""),
             "score_1d": row.get("score_1d", ""),
             "score_3d": row.get("score_3d", ""),
+            "target_return_mode": row.get("target_return_mode", ""),
+            "benchmark_ticker": row.get("benchmark_ticker", ""),
             "entry_dt_et": entry_dt.strftime("%Y-%m-%d %H:%M:%S%z"),
             "entry_price": entry_price,
             "entry_price_source": entry_source,

@@ -18,7 +18,7 @@ import re
 import threading
 import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -51,7 +51,11 @@ RANDOM_STATE    = 42
 LOOKBACK_DAYS   = 30
 FETCH_WINDOW    = 50
 SECTOR_WORKERS  = 10
+BENCHMARK_FETCH_WORKERS = 8
 ET              = ZoneInfo("America/New_York")
+BENCHMARK_TICKER = "SPY"
+BENCHMARK_REFERENCE_CACHE = "backtest/data/spy_reference_cache.csv"
+TARGET_RETURN_MODE = "spy_adjusted_excess_return_pct"
 
 FEATURES = [
     "prior_30d_pct",
@@ -62,7 +66,6 @@ FEATURES = [
     "prior_5d_vol",
     "log_buy_price",
     "price_drift_filing_pct",
-    "owned_pct_num",
     "log_value_usd",
     "n_insiders_in_cluster",
     "is_officer",
@@ -285,12 +288,276 @@ def apply_per_day_adjusted_targets(df: pd.DataFrame) -> pd.DataFrame:
         logger.info("Applied per-day compounded target adjustment to: %s", ", ".join(changed))
     return out
 
+
+def _json_load(path: Path):
+    if not path.exists():
+        return None
+    try:
+        with path.open("r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception:
+        return None
+
+
+def _json_save(path: Path, payload) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as fh:
+        json.dump(payload, fh)
+
+
+def _aggs_to_dicts(aggs) -> list[dict]:
+    return [
+        {"t": a.timestamp, "o": a.open, "c": a.close, "h": a.high, "l": a.low}
+        for a in aggs
+        if getattr(a, "timestamp", None) is not None and getattr(a, "close", None) is not None
+    ]
+
+
+def minute_cache_path(cache_dir: Path, ticker: str, d: date) -> Path:
+    return cache_dir / f"{ticker}_min_{d:%Y-%m-%d}_{d:%Y-%m-%d}.json"
+
+
+def day_cache_path(cache_dir: Path, ticker: str, from_d: date, to_d: date) -> Path:
+    return cache_dir / f"{ticker}_lkbk_{from_d:%Y-%m-%d}_{to_d:%Y-%m-%d}.json"
+
+
+def fetch_minute_bars(cache_dir: Path, ticker: str, target_date: date) -> list[dict]:
+    path = minute_cache_path(cache_dir, ticker, target_date)
+    cached = _json_load(path)
+    if cached is not None:
+        return cached
+    try:
+        aggs = _polygon_client().get_aggs(
+            ticker=ticker,
+            multiplier=1,
+            timespan="minute",
+            from_=target_date,
+            to=target_date,
+            adjusted=True,
+            sort="asc",
+            limit=50000,
+        )
+        bars = _aggs_to_dicts(aggs)
+    except Exception:
+        bars = []
+    _json_save(path, bars)
+    return bars
+
+
+def fetch_day_bars(cache_dir: Path, ticker: str, from_d: date, to_d: date) -> list[dict]:
+    path = day_cache_path(cache_dir, ticker, from_d, to_d)
+    cached = _json_load(path)
+    if cached is not None:
+        return cached
+    try:
+        aggs = _polygon_client().get_aggs(
+            ticker=ticker,
+            multiplier=1,
+            timespan="day",
+            from_=from_d,
+            to=to_d,
+            adjusted=True,
+            sort="asc",
+            limit=50000,
+        )
+        bars = _aggs_to_dicts(aggs)
+    except Exception:
+        bars = []
+    _json_save(path, bars)
+    return bars
+
+
+def find_price_at_or_after(bars: list[dict], target_ts_ms: int) -> float:
+    for bar in bars:
+        if int(bar.get("t", -1)) >= target_ts_ms:
+            close = bar.get("c")
+            if close is not None:
+                return float(close)
+    return np.nan
+
+
+def find_last_close(bars: list[dict]) -> float:
+    last_close = np.nan
+    for bar in bars:
+        close = bar.get("c")
+        if close is not None:
+            last_close = float(close)
+    return last_close
+
+
+def _bar_date_et(bar: dict) -> date | None:
+    ts = bar.get("t")
+    if ts is None:
+        return None
+    return datetime.fromtimestamp(int(ts) / 1000, tz=ZoneInfo("UTC")).astimezone(ET).date()
+
+
+def _per_day_compound_pct(ret_pct: pd.Series, horizon_days: int) -> pd.Series:
+    if horizon_days <= 1:
+        return ret_pct.astype(float)
+    raw = pd.to_numeric(ret_pct, errors="coerce") / 100.0
+    base = 1.0 + raw
+    out = pd.Series(np.nan, index=ret_pct.index, dtype=float)
+    valid = base >= 0.0
+    out.loc[valid] = ((base.loc[valid] ** (1.0 / float(horizon_days))) - 1.0) * 100.0
+    return out
+
+
+def apply_benchmark_adjusted_targets(df: pd.DataFrame) -> pd.DataFrame:
+    """Subtract benchmark returns so the model learns excess returns versus SPY."""
+    out = df.copy()
+    marker_col = "target_return_mode"
+    if marker_col in out.columns:
+        marker = out[marker_col].astype(str).str.strip().str.lower()
+        if not out.empty and bool(marker.eq(TARGET_RETURN_MODE.lower()).all()):
+            logger.info("Detected pre-adjusted benchmark targets; skipping %s adjustment.", BENCHMARK_TICKER)
+            return out
+
+    if "buy_datetime" not in out.columns:
+        logger.warning("Skipping benchmark adjustment: missing buy_datetime column.")
+        return out
+
+    buy_dt = pd.to_datetime(out["buy_datetime"], errors="coerce")
+    if getattr(buy_dt.dt, "tz", None) is None:
+        buy_dt = buy_dt.dt.tz_localize(ET, ambiguous="NaT", nonexistent="shift_forward")
+    else:
+        buy_dt = buy_dt.dt.tz_convert(ET)
+    out["_benchmark_buy_dt"] = buy_dt
+    valid_buy = out["_benchmark_buy_dt"].notna()
+    if not bool(valid_buy.any()):
+        logger.warning("Skipping benchmark adjustment: no valid buy datetimes.")
+        out.drop(columns=["_benchmark_buy_dt"], inplace=True, errors="ignore")
+        return out
+
+    cache_path = Path(BENCHMARK_REFERENCE_CACHE)
+    cache_cols = ["buy_datetime_key", "buy_date", "benchmark_entry_price"] + [
+        f"{BENCHMARK_TICKER.lower()}_return_{h}d_pct_raw" for h in HORIZONS
+    ]
+    if cache_path.exists():
+        try:
+            ref_cache = pd.read_csv(cache_path)
+        except Exception:
+            ref_cache = pd.DataFrame(columns=cache_cols)
+    else:
+        ref_cache = pd.DataFrame(columns=cache_cols)
+    for col in cache_cols:
+        if col not in ref_cache.columns:
+            ref_cache[col] = np.nan
+    ref_cache["buy_datetime_key"] = ref_cache["buy_datetime_key"].astype(str)
+
+    keys = (
+        out.loc[valid_buy, "_benchmark_buy_dt"]
+        .dt.strftime("%Y-%m-%d %H:%M:%S%z")
+        .rename("buy_datetime_key")
+        .to_frame()
+        .drop_duplicates()
+        .sort_values("buy_datetime_key")
+    )
+    cached_keys = set(ref_cache["buy_datetime_key"].dropna().astype(str).tolist())
+    missing_keys = keys[~keys["buy_datetime_key"].isin(cached_keys)].copy()
+
+    if not missing_keys.empty:
+        key_to_dt = (
+            out.loc[valid_buy, ["_benchmark_buy_dt"]]
+            .assign(buy_datetime_key=out.loc[valid_buy, "_benchmark_buy_dt"].dt.strftime("%Y-%m-%d %H:%M:%S%z"))
+            .drop_duplicates(subset=["buy_datetime_key"], keep="first")
+            .set_index("buy_datetime_key")["_benchmark_buy_dt"]
+            .to_dict()
+        )
+        missing_keys["benchmark_buy_dt"] = missing_keys["buy_datetime_key"].map(key_to_dt)
+        missing_keys["buy_date"] = missing_keys["benchmark_buy_dt"].dt.date
+
+        min_buy_date = min(missing_keys["buy_date"])
+        max_buy_date = max(missing_keys["buy_date"]) + timedelta(days=max(HORIZONS) * 3)
+        cache_dir = Path(CACHE_DIR)
+        logger.info(
+            "Computing %s benchmark targets for %d unseen entry timestamps [%s -> %s]...",
+            BENCHMARK_TICKER,
+            len(missing_keys),
+            min_buy_date,
+            max_buy_date,
+        )
+        day_bars = fetch_day_bars(cache_dir, BENCHMARK_TICKER, min_buy_date, max_buy_date)
+        dated_bars = [(_bar_date_et(bar), bar) for bar in day_bars]
+        dated_bars = [(d, bar) for d, bar in dated_bars if d is not None]
+        trading_dates = [d for d, _ in dated_bars]
+        closes = [float(bar["c"]) for _d, bar in dated_bars]
+        date_to_idx = {d: idx for idx, d in enumerate(trading_dates)}
+
+        minute_dates = sorted(set(missing_keys["buy_date"].tolist()))
+        minute_cache: dict[date, list[dict]] = {}
+        with ThreadPoolExecutor(max_workers=BENCHMARK_FETCH_WORKERS) as pool:
+            futures = {pool.submit(fetch_minute_bars, cache_dir, BENCHMARK_TICKER, d): d for d in minute_dates}
+            for fut in as_completed(futures):
+                minute_cache[futures[fut]] = fut.result()
+
+        rows = []
+        for rec in missing_keys.itertuples(index=False):
+            buy_date = rec.buy_date
+            buy_dt_et = rec.benchmark_buy_dt
+            bars = minute_cache.get(buy_date, [])
+            entry_px = find_price_at_or_after(bars, int(buy_dt_et.timestamp() * 1000))
+            if not np.isfinite(entry_px):
+                entry_px = find_last_close(bars)
+            row = {
+                "buy_datetime_key": rec.buy_datetime_key,
+                "buy_date": buy_date.isoformat(),
+                "benchmark_entry_price": float(entry_px) if np.isfinite(entry_px) else np.nan,
+            }
+            entry_idx = date_to_idx.get(buy_date)
+            for h in HORIZONS:
+                col = f"{BENCHMARK_TICKER.lower()}_return_{h}d_pct_raw"
+                if (entry_idx is None) or (not np.isfinite(entry_px)):
+                    row[col] = np.nan
+                    continue
+                exit_idx = entry_idx + (h - 1)
+                if exit_idx >= len(closes):
+                    row[col] = np.nan
+                    continue
+                row[col] = ((closes[exit_idx] / entry_px) - 1.0) * 100.0
+            rows.append(row)
+
+        if rows:
+            new_cache = pd.DataFrame(rows)
+            ref_cache = pd.concat([ref_cache, new_cache], ignore_index=True)
+            ref_cache = ref_cache.drop_duplicates(subset=["buy_datetime_key"], keep="last")
+            ref_cache = ref_cache.sort_values("buy_datetime_key").reset_index(drop=True)
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            ref_cache.to_csv(cache_path, index=False)
+            logger.info("Saved %s benchmark reference cache -> %s", BENCHMARK_TICKER, cache_path)
+
+    out["buy_datetime_key"] = out["_benchmark_buy_dt"].dt.strftime("%Y-%m-%d %H:%M:%S%z")
+    out = out.merge(ref_cache[cache_cols], on="buy_datetime_key", how="left")
+
+    adjusted_counts = {}
+    for h in HORIZONS:
+        target_col = f"return_{h}d_pct"
+        raw_target_col = f"stock_only_return_{h}d_pct"
+        benchmark_raw_col = f"{BENCHMARK_TICKER.lower()}_return_{h}d_pct_raw"
+        benchmark_col = f"{BENCHMARK_TICKER.lower()}_return_{h}d_pct"
+        out[raw_target_col] = pd.to_numeric(out[target_col], errors="coerce")
+        out[benchmark_col] = _per_day_compound_pct(pd.to_numeric(out[benchmark_raw_col], errors="coerce"), h)
+        out[target_col] = out[raw_target_col] - out[benchmark_col]
+        adjusted_counts[h] = int(out[target_col].notna().sum())
+
+    out["benchmark_ticker"] = BENCHMARK_TICKER
+    out["returns_are_benchmark_adjusted"] = True
+    out["target_return_mode"] = TARGET_RETURN_MODE
+    out.drop(columns=["_benchmark_buy_dt", "buy_datetime_key"], inplace=True, errors="ignore")
+    logger.info(
+        "Applied %s excess-return adjustment to targets: %s",
+        BENCHMARK_TICKER,
+        ", ".join(f"{h}d={adjusted_counts[h]:,}" for h in HORIZONS),
+    )
+    return out
+
 # ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Step 1: Load & Merge ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
 def load_and_merge() -> pd.DataFrame:
     logger.info("Loading aggregated dataset...")
     df = pd.read_csv(AGGREGATED_CSV)
     df = apply_per_day_adjusted_targets(df)
+    df = apply_benchmark_adjusted_targets(df)
     df["transaction_date"] = pd.to_datetime(df["transaction_date"])
     df["trade_date_d"] = pd.to_datetime(df["trade_date"]).dt.date
     logger.info(f"  Rows: {len(df):,}")
@@ -659,11 +926,13 @@ def engineer_features(df: pd.DataFrame) -> tuple:
     # market type fixed effect
     mkt_map = {m: i for i, m in enumerate(MARKET_TYPE_ORDER)}
     df["market_type"] = df.get("market_type", "NON_TRADABLE")
-    df["market_type_enc"] = df["market_type"].map(mkt_map).fillna(mkt_map["NON_TRADABLE"]).astype("category")
+    market_codes = df["market_type"].map(mkt_map).fillna(mkt_map["NON_TRADABLE"]).astype(int)
+    df["market_type_enc"] = pd.Categorical(market_codes, categories=list(range(len(MARKET_TYPE_ORDER))))
 
     # sector: ordinal encode ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ category dtype for HGBR / XGBoost
     sec_map = {s: i for i, s in enumerate(SECTOR_ORDER)}
-    df["sector_enc"] = df["sector"].map(sec_map).fillna(sec_map["Unknown"]).astype("category")
+    sector_codes = df["sector"].map(sec_map).fillna(sec_map["Unknown"]).astype(int)
+    df["sector_enc"] = pd.Categorical(sector_codes, categories=list(range(len(SECTOR_ORDER))))
 
     # officer_type
     df["officer_type"] = df["title"].apply(extract_officer_type)
@@ -672,7 +941,8 @@ def engineer_features(df: pd.DataFrame) -> tuple:
     # Ordinal encode officer_type ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ set category dtype for HGBR
     cat_map = {name: i for i, (name, _) in enumerate(OFFICER_KEYWORDS)}
     cat_map["Other"] = len(OFFICER_KEYWORDS)
-    df["officer_type_enc"] = df["officer_type"].map(cat_map).astype("category")
+    officer_codes = df["officer_type"].map(cat_map).fillna(cat_map["Other"]).astype(int)
+    df["officer_type_enc"] = pd.Categorical(officer_codes, categories=list(range(len(cat_map))))
 
     # n_insiders_in_cluster: ensure int
     if "n_insiders_in_cluster" not in df.columns:
@@ -847,7 +1117,10 @@ def print_summary(all_metrics: dict):
     print(f"  Random split : {int((1-TEST_SIZE)*100)}% train / {int(TEST_SIZE*100)}% test (seed={RANDOM_STATE})")
     print(f"  Model        : HistGradientBoostingRegressor")
     print(f"  Features ({len(FEATURES)}): {', '.join(FEATURES)}")
-    print("  Target definition: 1d is total return; 3d/5d/10d are per-day compounded returns.")
+    print(
+        "  Target definition: SPY-adjusted excess returns; "
+        "1d is same-day excess return and 3d/5d/10d are per-day compounded excess returns."
+    )
 
     for h in HORIZONS:
         m = all_metrics[h]
@@ -895,7 +1168,6 @@ def print_summary(all_metrics: dict):
 # ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Step 5: Save Metadata ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
 def save_metadata(all_metrics: dict, features: list, caps: dict):
-    from datetime import datetime
     import sklearn
     meta = {
         "training_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -905,6 +1177,8 @@ def save_metadata(all_metrics: dict, features: list, caps: dict):
         "winsorization_caps": caps,
         "test_size": TEST_SIZE,
         "random_state": RANDOM_STATE,
+        "target_return_mode": TARGET_RETURN_MODE,
+        "benchmark_ticker": BENCHMARK_TICKER,
         "windows": {},
     }
     for h in HORIZONS:

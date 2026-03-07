@@ -29,11 +29,18 @@ BASE = Path("C:/Users/XavierFriesen/insider_trades_predictor")
 sys.path.insert(0, str(BASE))
 os.chdir(BASE)
 
-from compare_models import to_linear_numeric, to_xgb, train_elasticnet, train_spline_elasticnet, train_xgb
-from train_models import HORIZONS, MODEL_PARAMS, engineer_features, load_and_merge
+from model_ensemble import to_linear_numeric, to_xgb, train_elasticnet, train_spline_elasticnet, train_xgb
+from train_models import (
+    BENCHMARK_TICKER,
+    HORIZONS,
+    MODEL_PARAMS,
+    TARGET_RETURN_MODE,
+    engineer_features,
+    load_and_merge,
+)
 
-MODEL_DIR = BASE / "models"
-MODEL_DIR.mkdir(exist_ok=True)
+MODEL_DIR = BASE / "research" / "outcomes" / "models"
+MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
 TEST_SIZE = 0.2
 ENSEMBLE_MODELS = ["HGBR", "XGBoost", "ElasticNet", "SplineElasticNet"]
@@ -104,7 +111,16 @@ def run():
     df, features, _ = engineer_features(load_and_merge())
     print(f"  rows={len(df):,} | features={len(features)}")
 
-    out = {"meta": {"split": "time", "test_size": TEST_SIZE, "ensemble_models": ENSEMBLE_MODELS}, "horizons": {}}
+    out = {
+        "meta": {
+            "split": "time",
+            "test_size": TEST_SIZE,
+            "ensemble_models": ENSEMBLE_MODELS,
+            "target_return_mode": TARGET_RETURN_MODE,
+            "benchmark_ticker": BENCHMARK_TICKER,
+        },
+        "horizons": {},
+    }
     csv_rows = []
 
     for w in HORIZONS:
@@ -171,4 +187,3 @@ def run():
 
 if __name__ == "__main__":
     run()
-

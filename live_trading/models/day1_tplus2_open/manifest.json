@@ -1,0 +1,22 @@
+{
+  "strategy_id": "day1_tplus2_open",
+  "description": "Day-1 ensemble signal with exit at the next market open two trading days after entry.",
+  "active_model_dir": "models/prod4",
+  "backup_model_dir": "models_r_day1/prod4",
+  "cutoff_curve_csv": "backtest/out/investable_decile_score_sweep_0005_tplus2_open.csv",
+  "benchmark_curve_csv": "research/outcomes/models/equal4_deciles_time_split_tplus2_open_live.csv",
+  "benchmark_curve_json": "research/outcomes/models/equal4_deciles_time_split_tplus2_open_live.json",
+  "signal_gate": {
+    "day1_decile_score_threshold": 0.87,
+    "day1_raw_threshold_fallback": 0.6091125803233034
+  },
+  "allocation_advice": {
+    "base_fraction": 0.25,
+    "bonus_fraction": 0.25
+  },
+  "exit_rule": {
+    "sell_after_trading_days": 2,
+    "sell_session": "open",
+    "sell_rule_label": "sell_at_open_2_trading_days_after_buy"
+  }
+}

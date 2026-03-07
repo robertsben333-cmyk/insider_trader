@@ -331,6 +331,8 @@ def run(model_dir: Path = MODEL_DIR, horizons: list[int] | None = None, aggregat
         "weights_by_horizon": {},
         "rule": policy_rule,
         "multi_day_targets_are_daily": True,
+        "target_return_mode": train_models.TARGET_RETURN_MODE,
+        "benchmark_ticker": train_models.BENCHMARK_TICKER,
     }
 
     for h in horizons:
@@ -384,6 +386,8 @@ def run(model_dir: Path = MODEL_DIR, horizons: list[int] | None = None, aggregat
 
         eval_report[str(h)] = {
             "target": tgt,
+            "target_return_mode": train_models.TARGET_RETURN_MODE,
+            "benchmark_ticker": train_models.BENCHMARK_TICKER,
             "split_sizes": {"train": int(len(X_tr)), "val": int(len(X_va)), "test": int(len(X_te))},
             "weights": {
                 "equal": {m: float(v) for m, v in zip(MODEL_NAMES, w_eq)},

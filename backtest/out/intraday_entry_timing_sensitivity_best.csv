@@ -1,0 +1,9 @@
+scope,split,entry_time_bucket,best_scenario,best_mean_ret_pct,runner_up_mean_ret_pct
+split,val,,next_day_close,1.931080780880642,1.8838432566411065
+bucket,val,09:46-10:59,next_day_close,2.2840240228064146,1.990275018509545
+bucket,val,11:00-12:59,second_day_close,3.970280380581312,1.158122587002456
+bucket,val,13:00-15:59,next_day_close,2.2163696348388484,1.229277872115234
+split,test,,second_day_close,4.829928864314877,4.446675114055795
+bucket,test,09:46-10:59,second_day_close,6.184500053710369,6.098320519251573
+bucket,test,11:00-12:59,second_day_close,4.192406019007774,3.901581975461317
+bucket,test,13:00-15:59,second_day_close,4.796060165789718,4.291726120977577

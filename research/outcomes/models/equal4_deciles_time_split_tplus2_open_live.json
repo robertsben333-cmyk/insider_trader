@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "split": "time",
+    "test_size": 0.2,
+    "ensemble_models": [
+      "HGBR",
+      "XGBoost",
+      "ElasticNet",
+      "SplineElasticNet"
+    ],
+    "target_return_mode": "spy_adjusted_excess_return_pct",
+    "benchmark_ticker": "SPY",
+    "target": "return_2d_open_pct",
+    "exit_rule": "sell_at_open_2_trading_days_after_buy"
+  },
+  "horizons": {
+    "1": {
+      "target": "return_2d_open_pct",
+      "deciles": [
+        {
+          "decile": 1,
+          "n": 244,
+          "mean_pred": -0.15385488246199872,
+          "mean_actual": -0.16593331772147907,
+          "pct_pos_actual": 52.04918032786885
+        },
+        {
+          "decile": 2,
+          "n": 244,
+          "mean_pred": 0.0366350249994662,
+          "mean_actual": -0.040581131643003844,
+          "pct_pos_actual": 51.229508196721305
+        },
+        {
+          "decile": 3,
+          "n": 244,
+          "mean_pred": 0.10378309292751949,
+          "mean_actual": 0.04043175364857822,
+          "pct_pos_actual": 50.0
+        },
+        {
+          "decile": 4,
+          "n": 244,
+          "mean_pred": 0.15631736052803133,
+          "mean_actual": 0.04912217693743456,
+          "pct_pos_actual": 51.229508196721305
+        },
+        {
+          "decile": 5,
+          "n": 244,
+          "mean_pred": 0.2100948319971482,
+          "mean_actual": 0.2114171560099719,
+          "pct_pos_actual": 50.409836065573764
+        },
+        {
+          "decile": 6,
+          "n": 244,
+          "mean_pred": 0.2708542847303273,
+          "mean_actual": 0.3105629912264365,
+          "pct_pos_actual": 54.09836065573771
+        },
+        {
+          "decile": 7,
+          "n": 244,
+          "mean_pred": 0.3508208778011776,
+          "mean_actual": 0.4877937416632414,
+          "pct_pos_actual": 56.14754098360656
+        },
+        {
+          "decile": 8,
+          "n": 244,
+          "mean_pred": 0.4692418394686623,
+          "mean_actual": 0.33423720553073,
+          "pct_pos_actual": 52.04918032786885
+        },
+        {
+          "decile": 9,
+          "n": 244,
+          "mean_pred": 0.676369049280014,
+          "mean_actual": 0.7823224108411969,
+          "pct_pos_actual": 55.73770491803278
+        },
+        {
+          "decile": 10,
+          "n": 248,
+          "mean_pred": 1.3135367536503701,
+          "mean_actual": 1.7154791661861708,
+          "pct_pos_actual": 62.5
+        }
+      ]
+    }
+  }
+}
