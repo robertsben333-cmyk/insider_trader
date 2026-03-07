@@ -37,6 +37,7 @@ from dotenv import load_dotenv
 from polygon import RESTClient
 
 import train_models
+from live_trading.market_calendar import is_weekend_shutdown_window, seconds_until_weekend_shutdown_end
 from live_trading.strategy_settings import ACTIVE_STRATEGY, LIVE_PATHS, RUNTIME_DEFAULTS
 from openinsider_scraper import OpenInsiderScraper
 
@@ -104,6 +105,7 @@ ET = ZoneInfo("America/New_York")
 
 # Polling intervals: high-frequency window covers 2 h before/after market open.
 NEAR_OPEN_WINDOW_HOURS = RUNTIME_DEFAULTS.near_open_window_hours
+MARKET_HOURS_INTERVAL_MINUTES = RUNTIME_DEFAULTS.market_hours_interval_minutes
 NEAR_OPEN_INTERVAL_MINUTES = RUNTIME_DEFAULTS.near_open_interval_minutes
 FAR_INTERVAL_MINUTES = RUNTIME_DEFAULTS.far_interval_minutes
 
@@ -130,6 +132,7 @@ def seconds_until_next_open(now_et: datetime) -> float:
 def compute_sleep_interval_minutes(now_et: datetime) -> int:
     """Return polling interval in minutes based on proximity to market open.
 
+    - MARKET_HOURS_INTERVAL_MINUTES (1) during regular trading hours.
     - NEAR_OPEN_INTERVAL_MINUTES (30) within NEAR_OPEN_WINDOW_HOURS hours
       before *or* after 9:30 ET on a weekday (i.e. 7:30–11:30 ET).
     - FAR_INTERVAL_MINUTES (120) at all other times (overnight, weekends,
@@ -138,6 +141,8 @@ def compute_sleep_interval_minutes(now_et: datetime) -> int:
     """
     if now_et.weekday() >= 5:
         return FAR_INTERVAL_MINUTES
+    if is_market_open(now_et):
+        return MARKET_HOURS_INTERVAL_MINUTES
     open_t = now_et.replace(hour=MARKET_OPEN_H, minute=MARKET_OPEN_M, second=0, microsecond=0)
     near_start = open_t - timedelta(hours=NEAR_OPEN_WINDOW_HOURS)
     near_end   = open_t + timedelta(hours=NEAR_OPEN_WINDOW_HOURS)
@@ -1671,6 +1676,13 @@ def main() -> None:
 
     while True:
         now_et = datetime.now(ET)
+        if is_weekend_shutdown_window(now_et):
+            sleep_seconds = seconds_until_weekend_shutdown_end(now_et)
+            logger.info("Weekend shutdown active. Sleeping %.1f hours until Monday 00:00 ET.", sleep_seconds / 3600.0)
+            if args.once:
+                break
+            time.sleep(sleep_seconds)
+            continue
         interval_minutes = compute_sleep_interval_minutes(now_et)
         cycle_start_time = datetime.now()
         months_back = compute_months_back(last_scraped_at, cycle_start_time, args.months_back)

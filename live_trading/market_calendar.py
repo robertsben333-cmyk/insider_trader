@@ -18,6 +18,12 @@ def market_close_datetime(trade_day: date) -> datetime:
     return datetime.combine(trade_day, MARKET_CLOSE, tzinfo=ET)
 
 
+def _to_et(dt: datetime) -> datetime:
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=ET)
+    return dt.astimezone(ET)
+
+
 def is_trading_day(day: date) -> bool:
     return day.weekday() < 5
 
@@ -26,6 +32,13 @@ def next_trading_day(day: date) -> date:
     cur = day
     while not is_trading_day(cur):
         cur += timedelta(days=1)
+    return cur
+
+
+def previous_trading_day(day: date) -> date:
+    cur = day - timedelta(days=1)
+    while not is_trading_day(cur):
+        cur -= timedelta(days=1)
     return cur
 
 
@@ -55,6 +68,33 @@ def parse_iso_datetime(raw: str) -> datetime:
     if dt.tzinfo is None:
         return dt.replace(tzinfo=ET)
     return dt
+
+
+def is_regular_trading_hours(now: datetime) -> bool:
+    now_et = _to_et(now)
+    if now_et.weekday() >= 5:
+        return False
+    return market_open_datetime(now_et.date()) <= now_et < market_close_datetime(now_et.date())
+
+
+def is_weekend_shutdown_window(now: datetime) -> bool:
+    now_et = _to_et(now)
+    if now_et.weekday() in {5, 6}:
+        return True
+    if now_et.weekday() != 4:
+        return False
+    return now_et >= market_close_datetime(now_et.date())
+
+
+def seconds_until_weekend_shutdown_end(now: datetime) -> float:
+    now_et = _to_et(now)
+    if not is_weekend_shutdown_window(now_et):
+        return 0.0
+    days_until_monday = (7 - now_et.weekday()) % 7
+    monday_midnight = datetime.combine(now_et.date() + timedelta(days=days_until_monday), time(0, 0), tzinfo=ET)
+    if monday_midnight <= now_et:
+        monday_midnight += timedelta(days=7)
+    return max(0.0, (monday_midnight - now_et).total_seconds())
 
 
 def intended_entry_from_score(scored_utc: datetime) -> datetime:

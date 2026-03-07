@@ -5,8 +5,10 @@ from pathlib import Path
 import pandas as pd
 
 from live_trading.market_calendar import (
+    ET,
     candidate_expiry_datetime,
     intended_entry_from_score,
+    is_regular_trading_hours,
     parse_scored_at_utc,
     parse_time_hhmm,
     sleeve_id_for_trade_day,
@@ -53,6 +55,7 @@ def load_signal_candidates(
         except ValueError:
             continue
         intended_entry = intended_entry_from_score(scored_utc)
+        scored_et = scored_utc.astimezone(ET)
         advised_alloc = _to_float(row.get("advised_allocation_fraction"))
         if not pd.notna(advised_alloc):
             advised_alloc = 0.0
@@ -61,6 +64,7 @@ def load_signal_candidates(
         pred_mean4 = _to_float(row.get("pred_mean4"))
         signal_score = score_1d if pd.notna(score_1d) else pred_mean4
         buy_price_hint = _to_float(row.get("buy_price"))
+        entry_bucket = "intraday" if is_regular_trading_hours(scored_et) else "open"
         out.append(
             SignalCandidate(
                 candidate_id=f"{event_key}|{scored_at_raw}",
@@ -78,6 +82,8 @@ def load_signal_candidates(
                 estimated_decile_score=float(estimated_decile) if pd.notna(estimated_decile) else 0.0,
                 advised_allocation_fraction=max(0.0, float(advised_alloc)),
                 score_column=str(row.get("alert_score_column", "score_1d") or "score_1d"),
+                entry_bucket=entry_bucket,
+                entry_trade_day=intended_entry.date().isoformat(),
                 buy_price_hint=float(buy_price_hint) if pd.notna(buy_price_hint) else None,
             )
         )

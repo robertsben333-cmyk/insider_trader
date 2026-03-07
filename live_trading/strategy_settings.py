@@ -66,6 +66,7 @@ class LivePaths:
 class RuntimeDefaults:
     months_back: int
     alert_recipient: str
+    market_hours_interval_minutes: int
     near_open_window_hours: int
     near_open_interval_minutes: int
     far_interval_minutes: int
@@ -180,6 +181,7 @@ LIVE_PATHS = LivePaths(
 RUNTIME_DEFAULTS = RuntimeDefaults(
     months_back=1,
     alert_recipient="xavierjjc@outlook.com",
+    market_hours_interval_minutes=1,
     near_open_window_hours=2,
     near_open_interval_minutes=30,
     far_interval_minutes=120,

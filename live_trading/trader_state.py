@@ -29,7 +29,10 @@ class SignalCandidate:
     estimated_decile_score: float
     advised_allocation_fraction: float
     score_column: str
+    entry_bucket: str = "open"
+    entry_trade_day: str = ""
     buy_price_hint: float | None = None
+    replacement_for_lot_id: str | None = None
     status: str = "pending"
     linked_lot_id: str | None = None
     active_order_id: str | None = None
@@ -52,6 +55,9 @@ class PositionLot:
     entry_value: float = 0.0
     exit_value: float = 0.0
     realized_pnl: float = 0.0
+    entry_signal_score: float = 0.0
+    entry_estimated_decile_score: float = 0.0
+    entry_trade_day: str = ""
     last_mark_price: float | None = None
     status: str = "open"
     active_exit_order_id: str | None = None

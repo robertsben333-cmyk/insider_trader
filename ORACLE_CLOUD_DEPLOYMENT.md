@@ -9,6 +9,12 @@
 - **Repo on VM**: `/home/opc/insider_trader`
 - **GitHub repo**: https://github.com/robertsben333-cmyk/insider_trader (public)
 
+## Related Runbooks
+
+- General Oracle VM setup: this file
+- IBKR Gateway deployment and weekly operating routine: [live_trading/IBKR_GATEWAY_DEPLOYMENT.md](/c:/Users/XavierFriesen/insider_trades_predictor/live_trading/IBKR_GATEWAY_DEPLOYMENT.md)
+- IBKR Gateway relogin helper: [live_trading/IBKR_GATEWAY_RELOGIN.md](/c:/Users/XavierFriesen/insider_trades_predictor/live_trading/IBKR_GATEWAY_RELOGIN.md)
+
 ---
 
 ## PART 1 — Oracle Cloud Console Setup
