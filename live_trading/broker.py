@@ -94,6 +94,10 @@ class BrokerAdapter(Protocol):
 
     def get_positions(self) -> list[BrokerPositionView]: ...
 
+    def get_open_orders(self) -> list[BrokerOrderView]: ...
+
+    def get_recent_fills(self) -> list[BrokerFillView]: ...
+
     def list_orders(self, include_closed: bool = False) -> list[BrokerOrderView]: ...
 
     def list_fills(self) -> list[BrokerFillView]: ...
@@ -129,6 +133,12 @@ class DryRunBrokerAdapter:
 
     def get_positions(self) -> list[BrokerPositionView]:
         return []
+
+    def get_open_orders(self) -> list[BrokerOrderView]:
+        return self.list_orders(include_closed=False)
+
+    def get_recent_fills(self) -> list[BrokerFillView]:
+        return self.list_fills()
 
     def list_orders(self, include_closed: bool = False) -> list[BrokerOrderView]:
         if include_closed:
@@ -287,6 +297,12 @@ class IbkrBrokerAdapter:
     def list_orders(self, include_closed: bool = False) -> list[BrokerOrderView]:
         trades = self._ib.trades() if include_closed else self._ib.openTrades()
         return [self._trade_to_order_view(trade) for trade in trades]
+
+    def get_open_orders(self) -> list[BrokerOrderView]:
+        return self.list_orders(include_closed=False)
+
+    def get_recent_fills(self) -> list[BrokerFillView]:
+        return self.list_fills()
 
     def list_fills(self) -> list[BrokerFillView]:
         out: list[BrokerFillView] = []

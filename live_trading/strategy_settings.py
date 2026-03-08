@@ -59,6 +59,11 @@ class LivePaths:
     trader_state_file: str
     trader_journal_file: str
     trader_signal_archive_file: str
+    dashboard_dir: str
+    dashboard_baseline_file: str
+    dashboard_executions_file: str
+    dashboard_equity_history_file: str
+    dashboard_latest_snapshot_file: str
     gateway_env_file: str
 
 
@@ -130,6 +135,15 @@ class ExecutionPolicy:
     open_order_poll_seconds: int
 
 
+@dataclass(frozen=True)
+class DashboardRuntimeConfig:
+    sync_interval_seconds: int
+    recent_trades_limit: int
+    auto_refresh_seconds: int
+    streamlit_host: str
+    streamlit_port: int
+
+
 ACTIVE_STRATEGY = ActiveStrategy(
     strategy_id="day1_tplus2_open",
     description="Day-1 ensemble signal with exit at the next market open two trading days after entry.",
@@ -175,6 +189,11 @@ LIVE_PATHS = LivePaths(
     trader_state_file="live/data/trader_state/ibkr_paper_trader_state.json",
     trader_journal_file="live/data/trader_state/ibkr_paper_trader_journal.jsonl",
     trader_signal_archive_file="live/data/trader_state/ibkr_paper_signal_archive.csv",
+    dashboard_dir="live/data/dashboard",
+    dashboard_baseline_file="live/data/dashboard/baseline.json",
+    dashboard_executions_file="live/data/dashboard/executions.jsonl",
+    dashboard_equity_history_file="live/data/dashboard/equity_history.csv",
+    dashboard_latest_snapshot_file="live/data/dashboard/latest_snapshot.json",
     gateway_env_file="/etc/insider_trades.env",
 )
 
@@ -236,4 +255,12 @@ EXECUTION_POLICY = ExecutionPolicy(
     routing_exchange="SMART",
     currency="USD",
     open_order_poll_seconds=5,
+)
+
+DASHBOARD_CONFIG = DashboardRuntimeConfig(
+    sync_interval_seconds=30,
+    recent_trades_limit=25,
+    auto_refresh_seconds=30,
+    streamlit_host="127.0.0.1",
+    streamlit_port=8501,
 )
