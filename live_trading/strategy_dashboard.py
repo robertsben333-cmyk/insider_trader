@@ -128,6 +128,8 @@ def main() -> None:
 
     load_dotenv()
     service = build_dashboard_service()
+    if "dashboard_sync_nonce" not in st.session_state:
+        st.session_state["dashboard_sync_nonce"] = 0
 
     st.sidebar.header("Controls")
     auto_refresh = st.sidebar.checkbox("Auto refresh", value=True)
@@ -139,10 +141,13 @@ def main() -> None:
     )
     st.sidebar.caption(f"Default bind target: {DASHBOARD_CONFIG.streamlit_host}:{DASHBOARD_CONFIG.streamlit_port}")
     st.sidebar.caption(f"Active strategy: {ACTIVE_STRATEGY.strategy_id}")
-    if st.sidebar.button("Manual refresh"):
+    st.sidebar.caption("Startup and refresh both trigger a broker sync before rendering.")
+    if st.sidebar.button("Sync now"):
+        st.session_state["dashboard_sync_nonce"] += 1
         st.rerun()
 
-    snapshot = service.sync_broker_state()
+    with st.spinner("Syncing broker state..."):
+        snapshot = service.sync_broker_state()
     render_dashboard(snapshot, st)
 
     if auto_refresh:

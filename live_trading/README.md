@@ -24,6 +24,8 @@ This folder is the clean runtime boundary for the future trading app.
 - `run_vm_history_backtest.py`
 - `run_vm_early_exit_walkforward.py`
 - `run_ibkr_paper_trader.py`
+- `run_dashboard_sync.py`
+- `run_strategy_dashboard.py`
 
 These wrappers keep the future app pointed at a stable runtime folder without forcing a risky full module move today.
 
@@ -33,6 +35,14 @@ These wrappers keep the future app pointed at a stable runtime folder without fo
 - Sleeve budgeting, rotation, and sizing caps are configured through `TRADING_BUDGET`.
 - Entry/exit timing, stale-order replacement, and marketable-limit settings are configured through `EXECUTION_POLICY`.
 - Runtime state is persisted under `live/data/trader_state/`.
+- Dashboard state is persisted under `live/data/dashboard/`.
+
+## Dashboard runtime
+
+- `run_dashboard_sync.py` is the read-only IBKR collection loop for portfolio, fills, orders, and performance snapshots.
+- `run_strategy_dashboard.py` is the Streamlit UI.
+- The dashboard syncs broker state on startup and whenever the UI `Sync now` button is pressed.
+- On the VM, the sync loop can run continuously beside the trader service and the Streamlit app can be exposed separately.
 
 ## VM deployment helpers
 
@@ -40,8 +50,12 @@ These wrappers keep the future app pointed at a stable runtime folder without fo
 - `scripts/vm/start_ibgateway.sh`
 - `scripts/vm/wait_for_ibgateway.py`
 - `scripts/vm/run_ibkr_paper_trader.sh`
+- `scripts/vm/run_dashboard_sync.sh`
+- `scripts/vm/run_strategy_dashboard.sh`
 - `scripts/systemd/insider-xvfb.service`
 - `scripts/systemd/insider-ibgateway.service`
 - `scripts/systemd/insider-ibkr-paper-trader.service`
+- `scripts/systemd/insider-dashboard-sync.service`
+- `scripts/systemd/insider-strategy-dashboard.service`
 
 These templates assume an unsupported unattended setup: `Xvfb` provides the display, an external gateway launcher such as IBC can be injected via `IBC_START_CMD`, and the trader process waits for the gateway socket before starting.

@@ -21,6 +21,8 @@ This is the runbook to reproduce the environment from scratch.
 - `IB Gateway` is launched inside that desktop with `DISPLAY=:1`.
 - `insider-live-scoring.service` runs the scoring loop continuously.
 - `insider-ibkr-paper-trader.service` runs the IBKR trader continuously.
+- `insider-dashboard-sync.service` runs the read-only dashboard collector continuously.
+- `insider-strategy-dashboard.service` serves the Streamlit dashboard continuously.
 - `RealVNC` is only needed when `IB Gateway` needs login or recovery.
 - `Git Bash` is only needed for setup, inspection, and occasional maintenance.
 
@@ -295,6 +297,56 @@ StandardError=journal
 WantedBy=multi-user.target
 ```
 
+### Dashboard sync service
+
+`/etc/systemd/system/insider-dashboard-sync.service`
+
+```ini
+[Unit]
+Description=Insider Trades IBKR Dashboard Sync
+After=network-online.target insider-ibgateway.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=opc
+WorkingDirectory=/home/opc/insider_trader
+EnvironmentFile=/etc/insider_trades.env
+ExecStart=/home/opc/insider_trader/scripts/vm/run_dashboard_sync.sh
+Restart=always
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Dashboard service
+
+`/etc/systemd/system/insider-strategy-dashboard.service`
+
+```ini
+[Unit]
+Description=Insider Trades Strategy Dashboard
+After=network-online.target insider-dashboard-sync.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=opc
+WorkingDirectory=/home/opc/insider_trader
+Environment=STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+ExecStart=/home/opc/insider_trader/scripts/vm/run_strategy_dashboard.sh
+Restart=always
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ### Enable and start
 
 ```bash
@@ -302,9 +354,13 @@ sudo systemctl daemon-reload
 sudo systemctl enable vncserver@:1.service
 sudo systemctl enable insider-live-scoring.service
 sudo systemctl enable insider-ibkr-paper-trader.service
+sudo systemctl enable insider-dashboard-sync.service
+sudo systemctl enable insider-strategy-dashboard.service
 
 sudo systemctl start insider-live-scoring.service
 sudo systemctl start insider-ibkr-paper-trader.service
+sudo systemctl start insider-dashboard-sync.service
+sudo systemctl start insider-strategy-dashboard.service
 ```
 
 ### Check status
@@ -312,6 +368,8 @@ sudo systemctl start insider-ibkr-paper-trader.service
 ```bash
 sudo systemctl status insider-live-scoring.service --no-pager
 sudo systemctl status insider-ibkr-paper-trader.service --no-pager
+sudo systemctl status insider-dashboard-sync.service --no-pager
+sudo systemctl status insider-strategy-dashboard.service --no-pager
 ```
 
 ### Follow logs
@@ -319,6 +377,8 @@ sudo systemctl status insider-ibkr-paper-trader.service --no-pager
 ```bash
 sudo journalctl -u insider-live-scoring.service -f
 sudo journalctl -u insider-ibkr-paper-trader.service -f
+sudo journalctl -u insider-dashboard-sync.service -f
+sudo journalctl -u insider-strategy-dashboard.service -f
 ```
 
 ## Part 9: Manual Tests That Passed

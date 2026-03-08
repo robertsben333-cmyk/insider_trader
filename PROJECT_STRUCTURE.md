@@ -6,6 +6,8 @@
   - `strategy_settings.py` is the single editable source of truth for live parameters and paths.
   - `models/day1_tplus2_open/manifest.json` records the active live bundle.
   - `run_*.py` wrappers are the stable entrypoints to call from app code later.
+  - `run_dashboard_sync.py` collects broker-backed portfolio and return data for the dashboard.
+  - `run_strategy_dashboard.py` serves the Streamlit dashboard.
 
 ## Core entrypoints
 - `openinsider_scraper.py`
@@ -35,3 +37,5 @@
 2. `py backtest/scripts/run_backtest.py`
 3. `py model_ensemble.py`
 4. `py live_trading/run_live_scoring.py`
+5. `py live_trading/run_dashboard_sync.py`
+6. `streamlit run live_trading/run_strategy_dashboard.py`

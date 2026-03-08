@@ -1,0 +1,18 @@
+[Unit]
+Description=Insider Trades Strategy Dashboard
+After=network-online.target insider-dashboard-sync.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=opc
+WorkingDirectory=/home/opc/insider_trader
+Environment=STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+ExecStart=/home/opc/insider_trader/scripts/vm/run_strategy_dashboard.sh
+Restart=always
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

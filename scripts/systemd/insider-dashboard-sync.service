@@ -1,0 +1,18 @@
+[Unit]
+Description=Insider Trades IBKR Dashboard Sync
+After=network-online.target insider-ibgateway.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=opc
+WorkingDirectory=/home/opc/insider_trader
+EnvironmentFile=/etc/insider_trades.env
+ExecStart=/home/opc/insider_trader/scripts/vm/run_dashboard_sync.sh
+Restart=always
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
