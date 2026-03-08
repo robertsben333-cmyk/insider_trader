@@ -1,6 +1,6 @@
 [Unit]
 Description=Insider Trades IBKR Dashboard Sync
-After=network-online.target insider-ibgateway.service
+After=network-online.target
 Wants=network-online.target
 
 [Service]

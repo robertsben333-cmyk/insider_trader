@@ -1,9 +1,19 @@
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass
 from datetime import UTC, datetime
 import math
 from typing import Protocol
+
+
+def _ensure_asyncio_event_loop() -> None:
+    """Create a thread-local event loop when libraries expect one at import time."""
+    policy = asyncio.get_event_loop_policy()
+    try:
+        policy.get_event_loop()
+    except RuntimeError:
+        asyncio.set_event_loop(policy.new_event_loop())
 
 
 @dataclass
@@ -189,6 +199,7 @@ class IbkrBrokerAdapter:
         quote_wait_seconds: float,
     ) -> None:
         try:
+            _ensure_asyncio_event_loop()
             from ib_insync import IB
         except ImportError as exc:
             raise RuntimeError(

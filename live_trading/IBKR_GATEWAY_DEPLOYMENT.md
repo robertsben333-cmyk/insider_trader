@@ -18,13 +18,15 @@ This is the runbook to reproduce the environment from scratch.
 ## Final Working Architecture
 
 - `TigerVNC` provides a persistent desktop on the VM.
-- `IB Gateway` is launched inside that desktop with `DISPLAY=:1`.
+- `IB Gateway` is launched on that desktop with `DISPLAY=:1` and kept detached from the SSH session.
 - `insider-live-scoring.service` runs the scoring loop continuously.
 - `insider-ibkr-paper-trader.service` runs the IBKR trader continuously.
 - `insider-dashboard-sync.service` runs the read-only dashboard collector continuously.
 - `insider-strategy-dashboard.service` serves the Streamlit dashboard continuously.
 - `RealVNC` is only needed when `IB Gateway` needs login or recovery.
 - `Git Bash` is only needed for setup, inspection, and occasional maintenance.
+
+There should be only one `IB Gateway` process and one paper-account login. Scoring, trading, and dashboard sync all connect to that same API socket on `127.0.0.1:4002`.
 
 ## What Not To Do
 
@@ -169,10 +171,12 @@ Use the VNC password set with `vncpasswd`.
 
 ## Part 5: Start and Configure IB Gateway
 
-Launch from a normal SSH session on the VM:
+Launch from a normal SSH session on the VM, detached from the SSH shell:
 
 ```bash
-DISPLAY=:1 ~/Jts/ibgateway/1037/ibgateway
+pkill -f '/home/opc/Jts/ibgateway/1037/ibgateway' || true
+nohup env DISPLAY=:1 ~/Jts/ibgateway/1037/ibgateway > ~/ibgateway.log 2>&1 &
+disown
 ```
 
 Then in the VNC desktop:
@@ -304,7 +308,7 @@ WantedBy=multi-user.target
 ```ini
 [Unit]
 Description=Insider Trades IBKR Dashboard Sync
-After=network-online.target insider-ibgateway.service
+After=network-online.target
 Wants=network-online.target
 
 [Service]
@@ -362,6 +366,12 @@ sudo systemctl start insider-ibkr-paper-trader.service
 sudo systemctl start insider-dashboard-sync.service
 sudo systemctl start insider-strategy-dashboard.service
 ```
+
+Do not rely on `insider-ibgateway.service` unless you have separately validated that launcher path on the VM. The stable operating model is:
+
+1. `vncserver@:1.service` stays up
+2. `IB Gateway` is launched manually once, detached from SSH
+3. the four Python services run under `systemd`
 
 ### Check status
 
@@ -469,13 +479,35 @@ The trader needs:
 - `Read-Only API` unchecked
 - port `4002`
 
-### 7. A clean trader run with no orders can still be correct
+### 7. Launching Gateway directly from the SSH shell ties its lifetime to that shell
+
+Symptoms:
+- closing the local VNC/Git Bash session drops the Gateway process
+
+Fix:
+- launch Gateway detached:
+
+```bash
+nohup env DISPLAY=:1 ~/Jts/ibgateway/1037/ibgateway > ~/ibgateway.log 2>&1 &
+disown
+```
+
+### 8. The dashboard and trader should share the same Gateway session
+
+Do not start a second Gateway or a second IBKR login for the dashboard.
+
+Correct model:
+- one `IB Gateway`
+- one login
+- scorer, trader, and dashboard sync all use `127.0.0.1:4002`
+
+### 9. A clean trader run with no orders can still be correct
 
 If `latest_alert_candidates.csv` only contains stale entries, the trader should mark them as expired and place nothing.
 
 That is expected behavior, not a failure.
 
-### 8. Runtime data on the VM can block `git pull`
+### 10. Runtime data on the VM can block `git pull`
 
 Files under `live/data/` changed on the VM prevented `git pull`.
 
@@ -486,7 +518,7 @@ git stash push --include-untracked -m "vm-live-data-before-pull"
 git pull
 ```
 
-### 9. The latest code must actually be present on the VM
+### 11. The latest code must actually be present on the VM
 
 The first trader run failed because the VM repo did not yet include:
 
@@ -506,27 +538,38 @@ bash scripts/vm/open_ibkr_gateway_relogin_session.sh
 ```
 
 2. RealVNC opens to `localhost:5901`
-3. Log into IB Gateway manually
-4. Verify:
+3. On the VM, launch detached if Gateway is not already running:
+
+```bash
+pkill -f '/home/opc/Jts/ibgateway/1037/ibgateway' || true
+nohup env DISPLAY=:1 ~/Jts/ibgateway/1037/ibgateway > ~/ibgateway.log 2>&1 &
+disown
+```
+
+4. Log into IB Gateway manually
+5. Verify:
 
 ```bash
 sudo ss -ltnp | grep 4002
 ```
 
-5. Optionally check:
+6. Optionally check:
 
 ```bash
 sudo systemctl status insider-live-scoring.service --no-pager
 sudo systemctl status insider-ibkr-paper-trader.service --no-pager
+sudo systemctl status insider-dashboard-sync.service --no-pager
+sudo systemctl status insider-strategy-dashboard.service --no-pager
 ```
 
-6. Close RealVNC when done
+7. Close RealVNC when done
 
 You do not need to keep RealVNC or Git Bash open permanently once:
 
 - `IB Gateway` is logged in
+- `4002` is listening
 - `vncserver@:1.service` is active
-- scorer and trader services are active
+- scorer, trader, dashboard sync, and dashboard services are active
 
 ## Related Files
 
