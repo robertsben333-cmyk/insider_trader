@@ -33,6 +33,9 @@ from live_trading.strategy_settings import (
 from live_trading.trader_state import utc_now_iso
 
 
+DEFAULT_DASHBOARD_CLIENT_ID = IBKR_CONFIG.client_id + 1
+
+
 def _parse_timestamp(raw: str | None) -> datetime:
     if not raw:
         return datetime.now(UTC)
@@ -719,7 +722,7 @@ def build_dashboard_service(
         or IbkrBrokerAdapter(
             host=IBKR_CONFIG.host,
             port=IBKR_CONFIG.port,
-            client_id=IBKR_CONFIG.client_id,
+            client_id=DEFAULT_DASHBOARD_CLIENT_ID,
             account_id=IBKR_CONFIG.account_id,
             connect_timeout_seconds=IBKR_CONFIG.connect_timeout_seconds,
             readonly=True,
@@ -736,7 +739,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Read-only IBKR dashboard sync service.")
     parser.add_argument("--host", default=IBKR_CONFIG.host)
     parser.add_argument("--port", type=int, default=IBKR_CONFIG.port)
-    parser.add_argument("--client-id", type=int, default=IBKR_CONFIG.client_id)
+    parser.add_argument("--client-id", type=int, default=DEFAULT_DASHBOARD_CLIENT_ID)
     parser.add_argument("--account-id", default=IBKR_CONFIG.account_id)
     parser.add_argument("--cycle-seconds", type=int, default=DASHBOARD_CONFIG.sync_interval_seconds)
     parser.add_argument("--once", action="store_true")
