@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import math
 import time
@@ -21,6 +21,7 @@ from live_trading.broker import (
 )
 from live_trading.market_calendar import (
     ET,
+    MARKET_CLOSE,
     UTC,
     exit_at_tplus_open,
     is_regular_trading_hours,
@@ -176,7 +177,23 @@ class IbkrPaperTrader:
         return cache[key]
 
     def _ingest_signals(self, state: TraderStateSnapshot) -> None:
-        known = {candidate.candidate_id for candidate in state.candidates}
+        known = {c.candidate_id for c in state.candidates}
+
+        # Index active (non-terminal) candidates by (ticker, intended_entry_date) for same-day dedup
+        active_by_key: dict[tuple[str, str], SignalCandidate] = {}
+        for c in state.candidates:
+            if c.status not in TERMINAL_CANDIDATE_STATUSES:
+                key = (c.ticker, c.intended_entry_at[:10])
+                existing = active_by_key.get(key)
+                if existing is None or c.signal_score > existing.signal_score:
+                    active_by_key[key] = c
+
+        # Open lots grouped by entry_trade_day → set of tickers already held that day
+        open_lot_tickers_by_day: dict[str, set[str]] = {}
+        for lot in state.lots:
+            if lot.status == "open":
+                open_lot_tickers_by_day.setdefault(lot.entry_trade_day, set()).add(lot.ticker)
+
         for candidate in load_signal_candidates(
             self.alert_snapshot_path,
             budget_config=self.budget_config,
@@ -184,7 +201,39 @@ class IbkrPaperTrader:
         ):
             if candidate.candidate_id in known:
                 continue
+
+            # Skip if we already hold this ticker from the same trading day (intraday duplicate)
+            if candidate.ticker in open_lot_tickers_by_day.get(candidate.entry_trade_day, set()):
+                self.logger.info(
+                    "Skipping %s (%s): open lot already exists for entry_trade_day=%s.",
+                    candidate.candidate_id, candidate.ticker, candidate.entry_trade_day,
+                )
+                continue
+
+            # Dedup: for the same ticker + intended entry date, keep only the highest scorer
+            dedup_key = (candidate.ticker, candidate.intended_entry_at[:10])
+            existing = active_by_key.get(dedup_key)
+            if existing is not None:
+                if candidate.signal_score <= existing.signal_score:
+                    self.logger.info(
+                        "Skipping %s (%s, score=%.3f): lower-scored than existing %s (score=%.3f).",
+                        candidate.candidate_id, candidate.ticker, candidate.signal_score,
+                        existing.candidate_id, existing.signal_score,
+                    )
+                    continue
+                # Higher score — supersede existing if not yet ordered or partially filled
+                if existing.status not in ("ordered", "partially_filled"):
+                    existing.status = "expired"
+                    existing.last_reason = "superseded_by_higher_score"
+                    existing.last_updated_at = utc_now_iso()
+                    self.logger.info(
+                        "Superseding %s (%s, score=%.3f) with %s (score=%.3f).",
+                        existing.candidate_id, existing.ticker, existing.signal_score,
+                        candidate.candidate_id, candidate.signal_score,
+                    )
+
             state.candidates.append(candidate)
+            active_by_key[dedup_key] = candidate
             self.store.append_journal("candidate_ingested", asdict(candidate))
 
     def _ensure_planned_exits(self, state: TraderStateSnapshot) -> None:
@@ -224,6 +273,7 @@ class IbkrPaperTrader:
             candidate.last_updated_at = utc_now_iso()
 
     def _manage_exit_orders(self, state: TraderStateSnapshot, now_et: datetime) -> None:
+        near_cutoff = self._is_near_cutoff(now_et)
         for planned in state.planned_exits:
             if planned.status == "filled":
                 continue
@@ -236,10 +286,10 @@ class IbkrPaperTrader:
                 continue
             current_order = self._find_order(state, lot.active_exit_order_id)
             if current_order is not None:
-                if self._order_is_stale(current_order, now_et):
+                if self._order_is_stale(current_order, near_cutoff):
                     self._cancel_order(state, current_order, "stale_exit_reprice")
                 continue
-            self._submit_exit_order(state, lot, planned, reason="scheduled_exit")
+            self._submit_exit_order(state, lot, planned, reason="scheduled_exit", now_et=now_et)
 
     def _manage_intraday_replacements(self, state: TraderStateSnapshot, now_et: datetime) -> None:
         if not is_regular_trading_hours(now_et):
@@ -303,7 +353,7 @@ class IbkrPaperTrader:
                 state.planned_exits.append(planned)
             else:
                 planned.due_at = now_et.isoformat()
-            self._submit_exit_order(state, replacement_lot, planned, reason="intraday_replacement_exit")
+            self._submit_exit_order(state, replacement_lot, planned, reason="intraday_replacement_exit", now_et=now_et)
 
     def _manage_entry_orders(self, state: TraderStateSnapshot, now_et: datetime) -> None:
         eligible = self._eligible_candidates(state, now_et)
@@ -323,9 +373,10 @@ class IbkrPaperTrader:
         candidate: SignalCandidate,
         now_et: datetime,
     ) -> bool:
+        near_cutoff = self._is_near_cutoff(now_et)
         current_order = self._find_order(state, candidate.active_order_id)
         if current_order is not None:
-            if self._order_is_stale(current_order, now_et):
+            if self._order_is_stale(current_order, near_cutoff):
                 self._cancel_order(state, current_order, "stale_entry_reprice")
             return False
 
@@ -341,7 +392,8 @@ class IbkrPaperTrader:
                 candidate.status = "filled"
             return False
 
-        limit_price = self._build_limit_price("BUY", candidate.ticker, candidate.buy_price_hint)
+        urgent = near_cutoff
+        limit_price = self._build_limit_price("BUY", candidate.ticker, candidate.buy_price_hint, urgent=urgent)
         if limit_price is None:
             candidate.last_reason = "missing_reference_price"
             candidate.last_updated_at = utc_now_iso()
@@ -368,15 +420,16 @@ class IbkrPaperTrader:
         if sleeve is None or sleeve.cash_balance < self.execution_policy.min_order_notional:
             return
 
+        urgent = self._is_near_cutoff(now_et)
         workable: list[dict[str, object]] = []
         for candidate in batch:
             current_order = self._find_order(state, candidate.active_order_id)
             if current_order is not None:
-                if self._order_is_stale(current_order, now_et):
+                if self._order_is_stale(current_order, urgent):
                     self._cancel_order(state, current_order, "stale_entry_reprice")
                 continue
 
-            limit_price = self._build_limit_price("BUY", candidate.ticker, candidate.buy_price_hint)
+            limit_price = self._build_limit_price("BUY", candidate.ticker, candidate.buy_price_hint, urgent=urgent)
             if limit_price is None:
                 candidate.last_reason = "missing_reference_price"
                 candidate.last_updated_at = utc_now_iso()
@@ -390,6 +443,14 @@ class IbkrPaperTrader:
             )
         if not workable:
             return
+
+        # Cap the weight spread so no single stock gets more than max_allocation_ratio x the smallest.
+        if len(workable) > 1:
+            min_w = min(float(row["weight"]) for row in workable)
+            max_w_allowed = min_w * self.execution_policy.max_allocation_ratio
+            for row in workable:
+                if float(row["weight"]) > max_w_allowed:
+                    row["weight"] = max_w_allowed
 
         available_cash = float(sleeve.cash_balance)
         total_weight = float(sum(float(row["weight"]) for row in workable))
@@ -571,9 +632,10 @@ class IbkrPaperTrader:
             cap_fraction = self.budget_config.max_fraction_two_names
         else:
             cap_fraction = self.budget_config.max_fraction_three_plus_names
-        target_fraction = min(cap_fraction, candidate.advised_allocation_fraction if candidate.advised_allocation_fraction > 0 else cap_fraction)
+        # Use the hard safety cap directly so intraday entries deploy the full allowed amount.
+        # advised_allocation_fraction guides relative weighting in batch mode, not an absolute limit.
         sleeve_equity = sleeve.last_equity if sleeve.last_equity > 0 else sleeve.cash_balance
-        return max(0.0, sleeve_equity * target_fraction)
+        return max(0.0, sleeve_equity * cap_fraction)
 
     def _committed_notional_for_candidate(self, state: TraderStateSnapshot, candidate_id: str) -> float:
         reserved = 0.0
@@ -588,15 +650,28 @@ class IbkrPaperTrader:
                 reserved += float(lot.entry_value)
         return reserved
 
-    def _build_limit_price(self, side: str, symbol: str, fallback: float | None) -> float | None:
+    def _is_near_cutoff(self, now_et: datetime) -> bool:
+        """True when within eod_window_minutes of buy_cutoff on a trading day (until market close)."""
+        if now_et.weekday() >= 5:
+            return False
+        buy_cutoff = parse_time_hhmm(self.execution_policy.buy_cutoff_time)
+        cutoff_dt = now_et.replace(hour=buy_cutoff.hour, minute=buy_cutoff.minute, second=0, microsecond=0)
+        close_dt = now_et.replace(hour=MARKET_CLOSE.hour, minute=MARKET_CLOSE.minute, second=0, microsecond=0)
+        window = timedelta(minutes=self.execution_policy.eod_window_minutes)
+        return cutoff_dt - window <= now_et < close_dt
+
+    def _build_limit_price(self, side: str, symbol: str, fallback: float | None, *, urgent: bool = False) -> float | None:
         quote = self.broker.get_quote(symbol)
         reference = quote.reference_price(side, fallback)
         if reference is None or reference <= 0:
             return None
+        multiplier = self.execution_policy.eod_buffer_multiplier if urgent else 1.0
         if side.upper() == "BUY":
-            adjusted = reference * (1.0 + self.execution_policy.buy_limit_buffer_bps / 10_000.0)
+            bps = self.execution_policy.buy_limit_buffer_bps * multiplier
+            adjusted = reference * (1.0 + bps / 10_000.0)
         else:
-            adjusted = reference * max(0.0, 1.0 - self.execution_policy.sell_limit_buffer_bps / 10_000.0)
+            bps = self.execution_policy.sell_limit_buffer_bps * multiplier
+            adjusted = reference * max(0.0, 1.0 - bps / 10_000.0)
         return round(float(adjusted), 2)
 
     def _reconcile_orders_and_fills(self, state: TraderStateSnapshot) -> None:
@@ -772,6 +847,7 @@ class IbkrPaperTrader:
         ]
         self.signal_archive_path.parent.mkdir(parents=True, exist_ok=True)
         pd.DataFrame(rows).to_csv(self.signal_archive_path, index=False)
+        state.candidates = [c for c in state.candidates if c.status not in TERMINAL_CANDIDATE_STATUSES]
 
     def _find_sleeve(self, state: TraderStateSnapshot, sleeve_id: str) -> SleeveState | None:
         return next((row for row in state.sleeves if row.sleeve_id == sleeve_id), None)
@@ -809,11 +885,13 @@ class IbkrPaperTrader:
         planned: PlannedExit,
         *,
         reason: str,
+        now_et: datetime | None = None,
     ) -> bool:
         current_order = self._find_order(state, lot.active_exit_order_id)
         if current_order is not None:
             return False
-        limit_price = self._build_limit_price("SELL", lot.ticker, lot.last_mark_price or lot.avg_entry_price)
+        urgent = self._is_near_cutoff(now_et) if now_et is not None else False
+        limit_price = self._build_limit_price("SELL", lot.ticker, lot.last_mark_price or lot.avg_entry_price, urgent=urgent)
         if limit_price is None:
             self.logger.warning("No exit quote available for %s", lot.ticker)
             return False
@@ -847,9 +925,13 @@ class IbkrPaperTrader:
         self.store.append_journal(reason, asdict(order))
         return True
 
-    def _order_is_stale(self, order: PendingOrder, now_et: datetime) -> bool:
+    def _order_is_stale(self, order: PendingOrder, near_cutoff: bool) -> bool:
         placed_at = parse_iso_datetime(order.placed_at)
-        return (now_et - placed_at.astimezone(ET)).total_seconds() >= self.execution_policy.replace_interval_seconds
+        interval = self.execution_policy.replace_interval_seconds
+        if near_cutoff:
+            interval = max(15, interval // 3)  # reprice 3x faster when near EOD cutoff
+        now_utc = datetime.now(UTC)
+        return (now_utc - placed_at).total_seconds() >= interval
 
 
 def build_arg_parser() -> argparse.ArgumentParser:

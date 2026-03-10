@@ -133,6 +133,11 @@ class ExecutionPolicy:
     routing_exchange: str
     currency: str
     open_order_poll_seconds: int
+    # Near-EOD urgency: widen limit prices to ensure fills before the buy cutoff
+    eod_buffer_multiplier: float = 3.0   # multiply bps by this factor when near cutoff
+    eod_window_minutes: int = 10         # minutes before buy_cutoff to engage urgency
+    # Maximum allocation ratio between the largest and smallest position in a batch
+    max_allocation_ratio: float = 4.0    # e.g. 4.0 means largest can be at most 4x smallest
 
 
 @dataclass(frozen=True)
