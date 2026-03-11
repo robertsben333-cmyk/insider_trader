@@ -1,0 +1,4 @@
+entry_trade_day,available_candidates,actual_traded_candidates,actual_vs_prod4_topk_overlap,actual_vs_replay_baseline_topk_overlap,actual_vs_gap_topk_overlap,replay_baseline_vs_gap_topk_overlap,gap_added_candidates,gap_removed_candidates,gap_added_tickers,gap_removed_tickers
+2026-03-09,40,20,14,13,15,17,"CMTG|2026-02-27|2026-03-08 14:52:23, THRY|2026-02-27|2026-03-08 14:52:23, TTEC|2026-03-02|2026-03-08 14:52:23","HYMC|2026-03-05|2026-03-08 14:52:23, KDOZF|2026-03-03|2026-03-08 14:52:23, KDOZF|2026-03-06|2026-03-08 14:52:23","CMTG, THRY, TTEC","HYMC, KDOZF, KDOZF"
+2026-03-10,11,10,9,10,10,10,,,,
+2026-03-11,7,7,7,7,7,7,,,,

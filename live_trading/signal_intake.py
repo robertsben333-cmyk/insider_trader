@@ -13,7 +13,7 @@ from live_trading.market_calendar import (
     parse_time_hhmm,
     sleeve_id_for_trade_day,
 )
-from live_trading.strategy_settings import ExecutionPolicy, TradingBudgetConfig
+from live_trading.strategy_settings import ACTIVE_STRATEGY, ExecutionPolicy, TradingBudgetConfig
 from live_trading.trader_state import SignalCandidate
 
 
@@ -60,10 +60,14 @@ def load_signal_candidates(
         if not pd.notna(advised_alloc):
             advised_alloc = 0.0
         estimated_decile = _to_float(row.get("estimated_decile_score"))
+        if pd.notna(estimated_decile) and float(estimated_decile) < float(ACTIVE_STRATEGY.day1_decile_score_threshold):
+            continue
         score_1d = _to_float(row.get("score_1d"))
         pred_mean4 = _to_float(row.get("pred_mean4"))
         signal_score = score_1d if pd.notna(score_1d) else pred_mean4
         buy_price_hint = _to_float(row.get("buy_price"))
+        prev_regular_close = _to_float(row.get("prev_regular_close"))
+        step_up_from_prev_close_pct = _to_float(row.get("step_up_from_prev_close_pct"))
         entry_bucket = "intraday" if is_regular_trading_hours(scored_et) else "open"
         out.append(
             SignalCandidate(
@@ -85,6 +89,10 @@ def load_signal_candidates(
                 entry_bucket=entry_bucket,
                 entry_trade_day=intended_entry.date().isoformat(),
                 buy_price_hint=float(buy_price_hint) if pd.notna(buy_price_hint) else None,
+                prev_regular_close=float(prev_regular_close) if pd.notna(prev_regular_close) else None,
+                step_up_from_prev_close_pct=(
+                    float(step_up_from_prev_close_pct) if pd.notna(step_up_from_prev_close_pct) else None
+                ),
             )
         )
     out.sort(key=lambda row: (row.intended_entry_at, -row.signal_score, row.ticker))

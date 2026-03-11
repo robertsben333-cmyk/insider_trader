@@ -1100,6 +1100,7 @@ BPSK,Unknown,NON_TRADABLE,0
 BPSR,Unknown,NON_TRADABLE,0
 BPTH,Unknown,NON_TRADABLE,0
 BPYU,Unknown,NON_TRADABLE,0
+BR,Consumer Discretionary,NYSE,1
 BRBR,Consumer Staples,NYSE,1
 BRBS,Financials,AMEX,1
 BRC,Industrials,NYSE,1
@@ -1904,6 +1905,7 @@ CSS,Unknown,NON_TRADABLE,0
 CSSE,Unknown,NON_TRADABLE,0
 CST,Unknown,NON_TRADABLE,0
 CSTL,Health Care,NASDAQ,1
+CSTM,Materials,NYSE,1
 CSTR,Unknown,NON_TRADABLE,0
 CSU,Unknown,NON_TRADABLE,0
 CSV,Consumer Discretionary,NYSE,1
@@ -6822,6 +6824,7 @@ SOHO,Unknown,NON_TRADABLE,0
 SOHU,Unknown,NON_TRADABLE,0
 SOI,Unknown,NON_TRADABLE,0
 SOL,Unknown,NON_TRADABLE,0
+SOLV,Health Care,NYSE,1
 SOLY,Unknown,NON_TRADABLE,0
 SON,Materials,NYSE,1
 SONA,Unknown,NON_TRADABLE,0
@@ -7876,6 +7879,7 @@ VSH,Information Technology,NYSE,1
 VSI,Unknown,NON_TRADABLE,0
 VSLR,Unknown,NON_TRADABLE,0
 VSM,Unknown,NON_TRADABLE,0
+VSNT,Communication Services,NASDAQ,1
 VSR,Unknown,NON_TRADABLE,0
 VSST,Unknown,NON_TRADABLE,0
 VST,Utilities,NYSE,1

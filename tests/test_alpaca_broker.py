@@ -165,9 +165,10 @@ class TestAlpacaBrokerAdapterPlaceOrder(TestCase):
             order_ref="r1", symbol="AAPL", side="BUY",
             quantity=5, limit_price=150.0, outside_rth=False,
         )
-        adapter.place_order(broker_req)
+        view = adapter.place_order(broker_req)
         self.assertIsInstance(captured[0], AlpacaMarketOrder)
         self.assertFalse(bool(captured[0].extended_hours))
+        self.assertEqual(view.order_type, "MARKET")
 
     def test_outside_rth_orders_are_rejected(self) -> None:
         adapter = self._connected_adapter()

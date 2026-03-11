@@ -7,8 +7,10 @@
   "benchmark_curve_csv": "research/outcomes/models/equal4_deciles_time_split_tplus2_open_live.csv",
   "benchmark_curve_json": "research/outcomes/models/equal4_deciles_time_split_tplus2_open_live.json",
   "signal_gate": {
-    "day1_decile_score_threshold": 0.87,
-    "day1_raw_threshold_fallback": 0.6091125803233034
+    "day1_decile_score_threshold": 0.9,
+    "day1_raw_threshold_fallback": 0.717396009412043,
+    "max_step_up_from_prev_close_pct": 2.0,
+    "max_open_batch_candidates": 10
   },
   "allocation_advice": {
     "base_fraction": 0.25,

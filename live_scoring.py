@@ -162,6 +162,8 @@ ALERT_EXPORT_COLUMNS = [
     "title",
     "trade_date",
     "buy_price",
+    "prev_regular_close",
+    "step_up_from_prev_close_pct",
     "score_1d",
     "score_3d",
     "score_5d",
@@ -718,9 +720,12 @@ def enrich_pending_with_market_data(
 
     buy_dt_col = []
     buy_px_col = []
+    prev_close_col = []
+    step_up_col = []
 
     minute_cache: Dict[Tuple[str, str], List[dict]] = {}
     lookback_seen: set[Tuple[str, str, str]] = set()
+    prev_close_cache: Dict[Tuple[str, str], float | None] = {}
     fallback_same_day_last = 0
     fallback_latest_daily = 0
     unresolved_buy_price = 0
@@ -829,6 +834,8 @@ def enrich_pending_with_market_data(
         if bool(pd.isna(txn_ts)) or bool(pd.isna(trade_ts)):
             buy_dt_col.append("")
             buy_px_col.append(np.nan)
+            prev_close_col.append(np.nan)
+            step_up_col.append(np.nan)
             continue
 
         buy_dt = compute_buy_datetime(txn_ts)  # type: ignore[arg-type]
@@ -855,6 +862,27 @@ def enrich_pending_with_market_data(
 
         buy_dt_col.append(buy_dt.strftime("%Y-%m-%d %H:%M:%S"))
         buy_px_col.append(float(buy_price) if buy_price is not None else np.nan)
+        prev_close_key = (ticker, (buy_date - timedelta(days=1)).strftime("%Y-%m-%d"))
+        if prev_close_key not in prev_close_cache:
+            prev_close_cache[prev_close_key] = fetch_latest_available_close(
+                client,
+                cache_dir,
+                ticker,
+                buy_date - timedelta(days=1),
+            )
+        prev_close = prev_close_cache[prev_close_key]
+        prev_close_col.append(float(prev_close) if prev_close is not None else np.nan)
+        if (
+            buy_price is not None
+            and prev_close is not None
+            and np.isfinite(float(buy_price))
+            and np.isfinite(float(prev_close))
+            and float(buy_price) > 0
+            and float(prev_close) > 0
+        ):
+            step_up_col.append(((float(buy_price) / float(prev_close)) - 1.0) * 100.0)
+        else:
+            step_up_col.append(np.nan)
 
         td = trade_ts.date()  # type: ignore[union-attr]
         from_d = td - timedelta(days=train_models.FETCH_WINDOW)
@@ -875,6 +903,8 @@ def enrich_pending_with_market_data(
 
     out["buy_datetime"] = buy_dt_col
     out["buy_price"] = buy_px_col
+    out["prev_regular_close"] = prev_close_col
+    out["step_up_from_prev_close_pct"] = step_up_col
     out["trade_date_d"] = pd.to_datetime(out["trade_date"], errors="coerce").dt.strftime("%Y-%m-%d")
     return out
 
@@ -1412,6 +1442,8 @@ def build_alert_detail_rows(
         "title",
         "scored_at",
         "pred_mean4",
+        "prev_regular_close",
+        "step_up_from_prev_close_pct",
         "estimated_decile_score",
         "decile_strength",
         "advised_allocation_fraction",
@@ -1684,6 +1716,14 @@ def run_cycle(
         return 0
 
     scored = score_features(feat_pending, models_by_horizon, policy)
+    pending_market_meta = pending[
+        [
+            "event_key",
+            "prev_regular_close",
+            "step_up_from_prev_close_pct",
+        ]
+    ].drop_duplicates(subset=["event_key"], keep="last")
+    scored = scored.merge(pending_market_meta, on="event_key", how="left")
     print_report(scored)
 
     picks_df, pred_col = select_day1_pred_mean_candidates(scored, threshold)

@@ -858,6 +858,7 @@ BCDA,Health Care
 BCEI,Unknown
 BCEL,Unknown
 BCG,Financials
+BCHT,Unknown
 BCLI,Unknown
 BCML,Financials
 BCO,Industrials
@@ -1099,6 +1100,7 @@ BPSK,Unknown
 BPSR,Unknown
 BPTH,Unknown
 BPYU,Unknown
+BR,Consumer Discretionary
 BRBR,Consumer Staples
 BRBS,Financials
 BRC,Industrials
@@ -1903,6 +1905,7 @@ CSS,Unknown
 CSSE,Unknown
 CST,Unknown
 CSTL,Health Care
+CSTM,Materials
 CSTR,Unknown
 CSU,Unknown
 CSV,Consumer Discretionary
@@ -3100,6 +3103,7 @@ GEG,Information Technology
 GEL,Industrials
 GEMP,Unknown
 GEN,Information Technology
+GENB,Unknown
 GENC,Industrials
 GENK,Consumer Discretionary
 GEO,Industrials
@@ -6820,6 +6824,7 @@ SOHO,Unknown
 SOHU,Unknown
 SOI,Unknown
 SOL,Unknown
+SOLV,Health Care
 SOLY,Unknown
 SON,Materials
 SONA,Unknown
@@ -7874,6 +7879,7 @@ VSH,Information Technology
 VSI,Unknown
 VSLR,Unknown
 VSM,Unknown
+VSNT,Communication Services
 VSR,Unknown
 VSST,Unknown
 VST,Utilities

@@ -307,6 +307,10 @@ class IbkrPaperTrader:
                 continue
             if candidate.status in TERMINAL_CANDIDATE_STATUSES or candidate.linked_lot_id or candidate.active_order_id:
                 continue
+            gate_failure = self._candidate_gate_failure_reason(candidate)
+            if gate_failure is not None:
+                self._reject_candidate(candidate, gate_failure)
+                continue
             if self._candidate_has_funding(state, candidate):
                 continue
 
@@ -377,17 +381,24 @@ class IbkrPaperTrader:
         for candidate in eligible:
             if candidate.entry_bucket == "open":
                 continue
+            gate_failure = self._candidate_gate_failure_reason(candidate)
+            if gate_failure is not None:
+                self._reject_candidate(candidate, gate_failure)
+                continue
             self._submit_entry_for_candidate(state, candidate, now_et)
 
         for _, batch in sorted(open_batches.items(), key=lambda row: row[0]):
-            self._prepare_open_batch_entry_orders(state, batch, now_et)
-            intended = parse_iso_datetime(batch[0].intended_entry_at)
+            selected_batch = self._select_open_batch_candidates(batch)
+            if not selected_batch:
+                continue
+            self._prepare_open_batch_entry_orders(state, selected_batch, now_et)
+            intended = parse_iso_datetime(selected_batch[0].intended_entry_at)
             if now_et < intended:
                 continue
-            prioritize_for_pending_exits = self._batch_waiting_for_exit_fills(state, batch)
+            prioritize_for_pending_exits = self._batch_waiting_for_exit_fills(state, selected_batch)
             self._manage_open_batch_entry_orders(
                 state,
-                batch,
+                selected_batch,
                 now_et,
                 prioritize_for_pending_exits=prioritize_for_pending_exits,
             )
@@ -557,6 +568,52 @@ class IbkrPaperTrader:
                 continue
             self._submit_entry_order(state, sleeve, candidate, quantity, limit_price, reserve)
 
+    def _candidate_gate_failure_reason(self, candidate: SignalCandidate) -> str | None:
+        decile = float(candidate.estimated_decile_score)
+        if not math.isfinite(decile) or decile < float(ACTIVE_STRATEGY.day1_decile_score_threshold):
+            return "below_live_decile_threshold"
+        step_up = candidate.step_up_from_prev_close_pct
+        if step_up is None or not math.isfinite(float(step_up)):
+            return "missing_step_up_from_prev_close_pct"
+        if float(step_up) > float(ACTIVE_STRATEGY.max_step_up_from_prev_close_pct):
+            return "step_up_exceeds_live_max_pct"
+        return None
+
+    def _reject_candidate(self, candidate: SignalCandidate, reason: str) -> None:
+        if candidate.status == "rejected" and candidate.last_reason == reason:
+            return
+        candidate.status = "rejected"
+        candidate.active_order_id = None
+        candidate.last_reason = reason
+        candidate.last_updated_at = utc_now_iso()
+        self.store.append_journal(
+            "candidate_rejected",
+            {
+                "candidate_id": candidate.candidate_id,
+                "ticker": candidate.ticker,
+                "reason": reason,
+            },
+        )
+
+    def _select_open_batch_candidates(self, batch: list[SignalCandidate]) -> list[SignalCandidate]:
+        if not batch:
+            return []
+        ranked = sorted(batch, key=lambda row: (-float(row.signal_score), row.ticker))
+        qualified: list[SignalCandidate] = []
+        for candidate in ranked:
+            gate_failure = self._candidate_gate_failure_reason(candidate)
+            if gate_failure is not None:
+                self._reject_candidate(candidate, gate_failure)
+                continue
+            qualified.append(candidate)
+
+        max_candidates = max(0, int(ACTIVE_STRATEGY.max_open_batch_candidates))
+        if len(qualified) <= max_candidates:
+            return qualified
+        for candidate in qualified[max_candidates:]:
+            self._reject_candidate(candidate, "batch_rank_exceeds_live_max")
+        return qualified[:max_candidates]
+
     def _prepare_open_batch_entry_orders(
         self,
         state: TraderStateSnapshot,
@@ -654,6 +711,7 @@ class IbkrPaperTrader:
             candidate.last_reason = "insufficient_sleeve_cash"
             candidate.last_updated_at = utc_now_iso()
             return False
+        order_type = "MARKET" if candidate.entry_bucket == "open" else "LIMIT"
 
         sleeve.cash_balance -= reserve
         order = PendingOrder(
@@ -666,6 +724,7 @@ class IbkrPaperTrader:
             limit_price=limit_price,
             placed_at=utc_now_iso(),
             status="submitted",
+            order_type=order_type,
             reserved_cash=reserve,
             candidate_id=candidate.candidate_id,
         )
@@ -677,6 +736,7 @@ class IbkrPaperTrader:
                     side=order.side,
                     quantity=order.quantity,
                     limit_price=order.limit_price,
+                    order_type=order.order_type,
                 )
             )
         except Exception:
@@ -684,6 +744,7 @@ class IbkrPaperTrader:
             raise
         order.broker_order_id = broker_order.broker_order_id
         order.broker_status = broker_order.status
+        order.order_type = broker_order.order_type or order.order_type
         state.pending_orders.append(order)
         candidate.active_order_id = order.local_order_id
         candidate.status = "ordered"

@@ -58,6 +58,7 @@ class BrokerOrderView:
     remaining_quantity: int
     status: str
     placed_at: str
+    order_type: str = "LIMIT"
 
 
 @dataclass
@@ -89,6 +90,7 @@ class BrokerOrderRequest:
     side: str
     quantity: int
     limit_price: float
+    order_type: str = "LIMIT"
     tif: str = "DAY"
     outside_rth: bool = False
 
@@ -169,6 +171,7 @@ class DryRunBrokerAdapter:
             side=request.side.upper(),
             quantity=int(request.quantity),
             limit_price=float(request.limit_price),
+            order_type=str(request.order_type).upper(),
             filled_quantity=0,
             remaining_quantity=int(request.quantity),
             status="Submitted",
@@ -292,6 +295,7 @@ class IbkrBrokerAdapter:
         contract = trade.contract
         total_qty = int(round(float(getattr(order, "totalQuantity", 0) or 0)))
         filled_qty = int(round(float(getattr(status, "filled", 0) or 0)))
+        order_type = str(getattr(order, "orderType", "") or "LIMIT").upper()
         return BrokerOrderView(
             broker_order_id=int(getattr(order, "orderId", 0) or 0),
             order_ref=str(getattr(order, "orderRef", "") or ""),
@@ -303,6 +307,7 @@ class IbkrBrokerAdapter:
             remaining_quantity=max(0, total_qty - filled_qty),
             status=str(getattr(status, "status", "") or ""),
             placed_at=datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+            order_type=order_type,
         )
 
     def list_orders(self, include_closed: bool = False) -> list[BrokerOrderView]:
@@ -353,16 +358,25 @@ class IbkrBrokerAdapter:
         )
 
     def place_order(self, request: BrokerOrderRequest) -> BrokerOrderView:
-        from ib_insync import LimitOrder
+        from ib_insync import LimitOrder, MarketOrder
 
         contract = self._stock_contract(request.symbol)
-        order = LimitOrder(
-            action=request.side.upper(),
-            totalQuantity=int(request.quantity),
-            lmtPrice=float(request.limit_price),
-            tif=request.tif,
-            outsideRth=bool(request.outside_rth),
-        )
+        order_type = str(request.order_type or "LIMIT").upper()
+        if order_type == "MARKET":
+            order = MarketOrder(
+                action=request.side.upper(),
+                totalQuantity=int(request.quantity),
+                tif=request.tif,
+                outsideRth=bool(request.outside_rth),
+            )
+        else:
+            order = LimitOrder(
+                action=request.side.upper(),
+                totalQuantity=int(request.quantity),
+                lmtPrice=float(request.limit_price),
+                tif=request.tif,
+                outsideRth=bool(request.outside_rth),
+            )
         order.orderRef = request.order_ref
         if self._account_id:
             order.account = self._account_id

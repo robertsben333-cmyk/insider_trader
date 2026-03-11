@@ -150,6 +150,7 @@ class AlpacaBrokerAdapter:
                     remaining_quantity=max(0, total_qty - filled_qty),
                     status=status_str,
                     placed_at=str(getattr(order, "submitted_at", "") or ""),
+                    order_type="MARKET",
                 )
             )
         return out
@@ -184,6 +185,7 @@ class AlpacaBrokerAdapter:
             remaining_quantity=max(0, int(request.quantity) - filled_qty),
             status=status_str,
             placed_at=datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+            order_type="MARKET",
         )
 
     def cancel_order(self, broker_order_id: int) -> None:

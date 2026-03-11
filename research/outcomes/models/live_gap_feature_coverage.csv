@@ -1,0 +1,6 @@
+section,rows_total,rows_with_gap,coverage_ratio,live_entry_bucket,rows,live_gap_feature_source
+overall_engineered,12164.0,12128,0.9970404472213088,,,
+overall_modeled,12154.0,12122,0.9973671219351654,,,
+by_bucket,,3280,0.9963547995139733,intraday,3292.0,
+by_bucket,,8848,0.9972948602344455,open,8872.0,
+by_source,,12128,0.9970404472213088,,12164.0,minute_cache

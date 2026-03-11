@@ -143,6 +143,7 @@ class IbkrPaperTraderTests(unittest.TestCase):
                         estimated_decile_score=0.95,
                         advised_allocation_fraction=0.60,
                         score_column="score_1d",
+                        step_up_from_prev_close_pct=1.0,
                     ),
                     SignalCandidate(
                         candidate_id="BBB|1",
@@ -156,6 +157,7 @@ class IbkrPaperTraderTests(unittest.TestCase):
                         estimated_decile_score=0.91,
                         advised_allocation_fraction=0.60,
                         score_column="score_1d",
+                        step_up_from_prev_close_pct=1.0,
                     ),
                 ],
             )
@@ -204,6 +206,7 @@ class IbkrPaperTraderTests(unittest.TestCase):
                         score_column="score_1d",
                         entry_bucket="open",
                         entry_trade_day="2026-03-02",
+                        step_up_from_prev_close_pct=1.0,
                     ),
                     SignalCandidate(
                         candidate_id="BBB|1",
@@ -219,12 +222,14 @@ class IbkrPaperTraderTests(unittest.TestCase):
                         score_column="score_1d",
                         entry_bucket="open",
                         entry_trade_day="2026-03-02",
+                        step_up_from_prev_close_pct=1.0,
                     ),
                 ],
             )
             trader._manage_entry_orders(snapshot, datetime(2026, 3, 2, 9, 30, tzinfo=ET))
 
         self.assertEqual(len(snapshot.pending_orders), 2)
+        self.assertTrue(all(order.order_type == "MARKET" for order in snapshot.pending_orders))
         self.assertLess(snapshot.sleeves[0].cash_balance, snapshot.pending_orders[0].limit_price)
         self.assertLess(snapshot.sleeves[0].cash_balance, snapshot.pending_orders[1].limit_price)
 
@@ -268,6 +273,7 @@ class IbkrPaperTraderTests(unittest.TestCase):
                         score_column="score_1d",
                         entry_bucket="open",
                         entry_trade_day="2026-03-02",
+                        step_up_from_prev_close_pct=1.0,
                     ),
                     SignalCandidate(
                         candidate_id="BBB|1",
@@ -283,6 +289,7 @@ class IbkrPaperTraderTests(unittest.TestCase):
                         score_column="score_1d",
                         entry_bucket="open",
                         entry_trade_day="2026-03-02",
+                        step_up_from_prev_close_pct=1.0,
                     ),
                 ],
             )
@@ -332,6 +339,7 @@ class IbkrPaperTraderTests(unittest.TestCase):
                         score_column="score_1d",
                         entry_bucket="open",
                         entry_trade_day="2026-03-04",
+                        step_up_from_prev_close_pct=1.0,
                     ),
                     SignalCandidate(
                         candidate_id="BBB|1",
@@ -342,11 +350,12 @@ class IbkrPaperTraderTests(unittest.TestCase):
                         expires_at=datetime(2026, 3, 4, 15, 30, tzinfo=ET).isoformat(),
                         sleeve_id="sleeve_0",
                         signal_score=0.8,
-                        estimated_decile_score=0.85,
+                        estimated_decile_score=0.91,
                         advised_allocation_fraction=0.25,
                         score_column="score_1d",
                         entry_bucket="open",
                         entry_trade_day="2026-03-04",
+                        step_up_from_prev_close_pct=1.0,
                     )
                 ],
                 lots=[
@@ -397,6 +406,7 @@ class IbkrPaperTraderTests(unittest.TestCase):
                         estimated_decile_score=0.95,
                         advised_allocation_fraction=0.60,
                         score_column="score_1d",
+                        step_up_from_prev_close_pct=1.0,
                     )
                 ]
             )
@@ -443,6 +453,7 @@ class IbkrPaperTraderTests(unittest.TestCase):
                         entry_bucket="intraday",
                         entry_trade_day="2026-03-03",
                         buy_price_hint=50.0,
+                        step_up_from_prev_close_pct=1.0,
                     )
                 ],
                 lots=[
@@ -485,6 +496,107 @@ class IbkrPaperTraderTests(unittest.TestCase):
         self.assertIsNotNone(snapshot.lots[0].active_exit_order_id)
         self.assertEqual(len(snapshot.pending_orders), 1)
         self.assertEqual(snapshot.pending_orders[0].ticker, "AAA")
+
+    def test_intraday_candidate_above_step_up_limit_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            broker = DryRunBrokerAdapter()
+            broker.connect()
+            broker.set_quote(QuoteSnapshot(symbol="AAA", ask=100.0, last=100.0))
+
+            trader = IbkrPaperTrader(
+                broker=broker,
+                store=StateStore(Path(tmpdir) / "state.json", Path(tmpdir) / "journal.jsonl"),
+                alert_snapshot_path=Path(tmpdir) / "missing.csv",
+                signal_archive_path=Path(tmpdir) / "archive.csv",
+                logger=logging.getLogger("test_ibkr_paper_trader"),
+            )
+            snapshot = TraderStateSnapshot(
+                sleeves=[
+                    SleeveState(
+                        sleeve_id="sleeve_0",
+                        starting_cash=1000.0,
+                        cash_balance=1000.0,
+                        last_equity=1000.0,
+                    )
+                ],
+                candidates=[
+                    SignalCandidate(
+                        candidate_id="AAA|1",
+                        event_key="AAA",
+                        ticker="AAA",
+                        scored_at="2026-03-02 14:31:00",
+                        intended_entry_at=datetime(2026, 3, 2, 9, 45, tzinfo=ET).isoformat(),
+                        expires_at=datetime(2026, 3, 2, 15, 30, tzinfo=ET).isoformat(),
+                        sleeve_id="sleeve_0",
+                        signal_score=1.2,
+                        estimated_decile_score=0.95,
+                        advised_allocation_fraction=0.60,
+                        score_column="score_1d",
+                        step_up_from_prev_close_pct=2.5,
+                    )
+                ],
+            )
+
+            trader._manage_entry_orders(snapshot, datetime(2026, 3, 2, 10, 0, tzinfo=ET))
+
+        self.assertEqual(snapshot.candidates[0].status, "rejected")
+        self.assertEqual(snapshot.candidates[0].last_reason, "step_up_exceeds_live_max_pct")
+        self.assertEqual(len(snapshot.pending_orders), 0)
+
+    def test_open_batch_caps_to_top_ten_candidates(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            broker = DryRunBrokerAdapter()
+            broker.connect()
+            candidates: list[SignalCandidate] = []
+            intended = datetime(2026, 3, 2, 9, 30, tzinfo=ET).isoformat()
+            expiry = datetime(2026, 3, 2, 15, 30, tzinfo=ET).isoformat()
+            for idx in range(11):
+                ticker = f"T{idx:02d}"
+                broker.set_quote(QuoteSnapshot(symbol=ticker, ask=100.0, last=100.0))
+                candidates.append(
+                    SignalCandidate(
+                        candidate_id=f"{ticker}|1",
+                        event_key=ticker,
+                        ticker=ticker,
+                        scored_at=f"2026-03-02 13:{idx:02d}:00",
+                        intended_entry_at=intended,
+                        expires_at=expiry,
+                        sleeve_id="sleeve_0",
+                        signal_score=float(20 - idx),
+                        estimated_decile_score=0.95,
+                        advised_allocation_fraction=0.10,
+                        score_column="score_1d",
+                        entry_bucket="open",
+                        entry_trade_day="2026-03-02",
+                        step_up_from_prev_close_pct=1.0,
+                    )
+                )
+
+            trader = IbkrPaperTrader(
+                broker=broker,
+                store=StateStore(Path(tmpdir) / "state.json", Path(tmpdir) / "journal.jsonl"),
+                alert_snapshot_path=Path(tmpdir) / "missing.csv",
+                signal_archive_path=Path(tmpdir) / "archive.csv",
+                logger=logging.getLogger("test_ibkr_paper_trader"),
+            )
+            snapshot = TraderStateSnapshot(
+                sleeves=[
+                    SleeveState(
+                        sleeve_id="sleeve_0",
+                        starting_cash=10000.0,
+                        cash_balance=10000.0,
+                        last_equity=10000.0,
+                    )
+                ],
+                candidates=candidates,
+            )
+
+            trader._manage_entry_orders(snapshot, datetime(2026, 3, 2, 9, 30, tzinfo=ET))
+
+        self.assertEqual(len(snapshot.pending_orders), 10)
+        self.assertTrue(all(order.order_type == "MARKET" for order in snapshot.pending_orders))
+        self.assertEqual(snapshot.candidates[-1].status, "rejected")
+        self.assertEqual(snapshot.candidates[-1].last_reason, "batch_rank_exceeds_live_max")
 
 
 class AlpacaConfigTests(unittest.TestCase):

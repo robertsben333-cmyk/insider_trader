@@ -32,6 +32,8 @@ class SignalCandidate:
     entry_bucket: str = "open"
     entry_trade_day: str = ""
     buy_price_hint: float | None = None
+    prev_regular_close: float | None = None
+    step_up_from_prev_close_pct: float | None = None
     replacement_for_lot_id: str | None = None
     status: str = "pending"
     linked_lot_id: str | None = None
@@ -91,6 +93,7 @@ class PendingOrder:
     limit_price: float
     placed_at: str
     status: str
+    order_type: str = "LIMIT"
     broker_order_id: int | None = None
     broker_status: str = ""
     filled_quantity: int = 0

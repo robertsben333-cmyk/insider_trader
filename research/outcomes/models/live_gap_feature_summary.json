@@ -1,0 +1,260 @@
+{
+  "meta": {
+    "aggregate_csv": "C:\\Users\\XavierFriesen\\insider_trades_predictor\\backtest\\data\\backtest_results_aggregated_live_entry.csv",
+    "raw_csv": "C:\\Users\\XavierFriesen\\insider_trades_predictor\\backtest\\data\\insider_purchases.csv",
+    "cache_dir": "C:\\Users\\XavierFriesen\\insider_trades_predictor\\backtest\\data\\price_cache",
+    "entry_policy": "live",
+    "supported_titles_only": true,
+    "event_universe": "intersection_with_current_backtest_results_aggregated",
+    "event_universe_counts": {
+      "current_event_keys": 14850,
+      "live_event_keys": 30714,
+      "matched_event_keys": 12164
+    },
+    "target": "return_2d_open_pct",
+    "current_prod_reference": {
+      "1": {
+        "target": "return_2d_open_pct",
+        "target_return_mode": "spy_adjusted_excess_return_pct",
+        "benchmark_ticker": "SPY",
+        "split_sizes": {
+          "train": 7331,
+          "val": 2444,
+          "test": 2444
+        },
+        "threshold_093_raw_pred_mean4_cutoff": 0.8478590918659518,
+        "artifacts": {
+          "cutoff_csv": "C:\\Users\\XavierFriesen\\insider_trades_predictor\\backtest\\out\\investable_decile_score_sweep_0005_tplus2_open.csv",
+          "benchmark_csv": "C:\\Users\\XavierFriesen\\insider_trades_predictor\\research\\outcomes\\models\\equal4_deciles_time_split_tplus2_open_live.csv"
+        }
+      }
+    },
+    "legacy_gap_reference": [
+      {
+        "feature": "overnight_gap_to_entry",
+        "avg_delta_top_decile": -0.1878823962253194,
+        "avg_delta_spread": -0.1314430945097229,
+        "avg_delta_win_rate": -0.0042028731166522,
+        "improved_horizons": 2,
+        "degraded_horizons": 2,
+        "coverage": 0.998114478114478,
+        "recommendation": "skip_for_now"
+      },
+      {
+        "feature": "open_to_buy_move",
+        "avg_delta_top_decile": -0.2060503732880924,
+        "avg_delta_spread": -0.2121032816717823,
+        "avg_delta_win_rate": -0.0152287045100286,
+        "improved_horizons": 1,
+        "degraded_horizons": 3,
+        "coverage": 1.0,
+        "recommendation": "skip_for_now"
+      }
+    ]
+  },
+  "coverage": {
+    "engineered": {
+      "rows_total": 12164,
+      "rows_with_gap": 12128,
+      "coverage_ratio": 0.9970404472213088,
+      "by_bucket": [
+        {
+          "live_entry_bucket": "intraday",
+          "rows": 3292,
+          "rows_with_gap": 3280,
+          "coverage_ratio": 0.9963547995139733
+        },
+        {
+          "live_entry_bucket": "open",
+          "rows": 8872,
+          "rows_with_gap": 8848,
+          "coverage_ratio": 0.9972948602344455
+        }
+      ],
+      "by_source": [
+        {
+          "live_gap_feature_source": "minute_cache",
+          "rows": 12164,
+          "rows_with_gap": 12128,
+          "coverage_ratio": 0.9970404472213088
+        }
+      ]
+    },
+    "modeled": {
+      "rows_total": 12154,
+      "rows_with_gap": 12122,
+      "coverage_ratio": 0.9973671219351654
+    }
+  },
+  "scenarios": {
+    "baseline": {
+      "r2": 0.03282640065063447,
+      "mae": 2.078349001868872,
+      "top_decile_mean": 1.4246054747837693,
+      "bottom_decile_mean": -0.2275815074860778,
+      "decile_spread": 1.6521869822698472,
+      "top_decile_positive_rate": 0.5637860082304527,
+      "deciles": [
+        {
+          "decile": 1,
+          "n": 243,
+          "mean_actual": -0.2275815074860778,
+          "pct_pos": 46.50205761316872
+        },
+        {
+          "decile": 2,
+          "n": 243,
+          "mean_actual": 0.23807149241388448,
+          "pct_pos": 49.794238683127574
+        },
+        {
+          "decile": 3,
+          "n": 243,
+          "mean_actual": 0.09140371764313168,
+          "pct_pos": 49.382716049382715
+        },
+        {
+          "decile": 4,
+          "n": 243,
+          "mean_actual": -0.07632628450987171,
+          "pct_pos": 51.440329218106996
+        },
+        {
+          "decile": 5,
+          "n": 243,
+          "mean_actual": -0.06879037986390495,
+          "pct_pos": 49.382716049382715
+        },
+        {
+          "decile": 6,
+          "n": 243,
+          "mean_actual": 0.3709870317707624,
+          "pct_pos": 55.55555555555556
+        },
+        {
+          "decile": 7,
+          "n": 243,
+          "mean_actual": 0.5900462183001413,
+          "pct_pos": 57.20164609053497
+        },
+        {
+          "decile": 8,
+          "n": 243,
+          "mean_actual": 0.7788672166490747,
+          "pct_pos": 56.37860082304527
+        },
+        {
+          "decile": 9,
+          "n": 243,
+          "mean_actual": 1.095678725947769,
+          "pct_pos": 60.08230452674898
+        },
+        {
+          "decile": 10,
+          "n": 244,
+          "mean_actual": 1.4246054747837693,
+          "pct_pos": 56.557377049180324
+        }
+      ],
+      "scenario": "baseline",
+      "feature_count": 25,
+      "split_train": 7292,
+      "split_val": 2431,
+      "split_test": 2431
+    },
+    "candidate": {
+      "r2": 0.03911800015895528,
+      "mae": 2.0688253517313897,
+      "top_decile_mean": 1.5970586864948837,
+      "bottom_decile_mean": -0.3852073994497002,
+      "decile_spread": 1.982266085944584,
+      "top_decile_positive_rate": 0.5967078189300411,
+      "deciles": [
+        {
+          "decile": 1,
+          "n": 243,
+          "mean_actual": -0.3852073994497002,
+          "pct_pos": 41.1522633744856
+        },
+        {
+          "decile": 2,
+          "n": 243,
+          "mean_actual": -0.08285663785903262,
+          "pct_pos": 48.971193415637856
+        },
+        {
+          "decile": 3,
+          "n": 243,
+          "mean_actual": 0.13825837335352473,
+          "pct_pos": 52.674897119341566
+        },
+        {
+          "decile": 4,
+          "n": 243,
+          "mean_actual": 0.13401131120966903,
+          "pct_pos": 50.617283950617285
+        },
+        {
+          "decile": 5,
+          "n": 243,
+          "mean_actual": 0.2767412140863111,
+          "pct_pos": 52.2633744855967
+        },
+        {
+          "decile": 6,
+          "n": 243,
+          "mean_actual": 0.536952769163291,
+          "pct_pos": 55.144032921810705
+        },
+        {
+          "decile": 7,
+          "n": 243,
+          "mean_actual": 0.4727217302312414,
+          "pct_pos": 58.8477366255144
+        },
+        {
+          "decile": 8,
+          "n": 243,
+          "mean_actual": 0.5820555260255823,
+          "pct_pos": 54.32098765432099
+        },
+        {
+          "decile": 9,
+          "n": 243,
+          "mean_actual": 0.9465164483940961,
+          "pct_pos": 58.8477366255144
+        },
+        {
+          "decile": 10,
+          "n": 244,
+          "mean_actual": 1.5970586864948837,
+          "pct_pos": 59.42622950819673
+        }
+      ],
+      "scenario": "candidate",
+      "feature_count": 26,
+      "split_train": 7292,
+      "split_val": 2431,
+      "split_test": 2431
+    }
+  },
+  "deltas": {
+    "delta_r2": 0.006291599508320811,
+    "delta_mae": -0.009523650137482242,
+    "delta_top_decile_mean": 0.17245321171111438,
+    "delta_decile_spread": 0.3300791036747368,
+    "delta_top_decile_positive_rate": 0.03292181069958844
+  },
+  "candidate_importance": {
+    "HGBR": {
+      "candidate_rank": 2,
+      "candidate_importance_mean": 0.027675323398646513,
+      "candidate_importance_std": 0.004609526338867718
+    },
+    "XGBoost": {
+      "candidate_rank": 2,
+      "candidate_importance_mean": 0.017407424578617547,
+      "candidate_importance_std": 0.004255806217569673
+    }
+  }
+}

@@ -37,6 +37,14 @@ MAX_FILING_GAP_DAYS = 5
 BUY_DELAY_MINUTES = 15
 MARKET_OPEN_H, MARKET_OPEN_M = 9, 30
 MARKET_CLOSE_H, MARKET_CLOSE_M = 16, 0
+ENTRY_POLICY_CHOICES = ("legacy_0945", "live")
+
+OFFICER_PATTERN = re.compile(
+    r"\b(COB|Chairman|CEO|Co-CEO|Pres|President|COO|CFO|GC|VP|SVP|EVP)\b",
+    re.IGNORECASE,
+)
+DIRECTOR_PATTERN = re.compile(r"\bdirector\b|\bdir\b", re.IGNORECASE)
+TEN_PCT_PATTERN = re.compile(r"10%|10 percent|10pct|ten percent", re.IGNORECASE)
 
 
 def setup_logger() -> logging.Logger:
@@ -62,7 +70,13 @@ def clean_numeric(val) -> float:
         return 0.0
 
 
-def compute_buy_datetime(filing_dt: pd.Timestamp) -> datetime:
+def _localize_et(dt: datetime) -> datetime:
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=ET)
+    return dt.astimezone(ET)
+
+
+def compute_legacy_buy_datetime(filing_dt: pd.Timestamp) -> datetime:
     filing_et = filing_dt.to_pydatetime().replace(tzinfo=ET)
     buy_dt = filing_et + timedelta(minutes=BUY_DELAY_MINUTES)
 
@@ -82,6 +96,50 @@ def compute_buy_datetime(filing_dt: pd.Timestamp) -> datetime:
     if buy_dt >= close_time:
         return _next_weekday(buy_dt + timedelta(days=1)).replace(hour=9, minute=45, second=0, microsecond=0)
     return buy_dt
+
+
+def compute_live_buy_datetime(filing_dt: pd.Timestamp) -> datetime:
+    filing_et = _localize_et(filing_dt.to_pydatetime())
+
+    def _next_trading_day(dt: datetime) -> datetime:
+        out = dt
+        while out.weekday() >= 5:
+            out += timedelta(days=1)
+        return out
+
+    open_time = filing_et.replace(hour=MARKET_OPEN_H, minute=MARKET_OPEN_M, second=0, microsecond=0)
+    close_time = filing_et.replace(hour=MARKET_CLOSE_H, minute=MARKET_CLOSE_M, second=0, microsecond=0)
+
+    if filing_et.weekday() >= 5:
+        return _next_trading_day(filing_et + timedelta(days=1)).replace(
+            hour=MARKET_OPEN_H, minute=MARKET_OPEN_M, second=0, microsecond=0
+        )
+    if filing_et < open_time:
+        return open_time
+    if filing_et >= close_time:
+        return _next_trading_day(filing_et + timedelta(days=1)).replace(
+            hour=MARKET_OPEN_H, minute=MARKET_OPEN_M, second=0, microsecond=0
+        )
+    return filing_et
+
+
+def compute_buy_datetime(filing_dt: pd.Timestamp, entry_policy: str) -> datetime:
+    if entry_policy == "legacy_0945":
+        return compute_legacy_buy_datetime(filing_dt)
+    if entry_policy == "live":
+        return compute_live_buy_datetime(filing_dt)
+    raise ValueError(f"Unsupported entry_policy: {entry_policy}")
+
+
+def compute_entry_bucket(filing_dt: pd.Timestamp, entry_policy: str) -> str:
+    if entry_policy != "live":
+        return "legacy_0945"
+    filing_et = _localize_et(filing_dt.to_pydatetime())
+    if filing_et.weekday() >= 5:
+        return "open"
+    open_time = filing_et.replace(hour=MARKET_OPEN_H, minute=MARKET_OPEN_M, second=0, microsecond=0)
+    close_time = filing_et.replace(hour=MARKET_CLOSE_H, minute=MARKET_CLOSE_M, second=0, microsecond=0)
+    return "intraday" if open_time <= filing_et < close_time else "open"
 
 
 def find_price_at_or_after(bars: List[dict], target_ts_ms: int) -> Optional[float]:
@@ -119,6 +177,22 @@ def find_close_on_or_before(daily_bars: List[dict], target_date: date) -> Option
     return result
 
 
+def find_open_on_date(daily_bars: List[dict], target_date: date) -> Optional[float]:
+    for bar in daily_bars:
+        ts = bar.get("t")
+        if not ts:
+            continue
+        bar_date = datetime.fromtimestamp(ts / 1000, tz=ET).date()
+        if bar_date == target_date:
+            open_px = bar.get("o")
+            if open_px is None:
+                return None
+            return float(open_px)
+        if bar_date > target_date:
+            break
+    return None
+
+
 def compute_horizon_return_pct(buy_price: float, sell_price: Optional[float], horizon_days: int) -> Optional[float]:
     if sell_price is None or buy_price is None or buy_price <= 0:
         return None
@@ -136,6 +210,7 @@ def compute_horizon_return_pct(buy_price: float, sell_price: Optional[float], ho
 class TickerStats:
     events: int = 0
     used_minute_cache: int = 0
+    used_daily_open_fallback: int = 0
     used_daily_close_fallback: int = 0
     used_last_price_fallback: int = 0
     skipped_no_buy_price: int = 0
@@ -267,7 +342,12 @@ def get_daily_bars(
     return fetch_daily_bars(client, cache, ticker, d0, d1)
 
 
-def load_and_aggregate(raw_csv: Path, logger: logging.Logger) -> pd.DataFrame:
+def load_and_aggregate(
+    raw_csv: Path,
+    logger: logging.Logger,
+    *,
+    supported_titles_only: bool = False,
+) -> pd.DataFrame:
     logger.info("Loading raw insider purchases (unfiltered titles): %s", raw_csv)
     df = pd.read_csv(raw_csv)
 
@@ -291,6 +371,16 @@ def load_and_aggregate(raw_csv: Path, logger: logging.Logger) -> pd.DataFrame:
     df = df.dropna(subset=["transaction_date", "trade_date", "ticker"]).copy()
 
     total = len(df)
+    if supported_titles_only:
+        title = df["title"].astype(str)
+        supported = (
+            title.str.contains(OFFICER_PATTERN, na=False)
+            | title.str.contains(DIRECTOR_PATTERN, na=False)
+            | title.str.contains(TEN_PCT_PATTERN, na=False)
+        )
+        df = df[supported].copy()
+        logger.info("Supported-title filter applied: %d / %d rows", len(df), total)
+        total = len(df)
     df["filing_gap_days"] = (df["transaction_date"] - df["trade_date"]).dt.days
     df = df[(df["filing_gap_days"] >= 0) & (df["filing_gap_days"] <= MAX_FILING_GAP_DAYS)].copy()
     logger.info("Filing-gap filter [0,%d]: %d / %d rows", MAX_FILING_GAP_DAYS, len(df), total)
@@ -330,6 +420,7 @@ def process_ticker(
     rows: List[dict],
     api_key: str,
     cache: PriceCache,
+    entry_policy: str,
     allow_last_price_fallback: bool,
     cache_only_day: bool,
 ) -> Tuple[List[dict], TickerStats]:
@@ -353,13 +444,21 @@ def process_ticker(
 
         buy_source = "minute_cache"
         if buy_price is None or buy_price <= 0:
-            dp = find_close_on_or_before(daily_bars, buy_date)
-            if dp is not None and dp > 0:
-                buy_price = dp
-                buy_source = "daily_close_fallback"
-                stats.used_daily_close_fallback += 1
-            else:
-                if not allow_last_price_fallback:
+            open_bucket = str(r.get("entry_bucket", "")) == "open"
+            if entry_policy == "live" and open_bucket:
+                dp_open = find_open_on_date(daily_bars, buy_date)
+                if dp_open is not None and dp_open > 0:
+                    buy_price = dp_open
+                    buy_source = "daily_open_fallback"
+                    stats.used_daily_open_fallback += 1
+            if buy_price is None or buy_price <= 0:
+                dp = find_close_on_or_before(daily_bars, buy_date)
+                if dp is not None and dp > 0 and entry_policy != "live":
+                    buy_price = dp
+                    buy_source = "daily_close_fallback"
+                    stats.used_daily_close_fallback += 1
+            if buy_price is None or buy_price <= 0:
+                if (entry_policy == "live") or (not allow_last_price_fallback):
                     stats.skipped_no_buy_price += 1
                     continue
                 lp = clean_numeric(r["last_price"])
@@ -399,6 +498,8 @@ def process_ticker(
                 "filing_gap_days": r["filing_gap_days"],
                 "buy_datetime": buy_dt.strftime("%Y-%m-%d %H:%M:%S"),
                 "buy_price": buy_price,
+                "entry_policy": entry_policy,
+                "entry_bucket": r.get("entry_bucket", ""),
                 "buy_price_source": buy_source,
                 "close_1d": closes[1],
                 "close_3d": closes[3],
@@ -425,6 +526,8 @@ def build_dataset(
     output_csv: Path,
     cache_dir: Path,
     max_workers: int,
+    entry_policy: str,
+    supported_titles_only: bool,
     allow_last_price_fallback: bool,
     cache_only_day: bool,
     logger: logging.Logger,
@@ -434,9 +537,10 @@ def build_dataset(
     if not api_key:
         raise SystemExit("POLYGON_API_KEY is required in environment/.env")
 
-    rep = load_and_aggregate(input_csv, logger)
-    rep["buy_datetime"] = rep["transaction_date"].apply(compute_buy_datetime)
+    rep = load_and_aggregate(input_csv, logger, supported_titles_only=supported_titles_only)
+    rep["buy_datetime"] = rep["transaction_date"].apply(lambda ts: compute_buy_datetime(ts, entry_policy))
     rep["buy_date"] = rep["buy_datetime"].apply(lambda x: x.date())
+    rep["entry_bucket"] = rep["transaction_date"].apply(lambda ts: compute_entry_bucket(ts, entry_policy))
 
     ticker_rows: Dict[str, List[dict]] = {}
     for _, row in rep.iterrows():
@@ -455,6 +559,7 @@ def build_dataset(
                 "filing_gap_days": int(row["filing_gap_days"]),
                 "buy_datetime": row["buy_datetime"],
                 "buy_date": row["buy_date"],
+                "entry_bucket": row["entry_bucket"],
                 "n_insiders": int(row["n_insiders"]),
                 "cluster_buy": bool(row["cluster_buy"]),
                 "n_insiders_label": row["n_insiders_label"],
@@ -475,6 +580,7 @@ def build_dataset(
                 rows,
                 api_key,
                 cache,
+                entry_policy,
                 allow_last_price_fallback,
                 cache_only_day,
             ): ticker
@@ -500,8 +606,9 @@ def build_dataset(
 
     logger.info("Saved %d rows to %s", len(out), output_csv)
     logger.info(
-        "Buy price source: minute_cache=%d, daily_close_fallback=%d, last_price_fallback=%d, skipped_no_buy=%d",
+        "Buy price source: minute_cache=%d, daily_open_fallback=%d, daily_close_fallback=%d, last_price_fallback=%d, skipped_no_buy=%d",
         stats.used_minute_cache,
+        stats.used_daily_open_fallback,
         stats.used_daily_close_fallback,
         stats.used_last_price_fallback,
         stats.skipped_no_buy_price,
@@ -515,6 +622,17 @@ def main() -> None:
     p.add_argument("--output-csv", default="backtest/data/backtest_results_aggregated_unfiltered.csv")
     p.add_argument("--cache-dir", default="backtest/data/price_cache")
     p.add_argument("--max-workers", type=int, default=12)
+    p.add_argument(
+        "--entry-policy",
+        choices=list(ENTRY_POLICY_CHOICES),
+        default="legacy_0945",
+        help="Buy-timing policy used to reconstruct entry timestamps and prices.",
+    )
+    p.add_argument(
+        "--supported-titles-only",
+        action="store_true",
+        help="Restrict the aggregate to officer/director/10%% insider titles.",
+    )
     p.add_argument(
         "--allow-last-price-fallback",
         action="store_true",
@@ -533,6 +651,8 @@ def main() -> None:
         output_csv=Path(args.output_csv),
         cache_dir=Path(args.cache_dir),
         max_workers=args.max_workers,
+        entry_policy=str(args.entry_policy),
+        supported_titles_only=bool(args.supported_titles_only),
         allow_last_price_fallback=bool(args.allow_last_price_fallback),
         cache_only_day=bool(args.cache_only_day),
         logger=logger,

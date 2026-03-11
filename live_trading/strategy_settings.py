@@ -26,6 +26,8 @@ class ActiveStrategy:
     sell_rule_label: str
     day1_decile_score_threshold: float
     day1_raw_threshold_fallback: float
+    max_step_up_from_prev_close_pct: float
+    max_open_batch_candidates: int
     advice_base_alloc_fraction: float
     advice_bonus_fraction: float
     exit_policy_review_date: str
@@ -185,8 +187,10 @@ ACTIVE_STRATEGY = ActiveStrategy(
     sell_after_trading_days=2,
     sell_session="open",
     sell_rule_label="sell_at_open_2_trading_days_after_buy",
-    day1_decile_score_threshold=0.87,
-    day1_raw_threshold_fallback=0.6091125803233034,
+    day1_decile_score_threshold=0.90,
+    day1_raw_threshold_fallback=0.717396009412043,
+    max_step_up_from_prev_close_pct=2.0,
+    max_open_batch_candidates=10,
     advice_base_alloc_fraction=0.25,
     advice_bonus_fraction=0.25,
     exit_policy_review_date="2026-03-01",
