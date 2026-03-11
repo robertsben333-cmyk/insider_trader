@@ -311,5 +311,25 @@ class IbkrPaperTraderTests(unittest.TestCase):
         self.assertEqual(snapshot.pending_orders[0].ticker, "AAA")
 
 
+class AlpacaConfigTests(unittest.TestCase):
+    def test_alpaca_config_singleton_exists(self) -> None:
+        from live_trading.strategy_settings import ALPACA_CONFIG, AlpacaConfig
+        self.assertIsInstance(ALPACA_CONFIG, AlpacaConfig)
+        self.assertEqual(ALPACA_CONFIG.api_key_env_var, "ALPACA_API_KEY")
+        self.assertEqual(ALPACA_CONFIG.api_secret_env_var, "ALPACA_API_SECRET")
+        self.assertTrue(ALPACA_CONFIG.paper_trading)
+        self.assertIn(ALPACA_CONFIG.data_feed, ("iex", "sip"))
+        self.assertGreater(ALPACA_CONFIG.data_rate_limit_per_minute, 0)
+
+    def test_alpaca_live_paths_singleton_exists(self) -> None:
+        from live_trading.strategy_settings import ALPACA_LIVE_PATHS, AlpacaLivePaths
+        self.assertIsInstance(ALPACA_LIVE_PATHS, AlpacaLivePaths)
+        self.assertIn("alpaca", ALPACA_LIVE_PATHS.trader_state_file)
+        self.assertIn("alpaca", ALPACA_LIVE_PATHS.trader_journal_file)
+        # Shares alert_snapshot_file with IBKR trader
+        from live_trading.strategy_settings import LIVE_PATHS
+        self.assertEqual(ALPACA_LIVE_PATHS.alert_snapshot_file, LIVE_PATHS.alert_snapshot_file)
+
+
 if __name__ == "__main__":
     unittest.main()

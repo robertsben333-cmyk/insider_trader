@@ -93,6 +93,30 @@ class IbkrConfig:
 
 
 @dataclass(frozen=True)
+class AlpacaConfig:
+    api_key_env_var: str
+    api_secret_env_var: str
+    paper_trading: bool
+    connect_timeout_seconds: float
+    data_feed: str                    # "iex" or "sip"
+    data_rate_limit_per_minute: int   # token-bucket cap for Alpaca data API
+
+
+@dataclass(frozen=True)
+class AlpacaLivePaths:
+    alert_snapshot_file: str
+    trader_state_dir: str
+    trader_state_file: str
+    trader_journal_file: str
+    trader_signal_archive_file: str
+    dashboard_dir: str
+    dashboard_baseline_file: str
+    dashboard_executions_file: str
+    dashboard_equity_history_file: str
+    dashboard_latest_snapshot_file: str
+
+
+@dataclass(frozen=True)
 class GatewayRuntimeConfig:
     display: str
     xvfb_geometry: str
@@ -223,6 +247,28 @@ IBKR_CONFIG = IbkrConfig(
     paper_trading=True,
     connect_timeout_seconds=10.0,
     readonly=False,
+)
+
+ALPACA_CONFIG = AlpacaConfig(
+    api_key_env_var="ALPACA_API_KEY",
+    api_secret_env_var="ALPACA_API_SECRET",
+    paper_trading=True,
+    connect_timeout_seconds=10.0,
+    data_feed="iex",
+    data_rate_limit_per_minute=200,
+)
+
+ALPACA_LIVE_PATHS = AlpacaLivePaths(
+    alert_snapshot_file=LIVE_PATHS.alert_snapshot_file,  # shared with IBKR
+    trader_state_dir="live/data/alpaca_trader_state",
+    trader_state_file="live/data/alpaca_trader_state/alpaca_trader_state.json",
+    trader_journal_file="live/data/alpaca_trader_state/alpaca_trader_journal.jsonl",
+    trader_signal_archive_file="live/data/alpaca_trader_state/alpaca_signal_archive.csv",
+    dashboard_dir="live/data/alpaca_dashboard",
+    dashboard_baseline_file="live/data/alpaca_dashboard/baseline.json",
+    dashboard_executions_file="live/data/alpaca_dashboard/executions.jsonl",
+    dashboard_equity_history_file="live/data/alpaca_dashboard/equity_history.csv",
+    dashboard_latest_snapshot_file="live/data/alpaca_dashboard/latest_snapshot.json",
 )
 
 GATEWAY_RUNTIME = GatewayRuntimeConfig(
