@@ -331,5 +331,27 @@ class AlpacaConfigTests(unittest.TestCase):
         self.assertEqual(ALPACA_LIVE_PATHS.alert_snapshot_file, LIVE_PATHS.alert_snapshot_file)
 
 
+class AlpacaTraderWiringTests(unittest.TestCase):
+    def test_main_dry_run_completes_one_cycle(self) -> None:
+        import subprocess
+        import sys
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                "live_trading/run_alpaca_trader.py",
+                "--dry-run",
+                "--once",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            self.fail(
+                f"run_alpaca_trader.py --dry-run --once exited with code "
+                f"{result.returncode}.\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
