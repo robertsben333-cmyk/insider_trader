@@ -1,5 +1,6 @@
 requests>=2.31
 beautifulsoup4>=4.12
+alpaca-py>=0.40
 PyYAML>=6.0
 pandas>=2.2
 tqdm>=4.66
