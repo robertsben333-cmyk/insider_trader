@@ -23,12 +23,15 @@ from live_trading.trader_state import StateStore
 
 
 def setup_logger() -> logging.Logger:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s  %(levelname)-8s  %(message)s",
-        datefmt="%H:%M:%S",
-    )
-    return logging.getLogger("alpaca_trader")
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(asctime)s  %(levelname)-8s  %(message)s", datefmt="%H:%M:%S"))
+    root = logging.getLogger()
+    if not root.handlers:
+        root.addHandler(handler)
+    root.setLevel(logging.INFO)
+    logger = logging.getLogger("alpaca_trader")
+    logger.setLevel(logging.INFO)
+    return logger
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
