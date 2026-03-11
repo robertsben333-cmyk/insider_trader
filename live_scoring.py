@@ -695,12 +695,25 @@ def enrich_pending_with_market_data(
     api_key: str,
     cache_dir: Path,
     logger: logging.Logger,
+    *,
+    alpaca_api_key: str = "",
+    alpaca_api_secret: str = "",
+    alpaca_supplement_enabled: bool = True,
 ) -> pd.DataFrame:
     if pending_df.empty:
         return pending_df
 
     cache_dir.mkdir(parents=True, exist_ok=True)
     client = RESTClient(api_key=api_key, retries=3)
+    _alpaca_client: AlpacaMarketDataClient | None = None
+    if alpaca_supplement_enabled and alpaca_api_key and alpaca_api_secret:
+        from live_trading.strategy_settings import ALPACA_CONFIG
+        _alpaca_client = AlpacaMarketDataClient(
+            api_key=alpaca_api_key,
+            api_secret=alpaca_api_secret,
+            data_feed=ALPACA_CONFIG.data_feed,
+            rate_limit_per_minute=ALPACA_CONFIG.data_rate_limit_per_minute,
+        )
     out = pending_df.copy()
 
     buy_dt_col = []
@@ -756,23 +769,56 @@ def enrich_pending_with_market_data(
         if fbkey not in fb_tasks and not lookback_cache_path(cache_dir, ticker_p, fb_from, fb_to).exists():
             fb_tasks[fbkey] = (fb_from, fb_to)
 
+    # Collect unique tickers needing Alpaca latest-price (today's signals only)
+    alpaca_tickers: set[str] = set()
+    if _alpaca_client is not None:
+        for _, row in out.iterrows():
+            ticker_a = str(row["ticker"])
+            txn_ts_a = pd.to_datetime(row["transaction_date"], errors="coerce")
+            if bool(pd.isna(txn_ts_a)):
+                continue
+            buy_dt_a = compute_buy_datetime(txn_ts_a)  # type: ignore[arg-type]
+            if buy_dt_a.date() == today_et_d:
+                alpaca_tickers.add(ticker_a)
+
     n_prefetch = len(min_tasks) + len(lk_tasks) + len(fb_tasks)
+    n_total_tasks = n_prefetch + len(alpaca_tickers)
+    alpaca_futs: dict[str, object] = {}
     min_futs: Dict[Tuple[str, str], object] = {}
-    if n_prefetch > 0:
-        logger.info("Prefetching %d uncached Polygon tasks in parallel ...", n_prefetch)
-        with ThreadPoolExecutor(max_workers=min(16, n_prefetch)) as pool:
+    if n_total_tasks > 0:
+        logger.info(
+            "Prefetching %d uncached Polygon tasks + %d Alpaca quotes in parallel ...",
+            n_prefetch, len(alpaca_tickers),
+        )
+        with ThreadPoolExecutor(max_workers=min(16, max(1, n_total_tasks))) as pool:
             for mkey, bd in min_tasks.items():
                 min_futs[mkey] = pool.submit(_pfetch_minutes, mkey[0], bd)
             for lkey, (from_d_l, to_d_l) in lk_tasks.items():
                 pool.submit(_pfetch_lookback, lkey[0], from_d_l, to_d_l)
             for fbkey, (fb_from, fb_to) in fb_tasks.items():
                 pool.submit(_pfetch_lookback, fbkey[0], fb_from, fb_to)
+            if _alpaca_client is not None:
+                for aticker in alpaca_tickers:
+                    alpaca_futs[aticker] = pool.submit(_alpaca_client.get_latest_price, aticker)
         for mkey, fut in min_futs.items():  # type: ignore[assignment]
             try:
                 _, _ds, bars = fut.result()  # type: ignore[union-attr]
                 minute_cache[mkey] = bars
             except Exception as exc:
                 logger.warning("Prefetch minute bars %s: %s", mkey, exc)
+    alpaca_prices: dict[str, float] = {}
+    for aticker, afut in alpaca_futs.items():  # type: ignore[assignment]
+        try:
+            price = afut.result()  # type: ignore[union-attr]
+            if price is not None:
+                alpaca_prices[aticker] = float(price)
+        except Exception as exc:
+            logger.debug("Alpaca price fetch %s: %s", aticker, exc)
+    if alpaca_prices:
+        logger.info(
+            "Alpaca real-time prices fetched for %d tickers: %s",
+            len(alpaca_prices), sorted(alpaca_prices),
+        )
     # ── End parallel prefetch ──
 
     total_rows = len(out)
@@ -802,6 +848,10 @@ def enrich_pending_with_market_data(
                 fallback_latest_daily += 1
         if buy_price is None:
             unresolved_buy_price += 1
+
+        # Override with real-time Alpaca price for today's signals (avoids 15-min Polygon delay)
+        if buy_date == today_et_d and ticker in alpaca_prices:
+            buy_price = alpaca_prices[ticker]
 
         buy_dt_col.append(buy_dt.strftime("%Y-%m-%d %H:%M:%S"))
         buy_px_col.append(float(buy_price) if buy_price is not None else np.nan)
@@ -1609,7 +1659,15 @@ def run_cycle(
     if not api_key:
         raise RuntimeError("POLYGON_API_KEY not found (.env or environment).")
 
-    pending = enrich_pending_with_market_data(pending, api_key, Path(args.cache_dir), logger)
+    pending = enrich_pending_with_market_data(
+        pending,
+        api_key,
+        Path(args.cache_dir),
+        logger,
+        alpaca_api_key=args.alpaca_api_key,
+        alpaca_api_secret=args.alpaca_api_secret,
+        alpaca_supplement_enabled=not args.no_alpaca_supplement,
+    )
 
     temp_agg_path = Path(args.temp_aggregate_file)
     prepare_temp_aggregate_file(Path(args.aggregated_file), pending, temp_agg_path)
@@ -1699,6 +1757,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--months-back", type=int, default=RUNTIME_DEFAULTS.months_back, help="Current month + N previous months.")
     p.add_argument("--once", action="store_true", help="Run exactly one cycle.")
     p.add_argument("--polygon-api-key", default="", help="Optional override for POLYGON_API_KEY.")
+    p.add_argument("--alpaca-api-key", default="", help="Alpaca API key for real-time price supplement.")
+    p.add_argument("--alpaca-api-secret", default="", help="Alpaca API secret for real-time price supplement.")
+    p.add_argument("--no-alpaca-supplement", action="store_true", help="Disable Alpaca real-time price supplement.")
     p.add_argument(
         "--day1-decile-score-threshold",
         type=float,
@@ -1735,6 +1796,10 @@ def main() -> None:
 
     if not args.polygon_api_key:
         args.polygon_api_key = os.getenv("POLYGON_API_KEY", "")
+    if not args.alpaca_api_key:
+        args.alpaca_api_key = os.getenv("ALPACA_API_KEY", "")
+    if not args.alpaca_api_secret:
+        args.alpaca_api_secret = os.getenv("ALPACA_API_SECRET", "")
 
     model_dir = Path(args.model_dir)
     models_by_horizon, policy = load_models_and_policy(model_dir)
