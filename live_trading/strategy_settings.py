@@ -149,6 +149,7 @@ class ExecutionPolicy:
     cycle_seconds: int
     buy_cutoff_time: str
     cancel_unfilled_time: str
+    open_batch_prepare_minutes: int
     replace_interval_seconds: int
     buy_limit_buffer_bps: float
     sell_limit_buffer_bps: float
@@ -298,6 +299,7 @@ EXECUTION_POLICY = ExecutionPolicy(
     cycle_seconds=30,
     buy_cutoff_time="15:30",
     cancel_unfilled_time="15:55",
+    open_batch_prepare_minutes=1,
     replace_interval_seconds=45,
     buy_limit_buffer_bps=50.0,
     sell_limit_buffer_bps=50.0,

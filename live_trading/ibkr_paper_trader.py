@@ -356,16 +356,41 @@ class IbkrPaperTrader:
             self._submit_exit_order(state, replacement_lot, planned, reason="intraday_replacement_exit", now_et=now_et)
 
     def _manage_entry_orders(self, state: TraderStateSnapshot, now_et: datetime) -> None:
-        eligible = self._eligible_candidates(state, now_et)
         open_batches: dict[tuple[str, str], list[SignalCandidate]] = {}
+        eligible = self._eligible_candidates(state, now_et)
+        for candidate in state.candidates:
+            if candidate.status in TERMINAL_CANDIDATE_STATUSES:
+                continue
+            if candidate.entry_bucket != "open":
+                continue
+            if candidate.linked_lot_id is not None or candidate.active_order_id is not None:
+                continue
+            expiry = parse_iso_datetime(candidate.expires_at)
+            if expiry < now_et:
+                continue
+            intended = parse_iso_datetime(candidate.intended_entry_at)
+            prepare_at = intended - timedelta(minutes=self.execution_policy.open_batch_prepare_minutes)
+            if now_et < prepare_at:
+                continue
+            open_batches.setdefault((candidate.sleeve_id, candidate.intended_entry_at), []).append(candidate)
+
         for candidate in eligible:
-            if candidate.entry_bucket == "open" and candidate.linked_lot_id is None and candidate.active_order_id is None:
-                open_batches.setdefault((candidate.sleeve_id, candidate.intended_entry_at), []).append(candidate)
+            if candidate.entry_bucket == "open":
                 continue
             self._submit_entry_for_candidate(state, candidate, now_et)
 
         for _, batch in sorted(open_batches.items(), key=lambda row: row[0]):
-            self._manage_open_batch_entry_orders(state, batch, now_et)
+            self._prepare_open_batch_entry_orders(state, batch, now_et)
+            intended = parse_iso_datetime(batch[0].intended_entry_at)
+            if now_et < intended:
+                continue
+            prioritize_for_pending_exits = self._batch_waiting_for_exit_fills(state, batch)
+            self._manage_open_batch_entry_orders(
+                state,
+                batch,
+                now_et,
+                prioritize_for_pending_exits=prioritize_for_pending_exits,
+            )
 
     def _submit_entry_for_candidate(
         self,
@@ -413,6 +438,8 @@ class IbkrPaperTrader:
         state: TraderStateSnapshot,
         batch: list[SignalCandidate],
         now_et: datetime,
+        *,
+        prioritize_for_pending_exits: bool = False,
     ) -> None:
         if not batch:
             return
@@ -421,6 +448,7 @@ class IbkrPaperTrader:
             return
 
         urgent = self._is_near_cutoff(now_et)
+        plan = self._open_batch_plan(state, batch)
         workable: list[dict[str, object]] = []
         for candidate in batch:
             current_order = self._find_order(state, candidate.active_order_id)
@@ -438,19 +466,15 @@ class IbkrPaperTrader:
                 {
                     "candidate": candidate,
                     "limit_price": float(limit_price),
-                    "weight": max(float(candidate.advised_allocation_fraction), 1e-9),
+                    "weight": float(plan.get(candidate.candidate_id, max(float(candidate.advised_allocation_fraction), 1e-9))),
                 }
             )
         if not workable:
             return
 
-        # Cap the weight spread so no single stock gets more than max_allocation_ratio x the smallest.
-        if len(workable) > 1:
-            min_w = min(float(row["weight"]) for row in workable)
-            max_w_allowed = min_w * self.execution_policy.max_allocation_ratio
-            for row in workable:
-                if float(row["weight"]) > max_w_allowed:
-                    row["weight"] = max_w_allowed
+        if prioritize_for_pending_exits:
+            self._submit_ranked_open_batch_orders(state, sleeve, workable)
+            return
 
         available_cash = float(sleeve.cash_balance)
         total_weight = float(sum(float(row["weight"]) for row in workable))
@@ -504,6 +528,116 @@ class IbkrPaperTrader:
                 candidate.last_updated_at = utc_now_iso()
                 continue
             self._submit_entry_order(state, sleeve, candidate, quantity, limit_price, reserve)
+
+    def _submit_ranked_open_batch_orders(
+        self,
+        state: TraderStateSnapshot,
+        sleeve: SleeveState,
+        workable: list[dict[str, object]],
+    ) -> None:
+        ranked = sorted(
+            workable,
+            key=lambda row: (
+                -float(cast(SignalCandidate, row["candidate"]).signal_score),
+                cast(SignalCandidate, row["candidate"]).ticker,
+            ),
+        )
+        for row in ranked:
+            candidate = cast(SignalCandidate, row["candidate"])
+            limit_price = float(row["limit_price"])
+            target_notional = self._target_notional_for_candidate(state, candidate, sleeve)
+            committed_notional = self._committed_notional_for_candidate(state, candidate.candidate_id)
+            remaining_notional = max(0.0, target_notional - committed_notional)
+            max_cash = min(float(sleeve.cash_balance), remaining_notional)
+            quantity = int(math.floor(max_cash / limit_price))
+            reserve = float(quantity) * limit_price
+            if quantity < 1 or reserve < self.execution_policy.min_order_notional:
+                candidate.last_reason = "waiting_for_exit_fills"
+                candidate.last_updated_at = utc_now_iso()
+                continue
+            self._submit_entry_order(state, sleeve, candidate, quantity, limit_price, reserve)
+
+    def _prepare_open_batch_entry_orders(
+        self,
+        state: TraderStateSnapshot,
+        batch: list[SignalCandidate],
+        now_et: datetime,
+    ) -> None:
+        if not batch:
+            return
+        plan_key = self._open_batch_plan_key(batch[0].sleeve_id, batch[0].intended_entry_at)
+        plans = state.metadata.setdefault("open_batch_plans", {})
+        if not isinstance(plans, dict):
+            plans = {}
+            state.metadata["open_batch_plans"] = plans
+        if plan_key in plans:
+            return
+
+        weights = self._normalized_open_batch_weights(batch)
+        plans[plan_key] = {
+            "prepared_at": now_et.isoformat(),
+            "sleeve_id": batch[0].sleeve_id,
+            "intended_entry_at": batch[0].intended_entry_at,
+            "weights": weights,
+        }
+        self.store.append_journal(
+            "open_batch_prepared",
+            {
+                "sleeve_id": batch[0].sleeve_id,
+                "intended_entry_at": batch[0].intended_entry_at,
+                "prepared_at": now_et.isoformat(),
+                "weights": weights,
+            },
+        )
+
+    def _normalized_open_batch_weights(self, batch: list[SignalCandidate]) -> dict[str, float]:
+        weights: dict[str, float] = {
+            candidate.candidate_id: max(float(candidate.advised_allocation_fraction), 1e-9)
+            for candidate in batch
+        }
+        if len(weights) > 1:
+            min_w = min(weights.values())
+            max_w_allowed = min_w * self.execution_policy.max_allocation_ratio
+            for candidate_id, weight in list(weights.items()):
+                if weight > max_w_allowed:
+                    weights[candidate_id] = max_w_allowed
+        return weights
+
+    def _open_batch_plan(self, state: TraderStateSnapshot, batch: list[SignalCandidate]) -> dict[str, float]:
+        if not batch:
+            return {}
+        plans = state.metadata.get("open_batch_plans", {})
+        if not isinstance(plans, dict):
+            return self._normalized_open_batch_weights(batch)
+        plan = plans.get(self._open_batch_plan_key(batch[0].sleeve_id, batch[0].intended_entry_at), {})
+        if not isinstance(plan, dict):
+            return self._normalized_open_batch_weights(batch)
+        weights = plan.get("weights", {})
+        if not isinstance(weights, dict):
+            return self._normalized_open_batch_weights(batch)
+        return {
+            str(candidate_id): max(float(weight), 1e-9)
+            for candidate_id, weight in weights.items()
+        }
+
+    def _open_batch_plan_key(self, sleeve_id: str, intended_entry_at: str) -> str:
+        return f"{sleeve_id}|{intended_entry_at}"
+
+    def _batch_waiting_for_exit_fills(
+        self,
+        state: TraderStateSnapshot,
+        batch: list[SignalCandidate],
+    ) -> bool:
+        if not batch:
+            return False
+        sleeve_id = batch[0].sleeve_id
+        intended = parse_iso_datetime(batch[0].intended_entry_at)
+        for planned in state.planned_exits:
+            if planned.sleeve_id != sleeve_id or planned.status == "filled":
+                continue
+            if parse_iso_datetime(planned.due_at) <= intended:
+                return True
+        return False
 
     def _submit_entry_order(
         self,

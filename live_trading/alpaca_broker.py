@@ -9,7 +9,7 @@ try:
     from alpaca.trading.client import TradingClient
     from alpaca.trading.requests import (
         GetOrdersRequest,
-        LimitOrderRequest,
+        MarketOrderRequest,
     )
     from alpaca.trading.enums import OrderSide, QueryOrderStatus, TimeInForce
     from alpaca.data.historical import StockHistoricalDataClient
@@ -156,13 +156,16 @@ class AlpacaBrokerAdapter:
 
     def place_order(self, request: BrokerOrderRequest) -> BrokerOrderView:
         side = OrderSide.BUY if request.side.upper() == "BUY" else OrderSide.SELL
-        req = LimitOrderRequest(
+        if request.outside_rth:
+            raise ValueError(
+                "outside_rth orders are disabled for Alpaca. "
+                "Queue signals for the next regular session open instead."
+            )
+        req = MarketOrderRequest(
             symbol=request.symbol.upper(),
             qty=request.quantity,
             side=side,
             time_in_force=TimeInForce.DAY,
-            limit_price=request.limit_price,
-            extended_hours=request.outside_rth,
             client_order_id=request.order_ref or None,
         )
         order = self._trading_client.submit_order(req)

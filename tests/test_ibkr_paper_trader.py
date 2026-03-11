@@ -62,6 +62,36 @@ class IbkrPaperTraderTests(unittest.TestCase):
         self.assertEqual(candidates[0].sleeve_id, "sleeve_0")
         self.assertEqual(candidates[0].entry_bucket, "intraday")
 
+    def test_signal_intake_queues_premarket_candidates_for_open_batch(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "latest_alert_candidates.csv"
+            pd.DataFrame(
+                [
+                    {
+                        "scored_at": "2026-03-02 13:00:00",
+                        "event_key": "AAA|2026-03-02",
+                        "ticker": "AAA",
+                        "score_1d": 1.2,
+                        "pred_mean4": 1.2,
+                        "estimated_decile_score": 0.94,
+                        "advised_allocation_fraction": 0.4,
+                        "buy_price": 12.5,
+                        "is_tradable": 1,
+                    }
+                ]
+            ).to_csv(path, index=False)
+            candidates = load_signal_candidates(
+                path,
+                budget_config=TRADING_BUDGET,
+                execution_policy=EXECUTION_POLICY,
+            )
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0].entry_bucket, "open")
+        self.assertEqual(
+            candidates[0].intended_entry_at,
+            datetime(2026, 3, 2, 9, 30, tzinfo=ET).isoformat(),
+        )
+
     def test_state_store_round_trip(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             state_path = Path(tmpdir) / "state.json"
@@ -197,6 +227,152 @@ class IbkrPaperTraderTests(unittest.TestCase):
         self.assertEqual(len(snapshot.pending_orders), 2)
         self.assertLess(snapshot.sleeves[0].cash_balance, snapshot.pending_orders[0].limit_price)
         self.assertLess(snapshot.sleeves[0].cash_balance, snapshot.pending_orders[1].limit_price)
+
+    def test_open_batch_is_prepared_at_0929_without_submitting_orders(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            broker = DryRunBrokerAdapter()
+            broker.connect()
+            broker.set_quote(QuoteSnapshot(symbol="AAA", ask=100.0, last=100.0))
+            broker.set_quote(QuoteSnapshot(symbol="BBB", ask=100.0, last=100.0))
+
+            trader = IbkrPaperTrader(
+                broker=broker,
+                store=StateStore(Path(tmpdir) / "state.json", Path(tmpdir) / "journal.jsonl"),
+                alert_snapshot_path=Path(tmpdir) / "missing.csv",
+                signal_archive_path=Path(tmpdir) / "archive.csv",
+                logger=logging.getLogger("test_ibkr_paper_trader"),
+            )
+            intended = datetime(2026, 3, 2, 9, 30, tzinfo=ET).isoformat()
+            expiry = datetime(2026, 3, 2, 15, 30, tzinfo=ET).isoformat()
+            snapshot = TraderStateSnapshot(
+                sleeves=[
+                    SleeveState(
+                        sleeve_id="sleeve_0",
+                        starting_cash=1000.0,
+                        cash_balance=1000.0,
+                        last_equity=1000.0,
+                    )
+                ],
+                candidates=[
+                    SignalCandidate(
+                        candidate_id="AAA|1",
+                        event_key="AAA",
+                        ticker="AAA",
+                        scored_at="2026-03-02 13:00:00",
+                        intended_entry_at=intended,
+                        expires_at=expiry,
+                        sleeve_id="sleeve_0",
+                        signal_score=1.2,
+                        estimated_decile_score=0.95,
+                        advised_allocation_fraction=0.25,
+                        score_column="score_1d",
+                        entry_bucket="open",
+                        entry_trade_day="2026-03-02",
+                    ),
+                    SignalCandidate(
+                        candidate_id="BBB|1",
+                        event_key="BBB",
+                        ticker="BBB",
+                        scored_at="2026-03-02 13:01:00",
+                        intended_entry_at=intended,
+                        expires_at=expiry,
+                        sleeve_id="sleeve_0",
+                        signal_score=1.0,
+                        estimated_decile_score=0.91,
+                        advised_allocation_fraction=0.25,
+                        score_column="score_1d",
+                        entry_bucket="open",
+                        entry_trade_day="2026-03-02",
+                    ),
+                ],
+            )
+
+            trader._manage_entry_orders(snapshot, datetime(2026, 3, 2, 9, 29, tzinfo=ET))
+
+        self.assertEqual(len(snapshot.pending_orders), 0)
+        self.assertIn("open_batch_plans", snapshot.metadata)
+        self.assertIn(f"sleeve_0|{intended}", snapshot.metadata["open_batch_plans"])
+
+    def test_open_batch_prioritizes_best_candidates_while_exit_fills_are_pending(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            broker = DryRunBrokerAdapter()
+            broker.connect()
+            broker.set_quote(QuoteSnapshot(symbol="AAA", ask=100.0, last=100.0))
+            broker.set_quote(QuoteSnapshot(symbol="BBB", ask=100.0, last=100.0))
+
+            trader = IbkrPaperTrader(
+                broker=broker,
+                store=StateStore(Path(tmpdir) / "state.json", Path(tmpdir) / "journal.jsonl"),
+                alert_snapshot_path=Path(tmpdir) / "missing.csv",
+                signal_archive_path=Path(tmpdir) / "archive.csv",
+                logger=logging.getLogger("test_ibkr_paper_trader"),
+            )
+            intended_dt = datetime(2026, 3, 4, 9, 30, tzinfo=ET)
+            snapshot = TraderStateSnapshot(
+                sleeves=[
+                    SleeveState(
+                        sleeve_id="sleeve_0",
+                        starting_cash=1000.0,
+                        cash_balance=150.0,
+                        last_equity=1000.0,
+                    )
+                ],
+                candidates=[
+                    SignalCandidate(
+                        candidate_id="AAA|1",
+                        event_key="AAA",
+                        ticker="AAA",
+                        scored_at="2026-03-04 13:00:00",
+                        intended_entry_at=intended_dt.isoformat(),
+                        expires_at=datetime(2026, 3, 4, 15, 30, tzinfo=ET).isoformat(),
+                        sleeve_id="sleeve_0",
+                        signal_score=1.2,
+                        estimated_decile_score=0.95,
+                        advised_allocation_fraction=0.25,
+                        score_column="score_1d",
+                        entry_bucket="open",
+                        entry_trade_day="2026-03-04",
+                    ),
+                    SignalCandidate(
+                        candidate_id="BBB|1",
+                        event_key="BBB",
+                        ticker="BBB",
+                        scored_at="2026-03-04 13:01:00",
+                        intended_entry_at=intended_dt.isoformat(),
+                        expires_at=datetime(2026, 3, 4, 15, 30, tzinfo=ET).isoformat(),
+                        sleeve_id="sleeve_0",
+                        signal_score=0.8,
+                        estimated_decile_score=0.85,
+                        advised_allocation_fraction=0.25,
+                        score_column="score_1d",
+                        entry_bucket="open",
+                        entry_trade_day="2026-03-04",
+                    )
+                ],
+                lots=[
+                    PositionLot(
+                        lot_id="lot_old",
+                        candidate_id="OLD|1",
+                        ticker="OLD",
+                        sleeve_id="sleeve_0",
+                        entry_order_id="ord_old",
+                        opened_at=datetime(2026, 3, 2, 10, 0, tzinfo=ET).isoformat(),
+                        due_exit_at=intended_dt.isoformat(),
+                        entry_quantity=10,
+                        quantity=10,
+                        entry_value=1000.0,
+                        entry_estimated_decile_score=0.88,
+                        entry_trade_day="2026-03-02",
+                    )
+                ],
+            )
+
+            trader._ensure_planned_exits(snapshot)
+            trader._manage_entry_orders(snapshot, intended_dt)
+
+        self.assertEqual(len(snapshot.pending_orders), 1)
+        self.assertEqual(snapshot.pending_orders[0].ticker, "AAA")
+        self.assertEqual(snapshot.candidates[1].last_reason, "waiting_for_exit_fills")
 
     def test_candidate_expires_after_cutoff_when_unfunded(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

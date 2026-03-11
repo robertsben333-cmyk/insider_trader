@@ -151,31 +151,29 @@ class TestAlpacaBrokerAdapterPlaceOrder(TestCase):
         order.filled_qty = filled_qty
         return order
 
-    def test_outside_rth_maps_to_extended_hours(self) -> None:
-        from alpaca.trading.requests import LimitOrderRequest as AlpacaLimitOrder
+    def test_regular_hours_orders_use_market_order(self) -> None:
+        from alpaca.trading.requests import MarketOrderRequest as AlpacaMarketOrder
         adapter = self._connected_adapter()
         captured: list = []
-        def capture_order(req):
-            captured.append(req)
-            return self._mock_order()
-        adapter._trading_client.submit_order = capture_order
-        broker_req = BrokerOrderRequest(
-            order_ref="r1", symbol="AAPL", side="BUY",
-            quantity=5, limit_price=150.0, outside_rth=True,
-        )
-        adapter.place_order(broker_req)
-        self.assertTrue(captured[0].extended_hours)
 
-    def test_outside_rth_false_maps_to_no_extended_hours(self) -> None:
-        adapter = self._connected_adapter()
-        captured: list = []
         def capture_order(req):
             captured.append(req)
             return self._mock_order()
+
         adapter._trading_client.submit_order = capture_order
         broker_req = BrokerOrderRequest(
             order_ref="r1", symbol="AAPL", side="BUY",
             quantity=5, limit_price=150.0, outside_rth=False,
         )
         adapter.place_order(broker_req)
-        self.assertFalse(captured[0].extended_hours)
+        self.assertIsInstance(captured[0], AlpacaMarketOrder)
+        self.assertFalse(bool(captured[0].extended_hours))
+
+    def test_outside_rth_orders_are_rejected(self) -> None:
+        adapter = self._connected_adapter()
+        broker_req = BrokerOrderRequest(
+            order_ref="r1", symbol="AAPL", side="BUY",
+            quantity=5, limit_price=150.0, outside_rth=True,
+        )
+        with self.assertRaisesRegex(ValueError, "outside_rth orders are disabled"):
+            adapter.place_order(broker_req)
