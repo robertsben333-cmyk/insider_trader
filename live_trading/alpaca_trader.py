@@ -78,6 +78,7 @@ def main() -> None:
             connect_timeout_seconds=ALPACA_CONFIG.connect_timeout_seconds,
             data_feed=ALPACA_CONFIG.data_feed,
         )
+        broker.connect()
 
     state_path = Path(args.state_file)
     state_path.parent.mkdir(parents=True, exist_ok=True)

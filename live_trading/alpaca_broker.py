@@ -70,6 +70,7 @@ class AlpacaBrokerAdapter:
             secret_key=api_secret,
         )
         self._data_feed: DataFeed | None = DataFeed(data_feed) if data_feed else None
+        self._connect_timeout_seconds = connect_timeout_seconds
         self._connected = False
         # UUID ↔ sequential-int order ID mapping (Alpaca uses UUIDs; Protocol uses int)
         self._uuid_to_int: dict[str, int] = {}
@@ -207,7 +208,7 @@ class AlpacaBrokerAdapter:
             },
         )
         try:
-            with _urllib_request.urlopen(req, timeout=10.0) as resp:
+            with _urllib_request.urlopen(req, timeout=self._connect_timeout_seconds) as resp:
                 activities = _json.loads(resp.read())
         except Exception as exc:
             logger.warning("list_fills: %s", exc)
