@@ -34,6 +34,95 @@ import joblib
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
+# ── Alpaca real-time data supplement ────────────────────────────────────────
+import json as _json
+import os as _os
+import threading as _threading
+import time as _time
+import urllib.request as _urllib_request
+
+
+class _TokenBucket:
+    """Non-blocking token bucket for rate limiting (thread-safe)."""
+
+    def __init__(self, rate_per_minute: int) -> None:
+        self._tokens = float(rate_per_minute)
+        self._max = float(rate_per_minute)
+        self._refill_per_sec = float(rate_per_minute) / 60.0
+        self._last = _time.monotonic()
+        self._lock = _threading.Lock()
+
+    def consume(self) -> bool:
+        with self._lock:
+            now = _time.monotonic()
+            elapsed = now - self._last
+            self._last = now
+            self._tokens = min(self._max, self._tokens + elapsed * self._refill_per_sec)
+            if self._tokens >= 1.0:
+                self._tokens -= 1.0
+                return True
+            return False
+
+
+class AlpacaMarketDataClient:
+    """
+    Fetches the latest quote for a symbol from Alpaca's market data API.
+
+    Uses stdlib urllib only (no SDK dependency in live_scoring.py).
+    Non-blocking: returns None on timeout, HTTP error, or rate-limit exhaustion.
+    Disabled entirely when env var ALPACA_SUPPLEMENT_ENABLED=false.
+    """
+
+    _BASE_URL = "https://data.alpaca.markets"
+
+    def __init__(
+        self,
+        *,
+        api_key: str,
+        api_secret: str,
+        data_feed: str = "iex",
+        rate_limit_per_minute: int = 200,
+    ) -> None:
+        self._api_key = api_key
+        self._api_secret = api_secret
+        self._data_feed = data_feed
+        self._bucket = _TokenBucket(rate_limit_per_minute)
+        self._timeout = 2.0
+
+    def get_latest_price(self, symbol: str) -> float | None:
+        """Return latest mid/ask/bid price. Returns None on any failure."""
+        if _os.environ.get("ALPACA_SUPPLEMENT_ENABLED", "true").lower() in ("false", "0", "no"):
+            return None
+        if not self._bucket.consume():
+            return None
+        url = (
+            f"{self._BASE_URL}/v2/stocks/{symbol.upper()}/quotes/latest"
+            f"?feed={self._data_feed}"
+        )
+        req = _urllib_request.Request(
+            url,
+            headers={
+                "APCA-API-KEY-ID": self._api_key,
+                "APCA-API-SECRET-KEY": self._api_secret,
+            },
+        )
+        try:
+            with _urllib_request.urlopen(req, timeout=self._timeout) as resp:
+                data = _json.loads(resp.read())
+            quote = data.get("quote") or {}
+            ask = quote.get("ap")
+            bid = quote.get("bp")
+            if ask and bid:
+                return (float(ask) + float(bid)) / 2.0
+            if ask:
+                return float(ask)
+            if bid:
+                return float(bid)
+        except Exception:
+            pass
+        return None
+# ── End Alpaca supplement ────────────────────────────────────────────────────
+
 from polygon import RESTClient
 
 import train_models
