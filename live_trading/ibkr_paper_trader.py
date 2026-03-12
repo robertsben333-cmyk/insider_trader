@@ -26,7 +26,9 @@ from live_trading.market_calendar import (
     exit_at_tplus_open,
     is_regular_trading_hours,
     is_weekend_shutdown_window,
+    market_open_datetime,
     parse_iso_datetime,
+    parse_scored_at_utc,
     parse_time_hhmm,
     previous_trading_day,
     seconds_until_weekend_shutdown_end,
@@ -115,9 +117,11 @@ class IbkrPaperTrader:
         self._reconcile_orders_and_fills(state)
         self._refresh_sleeve_equity(state)
         self._ingest_signals(state)
+        self._reconcile_today_open_candidates_with_snapshot(state, now_et)
         self._ensure_planned_exits(state)
         self._expire_stale_candidates(state, now_et)
         self._manage_intraday_replacements(state, now_et)
+        self._net_same_day_buys_and_sells(state, now_et)
         self._manage_exit_orders(state, now_et)
         self._manage_entry_orders(state, now_et)
         self._expire_stale_candidates(state, now_et)
@@ -214,27 +218,93 @@ class IbkrPaperTrader:
             dedup_key = (candidate.ticker, candidate.intended_entry_at[:10])
             existing = active_by_key.get(dedup_key)
             if existing is not None:
-                if candidate.signal_score <= existing.signal_score:
-                    self.logger.info(
-                        "Skipping %s (%s, score=%.3f): lower-scored than existing %s (score=%.3f).",
-                        candidate.candidate_id, candidate.ticker, candidate.signal_score,
-                        existing.candidate_id, existing.signal_score,
-                    )
-                    continue
-                # Higher score — supersede existing if not yet ordered or partially filled
-                if existing.status not in ("ordered", "partially_filled"):
-                    existing.status = "expired"
-                    existing.last_reason = "superseded_by_higher_score"
-                    existing.last_updated_at = utc_now_iso()
-                    self.logger.info(
-                        "Superseding %s (%s, score=%.3f) with %s (score=%.3f).",
-                        existing.candidate_id, existing.ticker, existing.signal_score,
-                        candidate.candidate_id, candidate.signal_score,
-                    )
+                if candidate.event_key == existing.event_key:
+                    candidate_scored_at = parse_scored_at_utc(candidate.scored_at)
+                    existing_scored_at = parse_scored_at_utc(existing.scored_at)
+                    if candidate_scored_at <= existing_scored_at:
+                        self.logger.info(
+                            "Skipping %s (%s): older refresh than existing %s.",
+                            candidate.candidate_id, candidate.ticker, existing.candidate_id,
+                        )
+                        continue
+                    if existing.status not in ("ordered", "partially_filled"):
+                        existing.status = "expired"
+                        existing.last_reason = "superseded_by_newer_score_refresh"
+                        existing.last_updated_at = utc_now_iso()
+                        self.logger.info(
+                            "Refreshing %s (%s, old_score=%.3f) with newer %s (new_score=%.3f).",
+                            existing.candidate_id, existing.ticker, existing.signal_score,
+                            candidate.candidate_id, candidate.signal_score,
+                        )
+                    else:
+                        self.logger.info(
+                            "Keeping active %s (%s): newer refresh %s arrived after order submission.",
+                            existing.candidate_id, existing.ticker, candidate.candidate_id,
+                        )
+                        continue
+                else:
+                    # Dedup: for the same ticker + intended entry date, keep only the highest scorer
+                    if candidate.signal_score <= existing.signal_score:
+                        self.logger.info(
+                            "Skipping %s (%s, score=%.3f): lower-scored than existing %s (score=%.3f).",
+                            candidate.candidate_id, candidate.ticker, candidate.signal_score,
+                            existing.candidate_id, existing.signal_score,
+                        )
+                        continue
+                    # Higher score — supersede existing if not yet ordered or partially filled
+                    if existing.status not in ("ordered", "partially_filled"):
+                        existing.status = "expired"
+                        existing.last_reason = "superseded_by_higher_score"
+                        existing.last_updated_at = utc_now_iso()
+                        self.logger.info(
+                            "Superseding %s (%s, score=%.3f) with %s (score=%.3f).",
+                            existing.candidate_id, existing.ticker, existing.signal_score,
+                            candidate.candidate_id, candidate.signal_score,
+                        )
+                    else:
+                        continue
 
             state.candidates.append(candidate)
             active_by_key[dedup_key] = candidate
             self.store.append_journal("candidate_ingested", asdict(candidate))
+
+    def _reconcile_today_open_candidates_with_snapshot(self, state: TraderStateSnapshot, now_et: datetime) -> None:
+        if now_et.weekday() >= 5:
+            return
+        today_open = market_open_datetime(now_et.date())
+        refresh_start = today_open - timedelta(minutes=15)
+        if not (refresh_start <= now_et < today_open):
+            return
+
+        latest_open_event_keys = {
+            candidate.event_key
+            for candidate in load_signal_candidates(
+                self.alert_snapshot_path,
+                budget_config=self.budget_config,
+                execution_policy=self.execution_policy,
+            )
+            if candidate.entry_bucket == "open" and candidate.intended_entry_at[:10] == now_et.date().isoformat()
+        }
+        for candidate in state.candidates:
+            if candidate.status in TERMINAL_CANDIDATE_STATUSES:
+                continue
+            if candidate.active_order_id or candidate.linked_lot_id:
+                continue
+            if candidate.entry_bucket != "open" or candidate.intended_entry_at[:10] != now_et.date().isoformat():
+                continue
+            if candidate.event_key in latest_open_event_keys:
+                continue
+            candidate.status = "expired"
+            candidate.last_reason = "removed_by_preopen_refresh"
+            candidate.last_updated_at = utc_now_iso()
+            self.store.append_journal(
+                "candidate_expired",
+                {
+                    "candidate_id": candidate.candidate_id,
+                    "ticker": candidate.ticker,
+                    "reason": candidate.last_reason,
+                },
+            )
 
     def _ensure_planned_exits(self, state: TraderStateSnapshot) -> None:
         known = {row.lot_id for row in state.planned_exits}
@@ -367,7 +437,7 @@ class IbkrPaperTrader:
                 continue
             if candidate.entry_bucket != "open":
                 continue
-            if candidate.linked_lot_id is not None or candidate.active_order_id is not None:
+            if candidate.active_order_id is not None:
                 continue
             expiry = parse_iso_datetime(candidate.expires_at)
             if expiry < now_et:
@@ -402,6 +472,303 @@ class IbkrPaperTrader:
                 now_et,
                 prioritize_for_pending_exits=prioritize_for_pending_exits,
             )
+
+    def _net_same_day_buys_and_sells(self, state: TraderStateSnapshot, now_et: datetime) -> None:
+        open_batches: dict[tuple[str, str], list[SignalCandidate]] = {}
+        eligible = self._eligible_candidates(state, now_et)
+
+        for candidate in state.candidates:
+            if candidate.status in TERMINAL_CANDIDATE_STATUSES:
+                continue
+            if candidate.entry_bucket != "open" or candidate.active_order_id is not None:
+                continue
+            expiry = parse_iso_datetime(candidate.expires_at)
+            intended = parse_iso_datetime(candidate.intended_entry_at)
+            if expiry < now_et or intended > now_et:
+                continue
+            open_batches.setdefault((candidate.sleeve_id, candidate.intended_entry_at), []).append(candidate)
+
+        for candidate in eligible:
+            if candidate.entry_bucket == "open" or candidate.active_order_id is not None:
+                continue
+            gate_failure = self._candidate_gate_failure_reason(candidate)
+            if gate_failure is not None:
+                continue
+            preview = self._preview_candidate_entry(state, candidate, now_et)
+            if preview is None:
+                continue
+            _sleeve, quantity, limit_price, _reserve = preview
+            self._apply_sell_buy_netting(state, candidate, quantity, limit_price, now_et)
+
+        for _, batch in sorted(open_batches.items(), key=lambda row: row[0]):
+            selected_batch = self._select_open_batch_candidates(batch)
+            if not selected_batch:
+                continue
+            prioritize_for_pending_exits = self._batch_waiting_for_exit_fills(state, selected_batch)
+            allocations = self._preview_open_batch_allocations(
+                state,
+                selected_batch,
+                now_et,
+                prioritize_for_pending_exits=prioritize_for_pending_exits,
+            )
+            for row in allocations:
+                candidate = cast(SignalCandidate, row["candidate"])
+                quantity = int(row["quantity"])
+                limit_price = float(row["limit_price"])
+                self._apply_sell_buy_netting(state, candidate, quantity, limit_price, now_et)
+
+    def _preview_candidate_entry(
+        self,
+        state: TraderStateSnapshot,
+        candidate: SignalCandidate,
+        now_et: datetime,
+    ) -> tuple[SleeveState, int, float, float] | None:
+        sleeve = self._find_sleeve(state, candidate.sleeve_id)
+        if sleeve is None:
+            return None
+
+        target_notional = self._target_notional_for_candidate(state, candidate, sleeve)
+        committed_notional = self._committed_notional_for_candidate(state, candidate.candidate_id)
+        remaining_notional = max(0.0, target_notional - committed_notional)
+        if remaining_notional < self.execution_policy.min_order_notional:
+            return None
+
+        limit_price = self._build_limit_price("BUY", candidate.ticker, candidate.buy_price_hint, urgent=self._is_near_cutoff(now_et))
+        if limit_price is None:
+            return None
+
+        max_cash = min(sleeve.cash_balance, remaining_notional)
+        quantity = int(math.floor(max_cash / float(limit_price)))
+        reserve = float(quantity) * float(limit_price)
+        if quantity < 1 or reserve < self.execution_policy.min_order_notional:
+            return None
+        return sleeve, quantity, limit_price, reserve
+
+    def _preview_open_batch_allocations(
+        self,
+        state: TraderStateSnapshot,
+        batch: list[SignalCandidate],
+        now_et: datetime,
+        *,
+        prioritize_for_pending_exits: bool = False,
+    ) -> list[dict[str, object]]:
+        if not batch:
+            return []
+        sleeve = self._find_sleeve(state, batch[0].sleeve_id)
+        if sleeve is None or sleeve.cash_balance < self.execution_policy.min_order_notional:
+            return []
+
+        urgent = self._is_near_cutoff(now_et)
+        plan = self._open_batch_plan(state, batch)
+        workable: list[dict[str, object]] = []
+        for candidate in batch:
+            if candidate.active_order_id is not None:
+                continue
+            limit_price = self._build_limit_price("BUY", candidate.ticker, candidate.buy_price_hint, urgent=urgent)
+            if limit_price is None:
+                continue
+            workable.append(
+                {
+                    "candidate": candidate,
+                    "limit_price": float(limit_price),
+                    "weight": float(plan.get(candidate.candidate_id, max(float(candidate.advised_allocation_fraction), 1e-9))),
+                }
+            )
+        if not workable:
+            return []
+
+        if prioritize_for_pending_exits:
+            ranked_allocations: list[dict[str, object]] = []
+            ranked = sorted(
+                workable,
+                key=lambda row: (
+                    -float(cast(SignalCandidate, row["candidate"]).signal_score),
+                    cast(SignalCandidate, row["candidate"]).ticker,
+                ),
+            )
+            for row in ranked:
+                candidate = cast(SignalCandidate, row["candidate"])
+                limit_price = float(row["limit_price"])
+                target_notional = self._target_notional_for_candidate(state, candidate, sleeve)
+                committed_notional = self._committed_notional_for_candidate(state, candidate.candidate_id)
+                remaining_notional = max(0.0, target_notional - committed_notional)
+                max_cash = min(float(sleeve.cash_balance), remaining_notional)
+                quantity = int(math.floor(max_cash / limit_price))
+                reserve = float(quantity) * limit_price
+                ranked_allocations.append(
+                    {
+                        "candidate": candidate,
+                        "limit_price": limit_price,
+                        "quantity": quantity,
+                        "reserve": reserve,
+                    }
+                )
+            return ranked_allocations
+
+        available_cash = float(sleeve.cash_balance)
+        total_weight = float(sum(float(row["weight"]) for row in workable))
+        allocations: list[dict[str, object]] = []
+        reserved_total = 0.0
+        for row in workable:
+            candidate = cast(SignalCandidate, row["candidate"])
+            limit_price = float(row["limit_price"])
+            target_notional = self._target_notional_for_candidate(state, candidate, sleeve)
+            committed_notional = self._committed_notional_for_candidate(state, candidate.candidate_id)
+            remaining_notional = max(0.0, target_notional - committed_notional)
+            desired_cash = min(available_cash * float(row["weight"]) / total_weight, remaining_notional)
+            quantity = int(math.floor(desired_cash / limit_price))
+            reserve = float(quantity) * limit_price
+            allocations.append(
+                {
+                    "candidate": candidate,
+                    "limit_price": limit_price,
+                    "quantity": quantity,
+                    "reserve": reserve,
+                    "remaining_notional": remaining_notional,
+                }
+            )
+            reserved_total += reserve
+
+        leftover_cash = max(0.0, available_cash - reserved_total)
+        while allocations and leftover_cash >= min(float(row["limit_price"]) for row in allocations):
+            best = next(
+                (
+                    row
+                    for row in sorted(
+                        allocations,
+                        key=lambda item: (
+                            -float(cast(SignalCandidate, item["candidate"]).signal_score),
+                            cast(SignalCandidate, item["candidate"]).ticker,
+                        ),
+                    )
+                    if float(row["limit_price"]) <= leftover_cash
+                    and float(row["reserve"]) + float(row["limit_price"]) <= float(row["remaining_notional"]) + 1e-9
+                ),
+                None,
+            )
+            if best is None:
+                break
+            best["quantity"] = int(best["quantity"]) + 1
+            best["reserve"] = float(best["reserve"]) + float(best["limit_price"])
+            leftover_cash -= float(best["limit_price"])
+
+        return allocations
+
+    def _apply_sell_buy_netting(
+        self,
+        state: TraderStateSnapshot,
+        candidate: SignalCandidate,
+        desired_quantity: int,
+        reference_price: float,
+        now_et: datetime,
+    ) -> int:
+        if desired_quantity < 1 or reference_price <= 0:
+            return 0
+
+        intended = parse_iso_datetime(candidate.intended_entry_at)
+        matching: list[tuple[PlannedExit, PositionLot]] = []
+        for planned in state.planned_exits:
+            if planned.status == "filled" or planned.sleeve_id != candidate.sleeve_id or planned.ticker != candidate.ticker:
+                continue
+            due_at = parse_iso_datetime(planned.due_at)
+            if due_at.date() != intended.date() or due_at > intended:
+                continue
+            lot = self._find_lot(state, planned.lot_id)
+            if lot is None or lot.status != "open" or lot.quantity <= 0 or lot.active_exit_order_id:
+                continue
+            matching.append((planned, lot))
+        matching.sort(key=lambda row: (row[0].due_at, row[1].opened_at, row[1].lot_id))
+
+        if not matching:
+            return 0
+
+        entry_at = intended if intended <= now_et else now_et
+        remaining = int(desired_quantity)
+        netted = 0
+        for planned, lot in matching:
+            if remaining <= 0:
+                break
+            transfer_quantity = min(remaining, int(lot.quantity))
+            if transfer_quantity <= 0:
+                continue
+            self._transfer_exit_quantity_into_candidate(
+                state=state,
+                lot=lot,
+                planned=planned,
+                candidate=candidate,
+                quantity=transfer_quantity,
+                reference_price=reference_price,
+                entry_at=entry_at,
+            )
+            remaining -= transfer_quantity
+            netted += transfer_quantity
+
+        if netted <= 0:
+            return 0
+
+        candidate.status = "filled" if remaining <= 0 else "partially_filled"
+        candidate.last_reason = "same_day_sell_buy_netting"
+        candidate.last_updated_at = utc_now_iso()
+        return netted
+
+    def _transfer_exit_quantity_into_candidate(
+        self,
+        *,
+        state: TraderStateSnapshot,
+        lot: PositionLot,
+        planned: PlannedExit,
+        candidate: SignalCandidate,
+        quantity: int,
+        reference_price: float,
+        entry_at: datetime,
+    ) -> None:
+        sleeve = self._find_sleeve(state, lot.sleeve_id)
+        if sleeve is None:
+            return
+
+        proceeds = float(quantity) * float(reference_price)
+        cost_basis = float(quantity) * float(lot.avg_entry_price)
+        pnl = proceeds - cost_basis
+        sleeve.realized_pnl += pnl
+        lot.quantity -= int(quantity)
+        lot.exit_value += proceeds
+        lot.realized_pnl += pnl
+        if lot.quantity <= 0:
+            lot.quantity = 0
+            lot.status = "closed"
+            planned.status = "filled"
+
+        due_exit_at = exit_at_tplus_open(entry_at, ACTIVE_STRATEGY.sell_after_trading_days)
+        candidate_lot = self._find_lot(state, candidate.linked_lot_id)
+        if candidate_lot is None or candidate_lot.status != "open":
+            candidate_lot = PositionLot(
+                lot_id=new_id("lot"),
+                candidate_id=candidate.candidate_id,
+                ticker=candidate.ticker,
+                sleeve_id=candidate.sleeve_id,
+                entry_order_id=new_id("net"),
+                opened_at=entry_at.isoformat(),
+                due_exit_at=due_exit_at.isoformat(),
+                entry_signal_score=float(candidate.signal_score),
+                entry_estimated_decile_score=float(candidate.estimated_decile_score),
+                entry_trade_day=candidate.entry_trade_day or entry_at.date().isoformat(),
+            )
+            state.lots.append(candidate_lot)
+            candidate.linked_lot_id = candidate_lot.lot_id
+        candidate_lot.entry_quantity += int(quantity)
+        candidate_lot.quantity += int(quantity)
+        candidate_lot.entry_value += proceeds
+
+        self.store.append_journal(
+            "same_day_sell_buy_netted",
+            {
+                "candidate_id": candidate.candidate_id,
+                "ticker": candidate.ticker,
+                "source_lot_id": lot.lot_id,
+                "quantity": int(quantity),
+                "reference_price": float(reference_price),
+            },
+        )
 
     def _submit_entry_for_candidate(
         self,
@@ -493,16 +860,21 @@ class IbkrPaperTrader:
         reserved_total = 0.0
 
         for row in workable:
+            candidate = cast(SignalCandidate, row["candidate"])
             limit_price = float(row["limit_price"])
-            desired_cash = available_cash * float(row["weight"]) / total_weight
+            target_notional = self._target_notional_for_candidate(state, candidate, sleeve)
+            committed_notional = self._committed_notional_for_candidate(state, candidate.candidate_id)
+            remaining_notional = max(0.0, target_notional - committed_notional)
+            desired_cash = min(available_cash * float(row["weight"]) / total_weight, remaining_notional)
             quantity = int(math.floor(desired_cash / limit_price))
             reserve = float(quantity) * limit_price
             allocations.append(
                 {
-                    "candidate": row["candidate"],
+                    "candidate": candidate,
                     "limit_price": limit_price,
                     "quantity": quantity,
                     "reserve": reserve,
+                    "remaining_notional": remaining_notional,
                 }
             )
             reserved_total += reserve
@@ -520,6 +892,7 @@ class IbkrPaperTrader:
                         ),
                     )
                     if float(row["limit_price"]) <= leftover_cash
+                    and float(row["reserve"]) + float(row["limit_price"]) <= float(row["remaining_notional"]) + 1e-9
                 ),
                 None,
             )
@@ -923,6 +1296,8 @@ class IbkrPaperTrader:
         if candidate is None:
             return
         lot = next((row for row in state.lots if row.entry_order_id == order.local_order_id), None)
+        if lot is None:
+            lot = self._find_lot(state, candidate.linked_lot_id)
         if lot is None:
             filled_at = _parse_fill_timestamp(event.filled_at)
             due_exit_at = exit_at_tplus_open(filled_at, ACTIVE_STRATEGY.sell_after_trading_days)

@@ -199,6 +199,7 @@ NEAR_OPEN_WINDOW_HOURS = RUNTIME_DEFAULTS.near_open_window_hours
 MARKET_HOURS_INTERVAL_MINUTES = RUNTIME_DEFAULTS.market_hours_interval_minutes
 NEAR_OPEN_INTERVAL_MINUTES = RUNTIME_DEFAULTS.near_open_interval_minutes
 FAR_INTERVAL_MINUTES = RUNTIME_DEFAULTS.far_interval_minutes
+PREOPEN_REFRESH_WINDOW_MINUTES = 15
 
 
 def is_market_open(now_et: datetime) -> bool:
@@ -220,10 +221,21 @@ def seconds_until_next_open(now_et: datetime) -> float:
     return max(0.0, (candidate - now_et).total_seconds())
 
 
+def is_preopen_refresh_window(now_et: datetime) -> bool:
+    """True during the final minutes before the regular-session open on weekdays."""
+    if now_et.weekday() >= 5:
+        return False
+    open_t = now_et.replace(hour=MARKET_OPEN_H, minute=MARKET_OPEN_M, second=0, microsecond=0)
+    refresh_start = open_t - timedelta(minutes=PREOPEN_REFRESH_WINDOW_MINUTES)
+    return refresh_start <= now_et < open_t
+
+
 def compute_sleep_interval_minutes(now_et: datetime) -> int:
     """Return polling interval in minutes based on proximity to market open.
 
     - MARKET_HOURS_INTERVAL_MINUTES (1) during regular trading hours.
+    - MARKET_HOURS_INTERVAL_MINUTES (1) in the final PREOPEN_REFRESH_WINDOW_MINUTES
+      before 9:30 ET so queued open-entry names can be rescored with fresh gap data.
     - NEAR_OPEN_INTERVAL_MINUTES (30) within NEAR_OPEN_WINDOW_HOURS hours
       before *or* after 9:30 ET on a weekday (i.e. 7:30–11:30 ET).
     - FAR_INTERVAL_MINUTES (120) at all other times (overnight, weekends,
@@ -233,6 +245,8 @@ def compute_sleep_interval_minutes(now_et: datetime) -> int:
     if now_et.weekday() >= 5:
         return FAR_INTERVAL_MINUTES
     if is_market_open(now_et):
+        return MARKET_HOURS_INTERVAL_MINUTES
+    if is_preopen_refresh_window(now_et):
         return MARKET_HOURS_INTERVAL_MINUTES
     open_t = now_et.replace(hour=MARKET_OPEN_H, minute=MARKET_OPEN_M, second=0, microsecond=0)
     near_start = open_t - timedelta(hours=NEAR_OPEN_WINDOW_HOURS)
@@ -512,6 +526,23 @@ def select_pending_events(
     )
     pending = pending.loc[needs_score].copy()
     return pending.drop(columns=["last_scored_representative_transaction_date"], errors="ignore")
+
+
+def select_preopen_refresh_events(
+    candidates: pd.DataFrame,
+    now_et: datetime,
+) -> pd.DataFrame:
+    if candidates.empty or not is_preopen_refresh_window(now_et):
+        return pd.DataFrame(columns=candidates.columns)
+
+    target_open = now_et.replace(hour=MARKET_OPEN_H, minute=MARKET_OPEN_M, second=0, microsecond=0)
+    pending = candidates.copy()
+    pending["_representative_ts"] = pd.to_datetime(pending["representative_transaction_date"], errors="coerce")
+    pending = pending.loc[pending["_representative_ts"].notna()].copy()
+    pending["_intended_entry_at"] = pending["_representative_ts"].apply(compute_buy_datetime)
+    pending = pending.loc[pending["_intended_entry_at"] == target_open].copy()
+    pending = pending.drop(columns=["_representative_ts", "_intended_entry_at"], errors="ignore")
+    return pending.reset_index(drop=True)
 
 
 def _json_load(path: Path) -> List[dict] | None:
@@ -1661,6 +1692,7 @@ def run_cycle(
     args,
     logger: logging.Logger,
     *,
+    now_et: datetime,
     threshold: float,
     threshold_source: str,
     advice_deciles: np.ndarray,
@@ -1672,16 +1704,24 @@ def run_cycle(
     combined_raw, new_raw_rows = merge_scraped_into_raw(Path(args.raw_file), scraped, logger)
 
     impacted_event_keys = new_event_keys_from_rows(new_raw_rows)
-    if not impacted_event_keys:
-        logger.info("No new filings detected this cycle.")
-        return 0
-
     candidates = build_candidate_events(combined_raw)
     latest_state = load_latest_scored_state(Path(args.predictions_file))
-    pending = select_pending_events(candidates, impacted_event_keys, latest_state)
+    pending_new = select_pending_events(candidates, impacted_event_keys, latest_state)
+    pending_refresh = select_preopen_refresh_events(candidates, now_et)
+    if not impacted_event_keys and pending_refresh.empty:
+        logger.info("No new filings detected and no queued open-entry candidates need refresh this cycle.")
+        return 0
+
+    pending_parts = [frame for frame in (pending_new, pending_refresh) if not frame.empty]
+    if pending_parts:
+        pending = pd.concat(pending_parts, ignore_index=True)
+        pending = pending.drop_duplicates(subset=["event_key"], keep="last").reset_index(drop=True)
+    else:
+        pending = pd.DataFrame(columns=candidates.columns)
     logger.info(
-        "Impacted events=%d, pending for scoring=%d",
+        "Impacted events=%d, pre-open refresh=%d, pending for scoring=%d",
         len(impacted_event_keys),
+        len(pending_refresh),
         len(pending),
     )
     if pending.empty:
@@ -1892,6 +1932,7 @@ def main() -> None:
         try:
             scored_events = run_cycle(
                 scraper, models_by_horizon, policy, args, logger,
+                now_et=now_et,
                 threshold=threshold,
                 threshold_source=threshold_source,
                 advice_deciles=advice_deciles,

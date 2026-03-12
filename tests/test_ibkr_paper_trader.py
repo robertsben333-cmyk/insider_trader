@@ -18,7 +18,7 @@ from live_trading.market_calendar import (
 )
 from live_trading.signal_intake import load_signal_candidates
 from live_trading.strategy_settings import EXECUTION_POLICY, TRADING_BUDGET
-from live_trading.trader_state import PositionLot, SignalCandidate, SleeveState, StateStore, TraderStateSnapshot
+from live_trading.trader_state import FillEvent, PositionLot, SignalCandidate, SleeveState, StateStore, TraderStateSnapshot
 
 
 class IbkrPaperTraderTests(unittest.TestCase):
@@ -597,6 +597,345 @@ class IbkrPaperTraderTests(unittest.TestCase):
         self.assertTrue(all(order.order_type == "MARKET" for order in snapshot.pending_orders))
         self.assertEqual(snapshot.candidates[-1].status, "rejected")
         self.assertEqual(snapshot.candidates[-1].last_reason, "batch_rank_exceeds_live_max")
+
+    def test_ingest_signals_replaces_same_event_with_newer_refresh_even_if_score_is_lower(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            snapshot_path = Path(tmpdir) / "latest_alert_candidates.csv"
+            pd.DataFrame(
+                [
+                    {
+                        "scored_at": "2026-03-02 13:20:00",
+                        "event_key": "AAA|2026-03-02",
+                        "ticker": "AAA",
+                        "score_1d": 0.9,
+                        "pred_mean4": 0.9,
+                        "estimated_decile_score": 0.95,
+                        "advised_allocation_fraction": 0.4,
+                        "buy_price": 12.5,
+                        "step_up_from_prev_close_pct": 1.0,
+                        "is_tradable": 1,
+                    }
+                ]
+            ).to_csv(snapshot_path, index=False)
+
+            trader = IbkrPaperTrader(
+                broker=DryRunBrokerAdapter(),
+                store=StateStore(Path(tmpdir) / "state.json", Path(tmpdir) / "journal.jsonl"),
+                alert_snapshot_path=snapshot_path,
+                signal_archive_path=Path(tmpdir) / "archive.csv",
+                logger=logging.getLogger("test_ibkr_paper_trader"),
+            )
+            snapshot = TraderStateSnapshot(
+                candidates=[
+                    SignalCandidate(
+                        candidate_id="AAA|2026-03-02|2026-03-02 13:00:00",
+                        event_key="AAA|2026-03-02",
+                        ticker="AAA",
+                        scored_at="2026-03-02 13:00:00",
+                        intended_entry_at=datetime(2026, 3, 2, 9, 30, tzinfo=ET).isoformat(),
+                        expires_at=datetime(2026, 3, 2, 15, 30, tzinfo=ET).isoformat(),
+                        sleeve_id="sleeve_0",
+                        signal_score=1.2,
+                        estimated_decile_score=0.96,
+                        advised_allocation_fraction=0.4,
+                        score_column="score_1d",
+                        entry_bucket="open",
+                        entry_trade_day="2026-03-02",
+                        step_up_from_prev_close_pct=1.0,
+                    )
+                ]
+            )
+
+            trader._ingest_signals(snapshot)
+
+        self.assertEqual(len(snapshot.candidates), 2)
+        self.assertEqual(snapshot.candidates[0].status, "expired")
+        self.assertEqual(snapshot.candidates[0].last_reason, "superseded_by_newer_score_refresh")
+        self.assertEqual(snapshot.candidates[1].signal_score, 0.9)
+
+    def test_preopen_refresh_expires_today_open_candidate_missing_from_snapshot(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            snapshot_path = Path(tmpdir) / "latest_alert_candidates.csv"
+            pd.DataFrame(columns=["event_key", "ticker", "scored_at"]).to_csv(snapshot_path, index=False)
+
+            trader = IbkrPaperTrader(
+                broker=DryRunBrokerAdapter(),
+                store=StateStore(Path(tmpdir) / "state.json", Path(tmpdir) / "journal.jsonl"),
+                alert_snapshot_path=snapshot_path,
+                signal_archive_path=Path(tmpdir) / "archive.csv",
+                logger=logging.getLogger("test_ibkr_paper_trader"),
+            )
+            snapshot = TraderStateSnapshot(
+                candidates=[
+                    SignalCandidate(
+                        candidate_id="AAA|2026-03-02|2026-03-02 13:00:00",
+                        event_key="AAA|2026-03-02",
+                        ticker="AAA",
+                        scored_at="2026-03-02 13:00:00",
+                        intended_entry_at=datetime(2026, 3, 2, 9, 30, tzinfo=ET).isoformat(),
+                        expires_at=datetime(2026, 3, 2, 15, 30, tzinfo=ET).isoformat(),
+                        sleeve_id="sleeve_0",
+                        signal_score=1.2,
+                        estimated_decile_score=0.96,
+                        advised_allocation_fraction=0.4,
+                        score_column="score_1d",
+                        entry_bucket="open",
+                        entry_trade_day="2026-03-02",
+                        step_up_from_prev_close_pct=1.0,
+                    )
+                ]
+            )
+
+            trader._reconcile_today_open_candidates_with_snapshot(
+                snapshot,
+                datetime(2026, 3, 2, 9, 20, tzinfo=ET),
+            )
+
+        self.assertEqual(snapshot.candidates[0].status, "expired")
+        self.assertEqual(snapshot.candidates[0].last_reason, "removed_by_preopen_refresh")
+
+    def test_same_day_buy_nets_against_due_exit_and_only_sells_remainder(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            broker = DryRunBrokerAdapter()
+            broker.connect()
+            broker.set_quote(QuoteSnapshot(symbol="AAA", bid=99.5, ask=99.5, last=99.5))
+
+            trader = IbkrPaperTrader(
+                broker=broker,
+                store=StateStore(Path(tmpdir) / "state.json", Path(tmpdir) / "journal.jsonl"),
+                alert_snapshot_path=Path(tmpdir) / "missing.csv",
+                signal_archive_path=Path(tmpdir) / "archive.csv",
+                logger=logging.getLogger("test_ibkr_paper_trader"),
+            )
+            intended_dt = datetime(2026, 3, 4, 9, 30, tzinfo=ET)
+            snapshot = TraderStateSnapshot(
+                sleeves=[
+                    SleeveState(
+                        sleeve_id="sleeve_0",
+                        starting_cash=1000.0,
+                        cash_balance=1000.0,
+                        last_equity=1000.0,
+                    )
+                ],
+                candidates=[
+                    SignalCandidate(
+                        candidate_id="AAA|new",
+                        event_key="AAA|2026-03-04",
+                        ticker="AAA",
+                        scored_at="2026-03-04 13:20:00",
+                        intended_entry_at=intended_dt.isoformat(),
+                        expires_at=datetime(2026, 3, 4, 15, 30, tzinfo=ET).isoformat(),
+                        sleeve_id="sleeve_0",
+                        signal_score=1.2,
+                        estimated_decile_score=0.95,
+                        advised_allocation_fraction=0.25,
+                        score_column="score_1d",
+                        entry_bucket="open",
+                        entry_trade_day="2026-03-04",
+                        buy_price_hint=99.5,
+                        step_up_from_prev_close_pct=1.0,
+                    )
+                ],
+                lots=[
+                    PositionLot(
+                        lot_id="lot_old",
+                        candidate_id="AAA|old",
+                        ticker="AAA",
+                        sleeve_id="sleeve_0",
+                        entry_order_id="ord_old",
+                        opened_at=datetime(2026, 3, 2, 10, 0, tzinfo=ET).isoformat(),
+                        due_exit_at=intended_dt.isoformat(),
+                        entry_quantity=10,
+                        quantity=10,
+                        entry_value=1000.0,
+                        entry_estimated_decile_score=0.88,
+                        entry_trade_day="2026-03-02",
+                    )
+                ],
+            )
+
+            trader._ensure_planned_exits(snapshot)
+            trader._net_same_day_buys_and_sells(snapshot, intended_dt)
+            trader._manage_exit_orders(snapshot, intended_dt)
+            trader._manage_entry_orders(snapshot, intended_dt)
+
+        candidate = snapshot.candidates[0]
+        old_lot = next(row for row in snapshot.lots if row.lot_id == "lot_old")
+        new_lot = next(row for row in snapshot.lots if row.candidate_id == candidate.candidate_id)
+        sell_orders = [row for row in snapshot.pending_orders if row.side == "SELL"]
+        buy_orders = [row for row in snapshot.pending_orders if row.side == "BUY"]
+
+        self.assertEqual(candidate.status, "filled")
+        self.assertEqual(old_lot.quantity, 2)
+        self.assertEqual(new_lot.quantity, 8)
+        self.assertEqual(len(sell_orders), 1)
+        self.assertEqual(sell_orders[0].quantity, 2)
+        self.assertEqual(len(buy_orders), 0)
+
+    def test_same_day_buy_partial_net_still_submits_buy_for_remainder(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            broker = DryRunBrokerAdapter()
+            broker.connect()
+            broker.set_quote(QuoteSnapshot(symbol="AAA", bid=99.5, ask=99.5, last=99.5))
+
+            trader = IbkrPaperTrader(
+                broker=broker,
+                store=StateStore(Path(tmpdir) / "state.json", Path(tmpdir) / "journal.jsonl"),
+                alert_snapshot_path=Path(tmpdir) / "missing.csv",
+                signal_archive_path=Path(tmpdir) / "archive.csv",
+                logger=logging.getLogger("test_ibkr_paper_trader"),
+            )
+            intended_dt = datetime(2026, 3, 4, 9, 30, tzinfo=ET)
+            snapshot = TraderStateSnapshot(
+                sleeves=[
+                    SleeveState(
+                        sleeve_id="sleeve_0",
+                        starting_cash=1000.0,
+                        cash_balance=1000.0,
+                        last_equity=1000.0,
+                    )
+                ],
+                candidates=[
+                    SignalCandidate(
+                        candidate_id="AAA|new",
+                        event_key="AAA|2026-03-04",
+                        ticker="AAA",
+                        scored_at="2026-03-04 13:20:00",
+                        intended_entry_at=intended_dt.isoformat(),
+                        expires_at=datetime(2026, 3, 4, 15, 30, tzinfo=ET).isoformat(),
+                        sleeve_id="sleeve_0",
+                        signal_score=1.2,
+                        estimated_decile_score=0.95,
+                        advised_allocation_fraction=0.25,
+                        score_column="score_1d",
+                        entry_bucket="open",
+                        entry_trade_day="2026-03-04",
+                        buy_price_hint=99.5,
+                        step_up_from_prev_close_pct=1.0,
+                    )
+                ],
+                lots=[
+                    PositionLot(
+                        lot_id="lot_old",
+                        candidate_id="AAA|old",
+                        ticker="AAA",
+                        sleeve_id="sleeve_0",
+                        entry_order_id="ord_old",
+                        opened_at=datetime(2026, 3, 2, 10, 0, tzinfo=ET).isoformat(),
+                        due_exit_at=intended_dt.isoformat(),
+                        entry_quantity=5,
+                        quantity=5,
+                        entry_value=500.0,
+                        entry_estimated_decile_score=0.88,
+                        entry_trade_day="2026-03-02",
+                    )
+                ],
+            )
+
+            trader._ensure_planned_exits(snapshot)
+            trader._net_same_day_buys_and_sells(snapshot, intended_dt)
+            trader._manage_exit_orders(snapshot, intended_dt)
+            trader._manage_entry_orders(snapshot, intended_dt)
+
+        candidate = snapshot.candidates[0]
+        old_lot = next(row for row in snapshot.lots if row.lot_id == "lot_old")
+        new_lot = next(row for row in snapshot.lots if row.candidate_id == candidate.candidate_id)
+        sell_orders = [row for row in snapshot.pending_orders if row.side == "SELL"]
+        buy_orders = [row for row in snapshot.pending_orders if row.side == "BUY"]
+
+        self.assertEqual(old_lot.status, "closed")
+        self.assertEqual(old_lot.quantity, 0)
+        self.assertEqual(new_lot.quantity, 5)
+        self.assertEqual(len(sell_orders), 0)
+        self.assertEqual(len(buy_orders), 1)
+        self.assertEqual(buy_orders[0].quantity, 3)
+        self.assertEqual(buy_orders[0].order_type, "MARKET")
+
+    def test_entry_fill_appends_into_existing_netted_candidate_lot(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            broker = DryRunBrokerAdapter()
+            broker.connect()
+            broker.set_quote(QuoteSnapshot(symbol="AAA", bid=99.5, ask=99.5, last=99.5))
+
+            trader = IbkrPaperTrader(
+                broker=broker,
+                store=StateStore(Path(tmpdir) / "state.json", Path(tmpdir) / "journal.jsonl"),
+                alert_snapshot_path=Path(tmpdir) / "missing.csv",
+                signal_archive_path=Path(tmpdir) / "archive.csv",
+                logger=logging.getLogger("test_ibkr_paper_trader"),
+            )
+            intended_dt = datetime(2026, 3, 4, 9, 30, tzinfo=ET)
+            snapshot = TraderStateSnapshot(
+                sleeves=[
+                    SleeveState(
+                        sleeve_id="sleeve_0",
+                        starting_cash=1000.0,
+                        cash_balance=1000.0,
+                        last_equity=1000.0,
+                    )
+                ],
+                candidates=[
+                    SignalCandidate(
+                        candidate_id="AAA|new",
+                        event_key="AAA|2026-03-04",
+                        ticker="AAA",
+                        scored_at="2026-03-04 13:20:00",
+                        intended_entry_at=intended_dt.isoformat(),
+                        expires_at=datetime(2026, 3, 4, 15, 30, tzinfo=ET).isoformat(),
+                        sleeve_id="sleeve_0",
+                        signal_score=1.2,
+                        estimated_decile_score=0.95,
+                        advised_allocation_fraction=0.25,
+                        score_column="score_1d",
+                        entry_bucket="open",
+                        entry_trade_day="2026-03-04",
+                        buy_price_hint=99.5,
+                        step_up_from_prev_close_pct=1.0,
+                    )
+                ],
+                lots=[
+                    PositionLot(
+                        lot_id="lot_old",
+                        candidate_id="AAA|old",
+                        ticker="AAA",
+                        sleeve_id="sleeve_0",
+                        entry_order_id="ord_old",
+                        opened_at=datetime(2026, 3, 2, 10, 0, tzinfo=ET).isoformat(),
+                        due_exit_at=intended_dt.isoformat(),
+                        entry_quantity=5,
+                        quantity=5,
+                        entry_value=500.0,
+                        entry_estimated_decile_score=0.88,
+                        entry_trade_day="2026-03-02",
+                    )
+                ],
+            )
+
+            trader._ensure_planned_exits(snapshot)
+            trader._net_same_day_buys_and_sells(snapshot, intended_dt)
+            trader._manage_entry_orders(snapshot, intended_dt)
+
+            buy_order = next(row for row in snapshot.pending_orders if row.side == "BUY")
+            fill = FillEvent(
+                fill_id="fill_1",
+                execution_id="exec_1",
+                local_order_id=buy_order.local_order_id,
+                broker_order_id=buy_order.broker_order_id,
+                ticker="AAA",
+                side="BUY",
+                quantity=3,
+                price=100.0,
+                filled_at=intended_dt.isoformat(),
+            )
+            trader._apply_entry_fill(snapshot, buy_order, fill)
+
+        candidate = snapshot.candidates[0]
+        candidate_lot = next(row for row in snapshot.lots if row.lot_id == candidate.linked_lot_id)
+
+        self.assertEqual(len([row for row in snapshot.lots if row.candidate_id == candidate.candidate_id]), 1)
+        self.assertEqual(candidate_lot.entry_quantity, 8)
+        self.assertEqual(candidate_lot.quantity, 8)
+        self.assertEqual(candidate_lot.entry_value, 800.0)
 
 
 class AlpacaConfigTests(unittest.TestCase):

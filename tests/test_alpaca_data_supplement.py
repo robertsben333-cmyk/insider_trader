@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from datetime import datetime
 import json
 import os
 import time
 import unittest
 from unittest.mock import MagicMock, patch
+
+import pandas as pd
 
 
 class TokenBucketTests(unittest.TestCase):
@@ -86,3 +89,40 @@ class AlpacaMarketDataClientTests(unittest.TestCase):
                 price = client.get_latest_price("AAPL")
                 mock_url.assert_not_called()
         self.assertIsNone(price)
+
+
+class LiveScoringRefreshTests(unittest.TestCase):
+    def test_preopen_refresh_window_uses_one_minute_polling(self) -> None:
+        from live_scoring import compute_sleep_interval_minutes
+        from live_trading.market_calendar import ET
+
+        now_et = datetime(2026, 3, 12, 9, 20, tzinfo=ET)
+        self.assertEqual(compute_sleep_interval_minutes(now_et), 1)
+
+    def test_select_preopen_refresh_events_targets_today_open_candidates(self) -> None:
+        from live_scoring import select_preopen_refresh_events
+        from live_trading.market_calendar import ET
+
+        candidates = pd.DataFrame(
+            [
+                {
+                    "event_key": "AFTER|2026-03-11",
+                    "representative_transaction_date": "2026-03-11 18:30:00",
+                },
+                {
+                    "event_key": "INTRA|2026-03-12",
+                    "representative_transaction_date": "2026-03-12 10:05:00",
+                },
+                {
+                    "event_key": "NEXT|2026-03-12",
+                    "representative_transaction_date": "2026-03-12 18:30:00",
+                },
+            ]
+        )
+
+        refreshed = select_preopen_refresh_events(
+            candidates,
+            datetime(2026, 3, 12, 9, 20, tzinfo=ET),
+        )
+
+        self.assertEqual(refreshed["event_key"].tolist(), ["AFTER|2026-03-11"])
