@@ -126,8 +126,16 @@ class AlpacaMarketDataClient:
 from polygon import RESTClient
 
 import train_models
-from live_trading.market_calendar import is_weekend_shutdown_window, seconds_until_weekend_shutdown_end
-from live_trading.strategy_settings import ACTIVE_STRATEGY, LIVE_PATHS, RUNTIME_DEFAULTS
+from live_trading.market_calendar import (
+    ET,
+    candidate_expiry_datetime,
+    intended_entry_from_score,
+    is_weekend_shutdown_window,
+    parse_scored_at_utc,
+    parse_time_hhmm,
+    seconds_until_weekend_shutdown_end,
+)
+from live_trading.strategy_settings import ACTIVE_STRATEGY, EXECUTION_POLICY, LIVE_PATHS, RUNTIME_DEFAULTS
 from openinsider_scraper import OpenInsiderScraper
 
 RAW_COLUMNS = [
@@ -1520,7 +1528,7 @@ def update_alert_candidate_exports(
     export_df: pd.DataFrame,
     logger: logging.Logger,
 ) -> None:
-    latest = export_df.copy() if not export_df.empty else pd.DataFrame(columns=pd.Index(ALERT_EXPORT_COLUMNS))
+    latest = filter_active_alert_candidates(export_df)
     latest_path.parent.mkdir(parents=True, exist_ok=True)
     latest.to_csv(latest_path, index=False)
     logger.info("Alert snapshot updated -> %s (rows=%d)", latest_path, len(latest))
@@ -1537,6 +1545,36 @@ def update_alert_candidate_exports(
     history_path.parent.mkdir(parents=True, exist_ok=True)
     history.to_csv(history_path, index=False)
     logger.info("Alert history updated -> %s (rows=%d)", history_path, len(history))
+
+
+def filter_active_alert_candidates(
+    export_df: pd.DataFrame,
+    *,
+    now_et: datetime | None = None,
+) -> pd.DataFrame:
+    if export_df.empty:
+        return pd.DataFrame(columns=pd.Index(ALERT_EXPORT_COLUMNS))
+
+    current_et = now_et.astimezone(ET) if now_et is not None else datetime.now(ET)
+    buy_cutoff = parse_time_hhmm(EXECUTION_POLICY.buy_cutoff_time)
+    keep_rows: list[dict[str, object]] = []
+    for row in export_df.to_dict("records"):
+        scored_at_raw = str(row.get("scored_at", "") or "").strip()
+        if not scored_at_raw:
+            continue
+        try:
+            scored_utc = parse_scored_at_utc(scored_at_raw)
+        except ValueError:
+            continue
+        intended_entry = intended_entry_from_score(scored_utc)
+        expires_at = candidate_expiry_datetime(intended_entry, buy_cutoff)
+        if expires_at < current_et:
+            continue
+        keep_rows.append(row)
+
+    if not keep_rows:
+        return pd.DataFrame(columns=pd.Index(ALERT_EXPORT_COLUMNS))
+    return pd.DataFrame(keep_rows).reindex(columns=ALERT_EXPORT_COLUMNS)
 
 
 def build_exit_policy_html(review_date: str) -> str:

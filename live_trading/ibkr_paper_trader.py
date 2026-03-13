@@ -116,7 +116,7 @@ class IbkrPaperTrader:
 
         self._reconcile_orders_and_fills(state)
         self._refresh_sleeve_equity(state)
-        self._ingest_signals(state)
+        self._ingest_signals(state, now_et)
         self._reconcile_today_open_candidates_with_snapshot(state, now_et)
         self._ensure_planned_exits(state)
         self._expire_stale_candidates(state, now_et)
@@ -180,7 +180,7 @@ class IbkrPaperTrader:
             cache[key] = float(ref if ref is not None else fallback if fallback is not None else 0.0)
         return cache[key]
 
-    def _ingest_signals(self, state: TraderStateSnapshot) -> None:
+    def _ingest_signals(self, state: TraderStateSnapshot, now_et: datetime) -> None:
         known = {c.candidate_id for c in state.candidates}
 
         # Index active (non-terminal) candidates by (ticker, intended_entry_date) for same-day dedup
@@ -202,6 +202,7 @@ class IbkrPaperTrader:
             self.alert_snapshot_path,
             budget_config=self.budget_config,
             execution_policy=self.execution_policy,
+            now_et=now_et,
         ):
             if candidate.candidate_id in known:
                 continue
@@ -282,6 +283,7 @@ class IbkrPaperTrader:
                 self.alert_snapshot_path,
                 budget_config=self.budget_config,
                 execution_policy=self.execution_policy,
+                now_et=now_et,
             )
             if candidate.entry_bucket == "open" and candidate.intended_entry_at[:10] == now_et.date().isoformat()
         }

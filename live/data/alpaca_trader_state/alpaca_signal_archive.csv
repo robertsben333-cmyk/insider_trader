@@ -1,2 +1,1 @@
-candidate_id,ticker,status,signal_score,estimated_decile_score,sleeve_id,entry_bucket,entry_trade_day,intended_entry_at,expires_at,replacement_for_lot_id,last_reason,last_updated_at
-VEEE|2026-02-23|2026-02-25 17:01:09,VEEE,expired,0.8847918669603334,0.935903880597122,sleeve_1,intraday,2026-02-25,2026-02-25T12:01:09-05:00,2026-02-25T15:30:00-05:00,,entry_window_closed_without_fill,2026-03-12T08:37:09Z
+

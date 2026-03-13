@@ -126,3 +126,29 @@ class LiveScoringRefreshTests(unittest.TestCase):
         )
 
         self.assertEqual(refreshed["event_key"].tolist(), ["AFTER|2026-03-11"])
+
+    def test_filter_active_alert_candidates_removes_stale_rows_from_latest_snapshot(self) -> None:
+        from live_scoring import filter_active_alert_candidates
+        from live_trading.market_calendar import ET
+
+        export_df = pd.DataFrame(
+            [
+                {
+                    "scored_at": "2026-02-25 17:01:09",
+                    "event_key": "VEEE|2026-02-23",
+                    "ticker": "VEEE",
+                },
+                {
+                    "scored_at": "2026-03-12 13:20:00",
+                    "event_key": "AAA|2026-03-12",
+                    "ticker": "AAA",
+                },
+            ]
+        )
+
+        latest = filter_active_alert_candidates(
+            export_df,
+            now_et=datetime(2026, 3, 12, 9, 25, tzinfo=ET),
+        )
+
+        self.assertEqual(latest["ticker"].tolist(), ["AAA"])

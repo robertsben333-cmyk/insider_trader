@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -29,6 +30,7 @@ def load_signal_candidates(
     *,
     budget_config: TradingBudgetConfig,
     execution_policy: ExecutionPolicy,
+    now_et: datetime | None = None,
 ) -> list[SignalCandidate]:
     if not snapshot_path.exists():
         return []
@@ -43,6 +45,7 @@ def load_signal_candidates(
         return []
 
     buy_cutoff = parse_time_hhmm(execution_policy.buy_cutoff_time)
+    current_et = now_et.astimezone(ET) if now_et is not None else None
     out: list[SignalCandidate] = []
     for row in df.to_dict("records"):
         ticker = str(row.get("ticker", "") or "").strip().upper()
@@ -55,6 +58,9 @@ def load_signal_candidates(
         except ValueError:
             continue
         intended_entry = intended_entry_from_score(scored_utc)
+        expires_at = candidate_expiry_datetime(intended_entry, buy_cutoff)
+        if current_et is not None and expires_at < current_et:
+            continue
         scored_et = scored_utc.astimezone(ET)
         advised_alloc = _to_float(row.get("advised_allocation_fraction"))
         if not pd.notna(advised_alloc):
@@ -76,7 +82,7 @@ def load_signal_candidates(
                 ticker=ticker,
                 scored_at=scored_at_raw,
                 intended_entry_at=intended_entry.isoformat(),
-                expires_at=candidate_expiry_datetime(intended_entry, buy_cutoff).isoformat(),
+                expires_at=expires_at.isoformat(),
                 sleeve_id=sleeve_id_for_trade_day(
                     intended_entry.date(),
                     budget_config.anchor_date(),

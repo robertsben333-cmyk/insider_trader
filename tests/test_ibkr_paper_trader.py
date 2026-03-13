@@ -92,6 +92,32 @@ class IbkrPaperTraderTests(unittest.TestCase):
             datetime(2026, 3, 2, 9, 30, tzinfo=ET).isoformat(),
         )
 
+    def test_signal_intake_skips_expired_snapshot_candidates(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "latest_alert_candidates.csv"
+            pd.DataFrame(
+                [
+                    {
+                        "scored_at": "2026-02-25 17:01:09",
+                        "event_key": "VEEE|2026-02-23",
+                        "ticker": "VEEE",
+                        "score_1d": 0.88,
+                        "pred_mean4": 0.88,
+                        "estimated_decile_score": 0.94,
+                        "advised_allocation_fraction": 0.4,
+                        "buy_price": 0.4463,
+                        "is_tradable": 1,
+                    }
+                ]
+            ).to_csv(path, index=False)
+            candidates = load_signal_candidates(
+                path,
+                budget_config=TRADING_BUDGET,
+                execution_policy=EXECUTION_POLICY,
+                now_et=datetime(2026, 3, 12, 10, 0, tzinfo=ET),
+            )
+        self.assertEqual(candidates, [])
+
     def test_state_store_round_trip(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             state_path = Path(tmpdir) / "state.json"
@@ -646,7 +672,7 @@ class IbkrPaperTraderTests(unittest.TestCase):
                 ]
             )
 
-            trader._ingest_signals(snapshot)
+            trader._ingest_signals(snapshot, datetime(2026, 3, 2, 9, 20, tzinfo=ET))
 
         self.assertEqual(len(snapshot.candidates), 2)
         self.assertEqual(snapshot.candidates[0].status, "expired")
