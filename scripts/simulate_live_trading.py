@@ -20,6 +20,7 @@ import csv
 import json
 import math
 import os
+import time
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -71,28 +72,44 @@ def _aggs_to_dicts(aggs: Any) -> list[dict]:
     ]
 
 
+_last_api_call: float = 0.0
+_API_MIN_INTERVAL = 0.5  # 2 calls/sec — conservative for paid tier
+
+
 def fetch_day_bars(
     client: RESTClient, cache_dir: Path, ticker: str, from_d: date, to_d: date
 ) -> list[dict]:
+    global _last_api_call
     path = cache_dir / f"{ticker}_lkbk_{from_d:%Y-%m-%d}_{to_d:%Y-%m-%d}.json"
     cached = _json_load(path)
-    if cached is not None:
+    if cached:  # skip empty cached results — may have been a transient API failure
         return cached
-    try:
-        aggs = client.get_aggs(
-            ticker=ticker,
-            multiplier=1,
-            timespan="day",
-            from_=from_d,
-            to=to_d,
-            adjusted=True,
-            sort="asc",
-            limit=50000,
-        )
-        bars = _aggs_to_dicts(aggs)
-    except Exception:
-        bars = []
-    _json_save(path, bars)
+    # Rate limit
+    elapsed = time.monotonic() - _last_api_call
+    if elapsed < _API_MIN_INTERVAL:
+        time.sleep(_API_MIN_INTERVAL - elapsed)
+    _last_api_call = time.monotonic()
+    bars: list[dict] = []
+    for attempt in range(4):
+        try:
+            aggs = client.get_aggs(
+                ticker=ticker,
+                multiplier=1,
+                timespan="day",
+                from_=from_d,
+                to=to_d,
+                adjusted=True,
+                sort="asc",
+                limit=50000,
+            )
+            bars = _aggs_to_dicts(aggs)
+            break
+        except Exception:
+            wait = 15 * (2 ** attempt)
+            print(f"    fetch_day_bars({ticker}) attempt {attempt+1} failed — retrying in {wait}s")
+            time.sleep(wait)
+    if bars:  # only cache successful (non-empty) results
+        _json_save(path, bars)
     return bars
 
 
@@ -365,11 +382,12 @@ def main() -> None:
             if pos.sleeve_id != sleeve_id or pos.exit_date > entry_date:
                 still_open.append(pos)
                 continue
-            # Fetch exit price
+            # Fetch exit price — use a fresh range anchored at exit_date so we
+            # don't serve stale pre-exit-date cache files.
             bars = fetch_day_bars(
                 client, cache_dir, pos.ticker,
-                pos.exit_date - timedelta(days=5),
-                pos.exit_date + timedelta(days=5),
+                pos.exit_date,
+                pos.exit_date + timedelta(days=10),
             )
             exit_result = get_open_on_or_after(bars, pos.exit_date)
             if exit_result is None:
@@ -503,7 +521,7 @@ def main() -> None:
         sleeve = sleeves[pos.sleeve_id]
         bars = fetch_day_bars(
             client, cache_dir, pos.ticker,
-            pos.exit_date - timedelta(days=5),
+            pos.exit_date,
             pos.exit_date + timedelta(days=10),
         )
         exit_result = get_open_on_or_after(bars, pos.exit_date)

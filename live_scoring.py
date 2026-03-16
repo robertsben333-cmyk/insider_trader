@@ -121,6 +121,35 @@ class AlpacaMarketDataClient:
         except Exception:
             pass
         return None
+
+    def get_bar_close(self, symbol: str, bar_date: date) -> float | None:
+        """Return the closing price for a specific calendar date. Returns None on any failure."""
+        if _os.environ.get("ALPACA_SUPPLEMENT_ENABLED", "true").lower() in ("false", "0", "no"):
+            return None
+        if not self._bucket.consume():
+            return None
+        date_str = bar_date.strftime("%Y-%m-%d")
+        end_str = (bar_date + timedelta(days=1)).strftime("%Y-%m-%d")
+        url = (
+            f"{self._BASE_URL}/v2/stocks/{symbol.upper()}/bars"
+            f"?timeframe=1Day&start={date_str}&end={end_str}&limit=1&feed={self._data_feed}"
+        )
+        req = _urllib_request.Request(
+            url,
+            headers={
+                "APCA-API-KEY-ID": self._api_key,
+                "APCA-API-SECRET-KEY": self._api_secret,
+            },
+        )
+        try:
+            with _urllib_request.urlopen(req, timeout=self._timeout) as resp:
+                data = _json.loads(resp.read())
+            bars = data.get("bars") or []
+            if bars:
+                return float(bars[0]["c"])
+        except Exception:
+            pass
+        return None
 # ── End Alpaca supplement ────────────────────────────────────────────────────
 
 from polygon import RESTClient
@@ -909,6 +938,10 @@ def enrich_pending_with_market_data(
                 ticker,
                 buy_date - timedelta(days=1),
             )
+            if prev_close_cache[prev_close_key] is None and _alpaca_client is not None:
+                prev_close_cache[prev_close_key] = _alpaca_client.get_bar_close(
+                    ticker, buy_date - timedelta(days=1)
+                )
         prev_close = prev_close_cache[prev_close_key]
         prev_close_col.append(float(prev_close) if prev_close is not None else np.nan)
         if (
@@ -1528,7 +1561,13 @@ def update_alert_candidate_exports(
     export_df: pd.DataFrame,
     logger: logging.Logger,
 ) -> None:
-    latest = filter_active_alert_candidates(export_df)
+    old_latest = read_csv_or_empty(latest_path, ALERT_EXPORT_COLUMNS)
+    if export_df.empty:
+        merged = old_latest
+    else:
+        merged = pd.concat([old_latest, export_df], ignore_index=True)
+        merged = merged.drop_duplicates(subset=["event_key", "scored_at"], keep="last")
+    latest = filter_active_alert_candidates(merged)
     latest_path.parent.mkdir(parents=True, exist_ok=True)
     latest.to_csv(latest_path, index=False)
     logger.info("Alert snapshot updated -> %s (rows=%d)", latest_path, len(latest))
