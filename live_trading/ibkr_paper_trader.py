@@ -115,6 +115,7 @@ class IbkrPaperTrader:
         state.metadata["last_account_snapshot"] = asdict(self.broker.get_account_snapshot())
 
         self._reconcile_orders_and_fills(state)
+        self._reconcile_lots_with_broker_positions(state)
         self._refresh_sleeve_equity(state)
         self._ingest_signals(state, now_et)
         self._reconcile_today_open_candidates_with_snapshot(state, now_et)
@@ -1265,6 +1266,48 @@ class IbkrPaperTrader:
                 self._finalize_cancelled_order(state, order, broker_order.status)
             elif broker_order.status == "Filled" or order.filled_quantity >= order.quantity:
                 self._finalize_filled_order(state, order)
+
+    def _reconcile_lots_with_broker_positions(self, state: TraderStateSnapshot) -> None:
+        """Close state lots that no longer exist in the broker (e.g. after an account reset).
+
+        Without this, overdue SELL orders get submitted for phantom positions, which the
+        broker executes as short sells.
+        """
+        try:
+            broker_positions = {pos.symbol.upper(): pos.quantity for pos in self.broker.get_positions()}
+        except Exception:
+            self.logger.warning("_reconcile_lots_with_broker_positions: could not fetch positions; skipping.")
+            return
+
+        for lot in state.lots:
+            if lot.status != "open" or lot.quantity <= 0:
+                continue
+            broker_qty = broker_positions.get(lot.ticker.upper(), 0)
+            if broker_qty >= lot.quantity:
+                continue
+            # Broker holds fewer shares than the state believes — treat the gap as closed.
+            gap = lot.quantity - broker_qty
+            self.logger.warning(
+                "Lot %s (%s): state qty=%d but broker qty=%d; closing gap of %d shares to avoid phantom SELL.",
+                lot.lot_id, lot.ticker, lot.quantity, broker_qty, gap,
+            )
+            lot.quantity = broker_qty
+            if lot.quantity <= 0:
+                lot.quantity = 0
+                lot.status = "closed"
+                planned = next((p for p in state.planned_exits if p.lot_id == lot.lot_id), None)
+                if planned is not None and planned.status != "filled":
+                    planned.status = "filled"
+            self.store.append_journal(
+                "lot_reconciled_with_broker",
+                {
+                    "lot_id": lot.lot_id,
+                    "ticker": lot.ticker,
+                    "state_qty_before": lot.quantity + gap,
+                    "broker_qty": broker_qty,
+                    "gap_closed": gap,
+                },
+            )
 
     def _apply_fill(self, state: TraderStateSnapshot, fill: BrokerFillView) -> None:
         order = self._find_order_by_broker_ref(state, fill.broker_order_id, fill.order_ref)
