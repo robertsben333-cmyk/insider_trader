@@ -9,6 +9,7 @@ try:
     from alpaca.trading.client import TradingClient
     from alpaca.trading.requests import (
         GetOrdersRequest,
+        LimitOrderRequest,
         MarketOrderRequest,
     )
     from alpaca.trading.enums import OrderSide, QueryOrderStatus, TimeInForce
@@ -157,18 +158,29 @@ class AlpacaBrokerAdapter:
 
     def place_order(self, request: BrokerOrderRequest) -> BrokerOrderView:
         side = OrderSide.BUY if request.side.upper() == "BUY" else OrderSide.SELL
-        if request.outside_rth:
+        order_type = str(request.order_type or "LIMIT").upper()
+        if request.outside_rth and order_type != "LIMIT":
             raise ValueError(
-                "outside_rth orders are disabled for Alpaca. "
-                "Queue signals for the next regular session open instead."
+                "Alpaca extended-hours orders must be DAY limit orders."
             )
-        req = MarketOrderRequest(
-            symbol=request.symbol.upper(),
-            qty=request.quantity,
-            side=side,
-            time_in_force=TimeInForce.DAY,
-            client_order_id=request.order_ref or None,
-        )
+        if order_type == "MARKET":
+            req = MarketOrderRequest(
+                symbol=request.symbol.upper(),
+                qty=request.quantity,
+                side=side,
+                time_in_force=TimeInForce.DAY,
+                client_order_id=request.order_ref or None,
+            )
+        else:
+            req = LimitOrderRequest(
+                symbol=request.symbol.upper(),
+                qty=request.quantity,
+                side=side,
+                time_in_force=TimeInForce.DAY,
+                limit_price=float(request.limit_price),
+                extended_hours=bool(request.outside_rth),
+                client_order_id=request.order_ref or None,
+            )
         order = self._trading_client.submit_order(req)
         uuid = str(getattr(order, "id", "") or "")
         order_int = self._register_order(uuid)
@@ -185,7 +197,7 @@ class AlpacaBrokerAdapter:
             remaining_quantity=max(0, int(request.quantity) - filled_qty),
             status=status_str,
             placed_at=datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
-            order_type="MARKET",
+            order_type=order_type,
         )
 
     def cancel_order(self, broker_order_id: int) -> None:

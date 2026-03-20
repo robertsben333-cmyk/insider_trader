@@ -58,7 +58,19 @@ from live_trading.trader_state import (
 
 
 TERMINAL_CANDIDATE_STATUSES = {"expired", "rejected", "filled"}
-CANCELLED_ORDER_STATUSES = {"Cancelled", "ApiCancelled", "Inactive"}
+TERMINAL_CANCELLED_ORDER_STATUSES = {
+    "cancelled",
+    "canceled",
+    "apicancelled",
+    "inactive",
+    "expired",
+    "rejected",
+    "done_for_day",
+}
+
+
+def _is_terminal_cancelled_order_status(status: str) -> bool:
+    return str(status or "").strip().lower() in TERMINAL_CANCELLED_ORDER_STATUSES
 
 
 def setup_logger() -> logging.Logger:
@@ -1262,7 +1274,7 @@ class IbkrPaperTrader:
                 continue
             order.broker_status = broker_order.status
             order.filled_quantity = broker_order.filled_quantity
-            if broker_order.status in CANCELLED_ORDER_STATUSES:
+            if _is_terminal_cancelled_order_status(broker_order.status):
                 self._finalize_cancelled_order(state, order, broker_order.status)
             elif broker_order.status == "Filled" or order.filled_quantity >= order.quantity:
                 self._finalize_filled_order(state, order)

@@ -8,7 +8,7 @@ import unittest
 
 import pandas as pd
 
-from live_trading.broker import DryRunBrokerAdapter, QuoteSnapshot
+from live_trading.broker import BrokerOrderView, DryRunBrokerAdapter, QuoteSnapshot
 from live_trading.ibkr_paper_trader import IbkrPaperTrader
 from live_trading.market_calendar import (
     ET,
@@ -18,7 +18,16 @@ from live_trading.market_calendar import (
 )
 from live_trading.signal_intake import load_signal_candidates
 from live_trading.strategy_settings import EXECUTION_POLICY, TRADING_BUDGET
-from live_trading.trader_state import FillEvent, PositionLot, SignalCandidate, SleeveState, StateStore, TraderStateSnapshot
+from live_trading.trader_state import (
+    FillEvent,
+    PendingOrder,
+    PlannedExit,
+    PositionLot,
+    SignalCandidate,
+    SleeveState,
+    StateStore,
+    TraderStateSnapshot,
+)
 
 
 class IbkrPaperTraderTests(unittest.TestCase):
@@ -962,6 +971,92 @@ class IbkrPaperTraderTests(unittest.TestCase):
         self.assertEqual(candidate_lot.entry_quantity, 8)
         self.assertEqual(candidate_lot.quantity, 8)
         self.assertEqual(candidate_lot.entry_value, 800.0)
+
+    def test_reconcile_orders_handles_lowercase_canceled_status_for_exit_orders(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            broker = DryRunBrokerAdapter()
+            broker.connect()
+
+            trader = IbkrPaperTrader(
+                broker=broker,
+                store=StateStore(Path(tmpdir) / "state.json", Path(tmpdir) / "journal.jsonl"),
+                alert_snapshot_path=Path(tmpdir) / "missing.csv",
+                signal_archive_path=Path(tmpdir) / "archive.csv",
+                logger=logging.getLogger("test_ibkr_paper_trader"),
+            )
+            snapshot = TraderStateSnapshot(
+                sleeves=[
+                    SleeveState(
+                        sleeve_id="sleeve_0",
+                        starting_cash=1000.0,
+                        cash_balance=1000.0,
+                        last_equity=1000.0,
+                    )
+                ],
+                lots=[
+                    PositionLot(
+                        lot_id="lot_old",
+                        candidate_id="AAA|old",
+                        ticker="AAA",
+                        sleeve_id="sleeve_0",
+                        entry_order_id="ord_old",
+                        opened_at=datetime(2026, 3, 2, 10, 0, tzinfo=ET).isoformat(),
+                        due_exit_at=datetime(2026, 3, 4, 9, 30, tzinfo=ET).isoformat(),
+                        entry_quantity=10,
+                        quantity=10,
+                        entry_value=1000.0,
+                        entry_estimated_decile_score=0.88,
+                        entry_trade_day="2026-03-02",
+                        active_exit_order_id="ord_exit",
+                    )
+                ],
+                planned_exits=[
+                    PlannedExit(
+                        exit_id="exit_1",
+                        lot_id="lot_old",
+                        ticker="AAA",
+                        sleeve_id="sleeve_0",
+                        due_at=datetime(2026, 3, 4, 9, 30, tzinfo=ET).isoformat(),
+                        status="submitted",
+                        last_order_id="ord_exit",
+                    )
+                ],
+                pending_orders=[
+                    PendingOrder(
+                        local_order_id="ord_exit",
+                        kind="exit",
+                        side="SELL",
+                        ticker="AAA",
+                        sleeve_id="sleeve_0",
+                        quantity=10,
+                        limit_price=99.5,
+                        placed_at=datetime(2026, 3, 4, 9, 30, tzinfo=ET).isoformat(),
+                        status="submitted",
+                        broker_order_id=123,
+                        lot_id="lot_old",
+                    )
+                ],
+            )
+            broker._orders[123] = BrokerOrderView(
+                broker_order_id=123,
+                order_ref="ord_exit",
+                symbol="AAA",
+                side="SELL",
+                quantity=10,
+                limit_price=99.5,
+                filled_quantity=0,
+                remaining_quantity=10,
+                status="canceled",
+                placed_at=datetime(2026, 3, 4, 9, 30, tzinfo=ET).isoformat(),
+            )
+
+            trader._reconcile_orders_and_fills(snapshot)
+
+        order = snapshot.pending_orders[0]
+        lot = snapshot.lots[0]
+        self.assertEqual(order.status, "cancelled")
+        self.assertEqual(order.broker_status, "canceled")
+        self.assertIsNone(lot.active_exit_order_id)
 
 
 class AlpacaConfigTests(unittest.TestCase):

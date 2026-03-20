@@ -264,7 +264,7 @@ ALPACA_CONFIG = AlpacaConfig(
 )
 
 ALPACA_LIVE_PATHS = AlpacaLivePaths(
-    alert_snapshot_file="live/data/vm_sync/latest_alert_candidates.csv",  # pulled from Oracle VM
+    alert_snapshot_file="live/data/latest_alert_candidates.csv",
     trader_state_dir="live/data/alpaca_trader_state",
     trader_state_file="live/data/alpaca_trader_state/alpaca_trader_state.json",
     trader_journal_file="live/data/alpaca_trader_state/alpaca_trader_journal.jsonl",

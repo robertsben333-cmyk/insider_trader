@@ -163,18 +163,56 @@ class TestAlpacaBrokerAdapterPlaceOrder(TestCase):
         adapter._trading_client.submit_order = capture_order
         broker_req = BrokerOrderRequest(
             order_ref="r1", symbol="AAPL", side="BUY",
-            quantity=5, limit_price=150.0, outside_rth=False,
+            quantity=5, limit_price=150.0, order_type="MARKET", outside_rth=False,
         )
         view = adapter.place_order(broker_req)
         self.assertIsInstance(captured[0], AlpacaMarketOrder)
         self.assertFalse(bool(captured[0].extended_hours))
         self.assertEqual(view.order_type, "MARKET")
 
-    def test_outside_rth_orders_are_rejected(self) -> None:
+    def test_limit_orders_preserve_limit_type(self) -> None:
+        from alpaca.trading.requests import LimitOrderRequest as AlpacaLimitOrder
+        adapter = self._connected_adapter()
+        captured: list = []
+
+        def capture_order(req):
+            captured.append(req)
+            return self._mock_order()
+
+        adapter._trading_client.submit_order = capture_order
+        broker_req = BrokerOrderRequest(
+            order_ref="r1", symbol="AAPL", side="SELL",
+            quantity=5, limit_price=150.0, order_type="LIMIT", outside_rth=False,
+        )
+        view = adapter.place_order(broker_req)
+        self.assertIsInstance(captured[0], AlpacaLimitOrder)
+        self.assertEqual(float(captured[0].limit_price), 150.0)
+        self.assertFalse(bool(captured[0].extended_hours))
+        self.assertEqual(view.order_type, "LIMIT")
+
+    def test_outside_rth_limit_orders_are_supported(self) -> None:
+        from alpaca.trading.requests import LimitOrderRequest as AlpacaLimitOrder
+        adapter = self._connected_adapter()
+        captured: list = []
+
+        def capture_order(req):
+            captured.append(req)
+            return self._mock_order()
+
+        adapter._trading_client.submit_order = capture_order
+        broker_req = BrokerOrderRequest(
+            order_ref="r1", symbol="AAPL", side="BUY",
+            quantity=5, limit_price=150.0, order_type="LIMIT", outside_rth=True,
+        )
+        adapter.place_order(broker_req)
+        self.assertIsInstance(captured[0], AlpacaLimitOrder)
+        self.assertTrue(bool(captured[0].extended_hours))
+
+    def test_outside_rth_market_orders_are_rejected(self) -> None:
         adapter = self._connected_adapter()
         broker_req = BrokerOrderRequest(
             order_ref="r1", symbol="AAPL", side="BUY",
-            quantity=5, limit_price=150.0, outside_rth=True,
+            quantity=5, limit_price=150.0, order_type="MARKET", outside_rth=True,
         )
-        with self.assertRaisesRegex(ValueError, "outside_rth orders are disabled"):
+        with self.assertRaisesRegex(ValueError, "extended-hours orders must be DAY limit orders"):
             adapter.place_order(broker_req)
