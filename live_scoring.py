@@ -89,16 +89,7 @@ class AlpacaMarketDataClient:
         self._bucket = _TokenBucket(rate_limit_per_minute)
         self._timeout = 2.0
 
-    def get_latest_price(self, symbol: str) -> float | None:
-        """Return latest mid/ask/bid price. Returns None on any failure."""
-        if _os.environ.get("ALPACA_SUPPLEMENT_ENABLED", "true").lower() in ("false", "0", "no"):
-            return None
-        if not self._bucket.consume():
-            return None
-        url = (
-            f"{self._BASE_URL}/v2/stocks/{symbol.upper()}/quotes/latest"
-            f"?feed={self._data_feed}"
-        )
+    def _request_json(self, url: str) -> dict:
         req = _urllib_request.Request(
             url,
             headers={
@@ -106,9 +97,19 @@ class AlpacaMarketDataClient:
                 "APCA-API-SECRET-KEY": self._api_secret,
             },
         )
+        with _urllib_request.urlopen(req, timeout=self._timeout) as resp:
+            return _json.loads(resp.read())
+
+    def get_latest_price(self, symbol: str) -> float | None:
+        """Return latest mid/ask/bid price, falling back to latest trade."""
+        if _os.environ.get("ALPACA_SUPPLEMENT_ENABLED", "true").lower() in ("false", "0", "no"):
+            return None
+        if not self._bucket.consume():
+            return None
         try:
-            with _urllib_request.urlopen(req, timeout=self._timeout) as resp:
-                data = _json.loads(resp.read())
+            data = self._request_json(
+                f"{self._BASE_URL}/v2/stocks/{symbol.upper()}/quotes/latest?feed={self._data_feed}"
+            )
             quote = data.get("quote") or {}
             ask = quote.get("ap")
             bid = quote.get("bp")
@@ -120,36 +121,41 @@ class AlpacaMarketDataClient:
                 return float(bid)
         except Exception:
             pass
+        try:
+            data = self._request_json(
+                f"{self._BASE_URL}/v2/stocks/{symbol.upper()}/trades/latest?feed={self._data_feed}"
+            )
+            trade = data.get("trade") or {}
+            price = trade.get("p")
+            if price:
+                return float(price)
+        except Exception:
+            pass
         return None
 
-    def get_bar_close(self, symbol: str, bar_date: date) -> float | None:
-        """Return the closing price for a specific calendar date. Returns None on any failure."""
+    def get_latest_available_close(self, symbol: str, as_of_date: date) -> float | None:
+        """Return the latest daily close at or before as_of_date."""
         if _os.environ.get("ALPACA_SUPPLEMENT_ENABLED", "true").lower() in ("false", "0", "no"):
             return None
         if not self._bucket.consume():
             return None
-        date_str = bar_date.strftime("%Y-%m-%d")
-        end_str = (bar_date + timedelta(days=1)).strftime("%Y-%m-%d")
-        url = (
-            f"{self._BASE_URL}/v2/stocks/{symbol.upper()}/bars"
-            f"?timeframe=1Day&start={date_str}&end={end_str}&limit=1&feed={self._data_feed}"
-        )
-        req = _urllib_request.Request(
-            url,
-            headers={
-                "APCA-API-KEY-ID": self._api_key,
-                "APCA-API-SECRET-KEY": self._api_secret,
-            },
-        )
         try:
-            with _urllib_request.urlopen(req, timeout=self._timeout) as resp:
-                data = _json.loads(resp.read())
+            start_str = (as_of_date - timedelta(days=30)).strftime("%Y-%m-%d")
+            end_str = (as_of_date + timedelta(days=1)).strftime("%Y-%m-%d")
+            data = self._request_json(
+                f"{self._BASE_URL}/v2/stocks/{symbol.upper()}/bars"
+                f"?timeframe=1Day&start={start_str}&end={end_str}&limit=100&feed={self._data_feed}"
+            )
             bars = data.get("bars") or []
             if bars:
-                return float(bars[0]["c"])
+                return float(bars[-1]["c"])
         except Exception:
             pass
         return None
+
+    def get_bar_close(self, symbol: str, bar_date: date) -> float | None:
+        """Backward-compatible wrapper for callers/tests expecting the old method name."""
+        return self.get_latest_available_close(symbol, bar_date)
 # ── End Alpaca supplement ────────────────────────────────────────────────────
 
 from polygon import RESTClient
@@ -613,10 +619,21 @@ def lookback_cache_path(cache_dir: Path, ticker: str, from_d: date, to_d: date) 
     return cache_dir / f"{ticker}_lkbk_{from_d:%Y-%m-%d}_{to_d:%Y-%m-%d}.json"
 
 
+def _should_refresh_empty_minute_cache(target_date: date, *, now_et: datetime | None = None) -> bool:
+    current_et = now_et.astimezone(ET) if now_et is not None else datetime.now(ET)
+    market_open = current_et.replace(hour=MARKET_OPEN_H, minute=MARKET_OPEN_M, second=0, microsecond=0)
+    return target_date >= current_et.date() and current_et >= market_open
+
+
+def _should_refresh_empty_daily_cache(to_d: date, *, today_et: date | None = None) -> bool:
+    today = today_et or datetime.now(ET).date()
+    return to_d >= today - timedelta(days=3)
+
+
 def fetch_minute_bars(client: RESTClient, cache_dir: Path, ticker: str, target_date: date) -> List[dict]:
     path = minute_cache_path(cache_dir, ticker, target_date)
     cached = _json_load(path)
-    if cached is not None:
+    if cached is not None and (len(cached) > 0 or not _should_refresh_empty_minute_cache(target_date)):
         return cached
     try:
         aggs = client.get_aggs(
@@ -692,8 +709,7 @@ def fetch_latest_available_close(
     path = lookback_cache_path(cache_dir, ticker, from_d, to_d)
 
     bars = _json_load(path)
-    # Empty caches for the current/future boundary can be stale; refresh once.
-    if bars is not None and len(bars) == 0 and to_d >= today_et:
+    if bars is not None and len(bars) == 0 and _should_refresh_empty_daily_cache(to_d, today_et=today_et):
         bars = None
 
     if bars is None:
@@ -797,6 +813,9 @@ def enrich_pending_with_market_data(
     fallback_same_day_last = 0
     fallback_latest_daily = 0
     unresolved_buy_price = 0
+    unresolved_prev_close = 0
+    unresolved_step_up = 0
+    unresolved_reasons: list[str] = []
 
     # ── Parallel prefetch: fire all uncached API calls before the row loop ──
     _tls = threading.local()
@@ -939,10 +958,12 @@ def enrich_pending_with_market_data(
                 buy_date - timedelta(days=1),
             )
             if prev_close_cache[prev_close_key] is None and _alpaca_client is not None:
-                prev_close_cache[prev_close_key] = _alpaca_client.get_bar_close(
+                prev_close_cache[prev_close_key] = _alpaca_client.get_latest_available_close(
                     ticker, buy_date - timedelta(days=1)
                 )
         prev_close = prev_close_cache[prev_close_key]
+        if prev_close is None:
+            unresolved_prev_close += 1
         prev_close_col.append(float(prev_close) if prev_close is not None else np.nan)
         if (
             buy_price is not None
@@ -954,6 +975,13 @@ def enrich_pending_with_market_data(
         ):
             step_up_col.append(((float(buy_price) / float(prev_close)) - 1.0) * 100.0)
         else:
+            unresolved_step_up += 1
+            reasons: list[str] = []
+            if buy_price is None or not np.isfinite(float(buy_price)) or float(buy_price) <= 0:
+                reasons.append("buy_price")
+            if prev_close is None or not np.isfinite(float(prev_close)) or float(prev_close) <= 0:
+                reasons.append("prev_close")
+            unresolved_reasons.append(f"{ticker}:{'+'.join(reasons) if reasons else 'unknown'}")
             step_up_col.append(np.nan)
 
         td = trade_ts.date()  # type: ignore[union-attr]
@@ -972,6 +1000,16 @@ def enrich_pending_with_market_data(
         fallback_latest_daily,
         unresolved_buy_price,
     )
+    if unresolved_step_up:
+        sample = ", ".join(unresolved_reasons[:10])
+        logger.warning(
+            "Step-up unresolved for %d/%d rows (missing buy_price=%d, missing prev_close=%d). Sample=%s",
+            unresolved_step_up,
+            total_rows,
+            unresolved_buy_price,
+            unresolved_prev_close,
+            sample,
+        )
 
     out["buy_datetime"] = buy_dt_col
     out["buy_price"] = buy_px_col

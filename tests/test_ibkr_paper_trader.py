@@ -127,6 +127,32 @@ class IbkrPaperTraderTests(unittest.TestCase):
             )
         self.assertEqual(candidates, [])
 
+    def test_signal_intake_recomputes_step_up_when_snapshot_column_is_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "latest_alert_candidates.csv"
+            pd.DataFrame(
+                [
+                    {
+                        "scored_at": "2026-03-12 13:20:00",
+                        "event_key": "AAA|2026-03-12",
+                        "ticker": "AAA",
+                        "estimated_decile_score": 0.95,
+                        "advised_allocation_fraction": 0.4,
+                        "score_1d": 1.1,
+                        "buy_price": 10.2,
+                        "prev_regular_close": 10.0,
+                        "is_tradable": 1,
+                    }
+                ]
+            ).to_csv(path, index=False)
+            candidates = load_signal_candidates(
+                path,
+                budget_config=TRADING_BUDGET,
+                execution_policy=EXECUTION_POLICY,
+            )
+        self.assertEqual(len(candidates), 1)
+        self.assertAlmostEqual(candidates[0].step_up_from_prev_close_pct or 0.0, 2.0)
+
     def test_state_store_round_trip(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             state_path = Path(tmpdir) / "state.json"

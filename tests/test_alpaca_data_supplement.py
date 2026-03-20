@@ -66,6 +66,17 @@ class AlpacaMarketDataClientTests(unittest.TestCase):
             price = client.get_latest_price("AAPL")
         self.assertIsNone(price)
 
+    def test_falls_back_to_latest_trade_when_quote_is_empty(self) -> None:
+        client = self._client()
+        quote_body = {"quote": {}}
+        trade_body = {"trade": {"p": 151.25}}
+        with patch(
+            "urllib.request.urlopen",
+            side_effect=[self._mock_response(quote_body), self._mock_response(trade_body)],
+        ):
+            price = client.get_latest_price("AAPL")
+        self.assertAlmostEqual(price, 151.25)  # type: ignore[arg-type]
+
     def test_returns_none_on_http_error(self) -> None:
         from urllib.error import HTTPError
         client = self._client()
@@ -89,6 +100,13 @@ class AlpacaMarketDataClientTests(unittest.TestCase):
                 price = client.get_latest_price("AAPL")
                 mock_url.assert_not_called()
         self.assertIsNone(price)
+
+    def test_latest_available_close_returns_last_bar_up_to_as_of_date(self) -> None:
+        client = self._client()
+        body = {"bars": [{"c": 99.0}, {"c": 101.5}]}
+        with patch("urllib.request.urlopen", return_value=self._mock_response(body)):
+            price = client.get_latest_available_close("AAPL", datetime(2026, 3, 16).date())
+        self.assertAlmostEqual(price, 101.5)  # type: ignore[arg-type]
 
 
 class LiveScoringRefreshTests(unittest.TestCase):
@@ -152,3 +170,37 @@ class LiveScoringRefreshTests(unittest.TestCase):
         )
 
         self.assertEqual(latest["ticker"].tolist(), ["AAA"])
+
+    def test_refresh_empty_minute_cache_only_after_open_for_today(self) -> None:
+        from live_scoring import _should_refresh_empty_minute_cache
+        from live_trading.market_calendar import ET
+
+        target_date = datetime(2026, 3, 12, 0, 0, tzinfo=ET).date()
+        self.assertFalse(
+            _should_refresh_empty_minute_cache(
+                target_date,
+                now_et=datetime(2026, 3, 12, 9, 20, tzinfo=ET),
+            )
+        )
+        self.assertTrue(
+            _should_refresh_empty_minute_cache(
+                target_date,
+                now_et=datetime(2026, 3, 12, 9, 35, tzinfo=ET),
+            )
+        )
+
+    def test_refresh_recent_empty_daily_cache_for_previous_close(self) -> None:
+        from live_scoring import _should_refresh_empty_daily_cache
+
+        self.assertTrue(
+            _should_refresh_empty_daily_cache(
+                datetime(2026, 3, 11).date(),
+                today_et=datetime(2026, 3, 12).date(),
+            )
+        )
+        self.assertFalse(
+            _should_refresh_empty_daily_cache(
+                datetime(2026, 3, 1).date(),
+                today_et=datetime(2026, 3, 12).date(),
+            )
+        )

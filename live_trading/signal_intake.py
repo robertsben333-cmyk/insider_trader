@@ -74,6 +74,14 @@ def load_signal_candidates(
         buy_price_hint = _to_float(row.get("buy_price"))
         prev_regular_close = _to_float(row.get("prev_regular_close"))
         step_up_from_prev_close_pct = _to_float(row.get("step_up_from_prev_close_pct"))
+        if (
+            not pd.notna(step_up_from_prev_close_pct)
+            and pd.notna(buy_price_hint)
+            and pd.notna(prev_regular_close)
+            and float(buy_price_hint) > 0
+            and float(prev_regular_close) > 0
+        ):
+            step_up_from_prev_close_pct = ((float(buy_price_hint) / float(prev_regular_close)) - 1.0) * 100.0
         entry_bucket = "intraday" if is_regular_trading_hours(scored_et) else "open"
         out.append(
             SignalCandidate(
