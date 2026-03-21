@@ -1,0 +1,48 @@
+{
+  "score_col": "prob_ensemble_calibrated",
+  "start_budget_usd": 10000.0,
+  "max_ticker_weight": 0.25,
+  "min_validation_trades": 20,
+  "best_threshold": 0.11631536746410098,
+  "validation": {
+    "split": "validation",
+    "threshold": 0.11631536746410098,
+    "candidate_rows": 116,
+    "candidate_days": 82,
+    "trades_executed": 59,
+    "start_budget_usd": 10000.0,
+    "end_budget_usd": 10954.455082281784,
+    "total_return_pct": 9.544550822817843,
+    "annualized_return_pct": 8.28595138356607,
+    "max_drawdown_pct": -12.473082407957282,
+    "win_rate_pct": 55.932203389830505,
+    "mean_trade_ret_pct": 0.7059125388031784,
+    "median_trade_ret_pct": 0.5589519650655017,
+    "avg_holding_days": 3.3089689265536726,
+    "target_hit_rate_pct": 33.89830508474576
+  },
+  "test": {
+    "split": "test",
+    "threshold": 0.11631536746410098,
+    "candidate_rows": 97,
+    "candidate_days": 65,
+    "trades_executed": 40,
+    "start_budget_usd": 10000.0,
+    "end_budget_usd": 10784.317336994936,
+    "total_return_pct": 7.843173369949374,
+    "annualized_return_pct": 5.948744927874783,
+    "max_drawdown_pct": -14.570104290241071,
+    "win_rate_pct": 55.00000000000001,
+    "mean_trade_ret_pct": 0.8536131278754961,
+    "median_trade_ret_pct": 1.1374792222135555,
+    "avg_holding_days": 3.371875,
+    "target_hit_rate_pct": 37.5
+  },
+  "notes": [
+    "Model fitting uses train only.",
+    "Threshold selection uses validation only.",
+    "Reported strategy performance should be read from the test section.",
+    "No slippage or commissions are applied.",
+    "Exit rule: +8% hit in the forward window exits at that day's close; otherwise exit at the last allowed close."
+  ]
+}
