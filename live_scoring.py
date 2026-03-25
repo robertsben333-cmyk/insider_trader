@@ -1551,6 +1551,8 @@ def build_alert_detail_rows(
     optional_cols = [
         "title",
         "scored_at",
+        "representative_transaction_date",
+        "transaction_date",
         "pred_mean4",
         "prev_regular_close",
         "step_up_from_prev_close_pct",
@@ -1636,14 +1638,22 @@ def filter_active_alert_candidates(
     buy_cutoff = parse_time_hhmm(EXECUTION_POLICY.buy_cutoff_time)
     keep_rows: list[dict[str, object]] = []
     for row in export_df.to_dict("records"):
-        scored_at_raw = str(row.get("scored_at", "") or "").strip()
-        if not scored_at_raw:
+        filing_raw = str(
+            row.get("representative_transaction_date")
+            or row.get("transaction_date")
+            or row.get("scored_at")
+            or ""
+        ).strip()
+        if not filing_raw:
             continue
         try:
-            scored_utc = parse_scored_at_utc(scored_at_raw)
+            filing_ts = pd.to_datetime(filing_raw, utc=True, errors="coerce")
+            if pd.isna(filing_ts):
+                raise ValueError(f"Unparseable filing timestamp: {filing_raw}")
+            filing_et = filing_ts.to_pydatetime().astimezone(ET)
         except ValueError:
             continue
-        intended_entry = intended_entry_from_score(scored_utc)
+        intended_entry = compute_buy_datetime(pd.Timestamp(filing_et))
         expires_at = candidate_expiry_datetime(intended_entry, buy_cutoff)
         if expires_at < current_et:
             continue

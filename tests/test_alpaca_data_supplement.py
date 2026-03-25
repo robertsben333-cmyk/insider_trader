@@ -157,16 +157,23 @@ class LiveScoringRefreshTests(unittest.TestCase):
                     "ticker": "VEEE",
                 },
                 {
-                    "scored_at": "2026-03-12 13:20:00",
-                    "event_key": "AAA|2026-03-12",
+                    "scored_at": "2026-03-25 13:20:00",
+                    "event_key": "AAA|2026-03-25",
                     "ticker": "AAA",
+                    "representative_transaction_date": "2026-03-25 13:20:00",
+                },
+                {
+                    "scored_at": "2026-03-25 14:02:05",
+                    "event_key": "OLD|2026-03-10",
+                    "ticker": "OLD",
+                    "representative_transaction_date": "2026-03-10 13:20:00",
                 },
             ]
         )
 
         latest = filter_active_alert_candidates(
             export_df,
-            now_et=datetime(2026, 3, 12, 9, 25, tzinfo=ET),
+            now_et=datetime(2026, 3, 25, 14, 30, tzinfo=ET),
         )
 
         self.assertEqual(latest["ticker"].tolist(), ["AAA"])
