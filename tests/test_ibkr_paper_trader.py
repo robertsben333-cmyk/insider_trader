@@ -9,7 +9,7 @@ import unittest
 import pandas as pd
 
 from live_trading.broker import BrokerOrderView, DryRunBrokerAdapter, QuoteSnapshot
-from live_trading.ibkr_paper_trader import IbkrPaperTrader
+from live_trading.ibkr_paper_trader import IbkrPaperTrader, target_cycle_seconds
 from live_trading.market_calendar import (
     ET,
     exit_at_tplus_open,
@@ -997,6 +997,170 @@ class IbkrPaperTraderTests(unittest.TestCase):
         self.assertEqual(candidate_lot.entry_quantity, 8)
         self.assertEqual(candidate_lot.quantity, 8)
         self.assertEqual(candidate_lot.entry_value, 800.0)
+
+    def test_due_exit_uses_market_order_after_grace_period(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            broker = DryRunBrokerAdapter()
+            broker.connect()
+            broker.set_quote(QuoteSnapshot(symbol="AAA", bid=99.5, ask=100.0, last=99.75))
+
+            trader = IbkrPaperTrader(
+                broker=broker,
+                store=StateStore(Path(tmpdir) / "state.json", Path(tmpdir) / "journal.jsonl"),
+                alert_snapshot_path=Path(tmpdir) / "missing.csv",
+                signal_archive_path=Path(tmpdir) / "archive.csv",
+                logger=logging.getLogger("test_ibkr_paper_trader"),
+            )
+            due_dt = datetime(2026, 3, 4, 9, 30, tzinfo=ET)
+            now_dt = datetime(2026, 3, 4, 9, 31, tzinfo=ET)
+            snapshot = TraderStateSnapshot(
+                sleeves=[SleeveState(sleeve_id="sleeve_0", starting_cash=1000.0, cash_balance=1000.0, last_equity=1000.0)],
+                lots=[
+                    PositionLot(
+                        lot_id="lot_1",
+                        candidate_id="AAA|2026-03-02",
+                        ticker="AAA",
+                        sleeve_id="sleeve_0",
+                        entry_order_id="ord_buy",
+                        opened_at=datetime(2026, 3, 2, 10, 0, tzinfo=ET).isoformat(),
+                        due_exit_at=due_dt.isoformat(),
+                        entry_quantity=10,
+                        quantity=10,
+                        entry_value=1000.0,
+                        entry_trade_day="2026-03-02",
+                    )
+                ],
+                planned_exits=[
+                    PlannedExit(
+                        exit_id="exit_1",
+                        lot_id="lot_1",
+                        ticker="AAA",
+                        sleeve_id="sleeve_0",
+                        due_at=due_dt.isoformat(),
+                    )
+                ],
+            )
+
+            trader._manage_exit_orders(snapshot, now_dt)
+
+        sell_order = next(row for row in snapshot.pending_orders if row.side == "SELL")
+        self.assertEqual(sell_order.order_type, "MARKET")
+        self.assertEqual(snapshot.planned_exits[0].status, "submitted")
+
+    def test_overdue_exit_cancels_stale_limit_before_market_resubmission(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            broker = DryRunBrokerAdapter()
+            broker.connect()
+            broker.set_quote(QuoteSnapshot(symbol="AAA", bid=99.5, ask=100.0, last=99.75))
+
+            trader = IbkrPaperTrader(
+                broker=broker,
+                store=StateStore(Path(tmpdir) / "state.json", Path(tmpdir) / "journal.jsonl"),
+                alert_snapshot_path=Path(tmpdir) / "missing.csv",
+                signal_archive_path=Path(tmpdir) / "archive.csv",
+                logger=logging.getLogger("test_ibkr_paper_trader"),
+            )
+            due_dt = datetime(2026, 3, 4, 9, 30, tzinfo=ET)
+            now_dt = datetime(2026, 3, 4, 9, 31, tzinfo=ET)
+            snapshot = TraderStateSnapshot(
+                sleeves=[SleeveState(sleeve_id="sleeve_0", starting_cash=1000.0, cash_balance=1000.0, last_equity=1000.0)],
+                lots=[
+                    PositionLot(
+                        lot_id="lot_1",
+                        candidate_id="AAA|2026-03-02",
+                        ticker="AAA",
+                        sleeve_id="sleeve_0",
+                        entry_order_id="ord_buy",
+                        opened_at=datetime(2026, 3, 2, 10, 0, tzinfo=ET).isoformat(),
+                        due_exit_at=due_dt.isoformat(),
+                        entry_quantity=10,
+                        quantity=10,
+                        entry_value=1000.0,
+                        entry_trade_day="2026-03-02",
+                        active_exit_order_id="ord_exit",
+                    )
+                ],
+                planned_exits=[
+                    PlannedExit(
+                        exit_id="exit_1",
+                        lot_id="lot_1",
+                        ticker="AAA",
+                        sleeve_id="sleeve_0",
+                        due_at=due_dt.isoformat(),
+                        status="submitted",
+                        last_order_id="ord_exit",
+                    )
+                ],
+                pending_orders=[
+                    PendingOrder(
+                        local_order_id="ord_exit",
+                        kind="exit",
+                        side="SELL",
+                        ticker="AAA",
+                        sleeve_id="sleeve_0",
+                        quantity=10,
+                        limit_price=99.0,
+                        placed_at=datetime(2026, 3, 4, 9, 30, tzinfo=ET).astimezone().isoformat(),
+                        status="submitted",
+                        order_type="LIMIT",
+                        broker_order_id=1,
+                        lot_id="lot_1",
+                    )
+                ],
+            )
+
+            trader._manage_exit_orders(snapshot, now_dt)
+
+        self.assertEqual(snapshot.pending_orders[0].status, "cancel_requested")
+        self.assertEqual(snapshot.pending_orders[0].broker_status, "overdue_exit_replace_with_market")
+        self.assertEqual(snapshot.lots[0].active_exit_order_id, "ord_exit")
+
+    def test_target_cycle_seconds_uses_open_auction_poll_window(self) -> None:
+        pre_open = datetime(2026, 3, 4, 9, 29, 30, tzinfo=ET)
+        after_window = datetime(2026, 3, 4, 9, 41, 0, tzinfo=ET)
+        regular_hours = datetime(2026, 3, 4, 10, 0, 0, tzinfo=ET)
+
+        self.assertEqual(target_cycle_seconds(pre_open, 30.0, EXECUTION_POLICY), float(EXECUTION_POLICY.open_auction_poll_seconds))
+        self.assertEqual(target_cycle_seconds(after_window, 30.0, EXECUTION_POLICY), float(EXECUTION_POLICY.open_order_poll_seconds))
+        self.assertEqual(target_cycle_seconds(regular_hours, 30.0, EXECUTION_POLICY), float(EXECUTION_POLICY.open_order_poll_seconds))
+
+    def test_rejected_candidate_is_not_reingested_after_archive(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "latest_alert_candidates.csv"
+            pd.DataFrame(
+                [
+                    {
+                        "scored_at": "2026-03-24 14:52:34",
+                        "event_key": "PICS|2026-03-23",
+                        "ticker": "PICS",
+                        "score_1d": 0.93,
+                        "pred_mean4": 0.93,
+                        "estimated_decile_score": 0.94,
+                        "advised_allocation_fraction": 0.35,
+                        "buy_price": 11.85,
+                        "is_tradable": 1,
+                    }
+                ]
+            ).to_csv(path, index=False)
+            trader = IbkrPaperTrader(
+                broker=DryRunBrokerAdapter(),
+                store=StateStore(Path(tmpdir) / "state.json", Path(tmpdir) / "journal.jsonl"),
+                alert_snapshot_path=path,
+                signal_archive_path=Path(tmpdir) / "archive.csv",
+                logger=logging.getLogger("test_ibkr_paper_trader"),
+            )
+            state = TraderStateSnapshot()
+            now_et = datetime(2026, 3, 24, 10, 52, 34, tzinfo=ET)
+
+            trader._ingest_signals(state, now_et)
+            self.assertEqual(len(state.candidates), 1)
+            trader._reject_candidate(state.candidates[0], "missing_step_up_from_prev_close_pct")
+            trader._archive_candidates(state)
+
+            trader._ingest_signals(state, now_et)
+
+        self.assertEqual(len(state.candidates), 0)
+        self.assertIn("PICS|2026-03-23|2026-03-24 14:52:34", state.metadata["terminal_candidate_ids"])
 
     def test_reconcile_orders_handles_lowercase_canceled_status_for_exit_orders(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

@@ -74,7 +74,7 @@ class TestAlpacaBrokerAdapterOrderIdMapping(TestCase):
         order.filled_qty = filled_qty
         return order
 
-    def test_place_order_assigns_sequential_int_ids(self) -> None:
+    def test_place_order_assigns_deterministic_int_ids(self) -> None:
         adapter = self._connected_adapter()
         adapter._trading_client.submit_order = MagicMock(side_effect=[
             self._mock_order("uuid-001"),
@@ -83,8 +83,14 @@ class TestAlpacaBrokerAdapterOrderIdMapping(TestCase):
         req = BrokerOrderRequest(order_ref="r1", symbol="AAPL", side="BUY", quantity=10, limit_price=150.0)
         view1 = adapter.place_order(req)
         view2 = adapter.place_order(req)
-        self.assertEqual(view1.broker_order_id, 1)
-        self.assertEqual(view2.broker_order_id, 2)
+        self.assertIsInstance(view1.broker_order_id, int)
+        self.assertIsInstance(view2.broker_order_id, int)
+        self.assertNotEqual(view1.broker_order_id, view2.broker_order_id)
+
+    def test_same_order_uuid_maps_to_same_int_across_adapters(self) -> None:
+        adapter_a = self._connected_adapter()
+        adapter_b = self._connected_adapter()
+        self.assertEqual(adapter_a._register_order("uuid-abc"), adapter_b._register_order("uuid-abc"))
 
     def test_cancel_order_resolves_correct_uuid(self) -> None:
         adapter = self._connected_adapter()

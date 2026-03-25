@@ -1,0 +1,36 @@
+{
+  "candidates": [],
+  "fills": [],
+  "lots": [],
+  "metadata": {
+    "initialized_at": "2026-03-11T09:45:56Z",
+    "last_account_snapshot": {
+      "account_id": "DRYRUN",
+      "available_funds": 0.0,
+      "net_liquidation": 0.0,
+      "total_cash_value": 0.0
+    },
+    "last_cycle_at": "2026-03-25T08:59:48.548728-04:00"
+  },
+  "pending_orders": [],
+  "planned_exits": [],
+  "sleeves": [
+    {
+      "cash_balance": 5000.0,
+      "last_equity": 5000.0,
+      "last_marked_at": "2026-03-25T12:59:48Z",
+      "realized_pnl": 0.0,
+      "sleeve_id": "sleeve_0",
+      "starting_cash": 5000.0
+    },
+    {
+      "cash_balance": 5000.0,
+      "last_equity": 5000.0,
+      "last_marked_at": "2026-03-25T12:59:48Z",
+      "realized_pnl": 0.0,
+      "sleeve_id": "sleeve_1",
+      "starting_cash": 5000.0
+    }
+  ],
+  "version": 1
+}

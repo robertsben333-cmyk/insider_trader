@@ -11,8 +11,8 @@ from dotenv import load_dotenv  # type: ignore[import-untyped]
 
 from live_trading.alpaca_broker import AlpacaBrokerAdapter
 from live_trading.broker import DryRunBrokerAdapter
-from live_trading.ibkr_paper_trader import IbkrPaperTrader
-from live_trading.market_calendar import ET, is_regular_trading_hours
+from live_trading.ibkr_paper_trader import IbkrPaperTrader, target_cycle_seconds
+from live_trading.market_calendar import ET
 from live_trading.strategy_settings import (
     ALPACA_CONFIG,
     ALPACA_LIVE_PATHS,
@@ -107,11 +107,7 @@ def main() -> None:
             if args.once:
                 break
             elapsed = time.time() - start
-            target_cycle = (
-                EXECUTION_POLICY.open_order_poll_seconds
-                if is_regular_trading_hours(now_et)
-                else float(args.cycle_seconds)
-            )
+            target_cycle = target_cycle_seconds(now_et, float(args.cycle_seconds), EXECUTION_POLICY)
             sleep_seconds = max(0.0, float(target_cycle) - elapsed)
             logger.info("Cycle complete. Sleeping %.1f sec", sleep_seconds)
             time.sleep(sleep_seconds)

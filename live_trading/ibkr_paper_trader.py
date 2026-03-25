@@ -95,6 +95,19 @@ def _parse_fill_timestamp(raw: str) -> datetime:
     return ts.to_pydatetime()
 
 
+def target_cycle_seconds(now_et: datetime, fallback_cycle_seconds: float, execution_policy: ExecutionPolicy) -> float:
+    if is_regular_trading_hours(now_et):
+        return float(execution_policy.open_order_poll_seconds)
+    if now_et.weekday() >= 5:
+        return float(fallback_cycle_seconds)
+    market_open = market_open_datetime(now_et.date())
+    fast_window_start = market_open - timedelta(minutes=1)
+    fast_window_end = market_open + timedelta(minutes=execution_policy.open_auction_window_minutes)
+    if fast_window_start <= now_et < fast_window_end:
+        return float(execution_policy.open_auction_poll_seconds)
+    return float(fallback_cycle_seconds)
+
+
 class IbkrPaperTrader:
     def __init__(
         self,
@@ -195,6 +208,7 @@ class IbkrPaperTrader:
 
     def _ingest_signals(self, state: TraderStateSnapshot, now_et: datetime) -> None:
         known = {c.candidate_id for c in state.candidates}
+        known.update(self._terminal_candidate_ids(state))
 
         # Index active (non-terminal) candidates by (ticker, intended_entry_date) for same-day dedup
         active_by_key: dict[tuple[str, str], SignalCandidate] = {}
@@ -371,10 +385,14 @@ class IbkrPaperTrader:
                 continue
             current_order = self._find_order(state, lot.active_exit_order_id)
             if current_order is not None:
-                if self._order_is_stale(current_order, near_cutoff):
+                if self._should_replace_exit_with_failsafe_market(planned, current_order, now_et):
+                    self._cancel_order(state, current_order, "overdue_exit_replace_with_market")
+                elif self._order_is_stale(current_order, near_cutoff):
                     self._cancel_order(state, current_order, "stale_exit_reprice")
                 continue
-            self._submit_exit_order(state, lot, planned, reason="scheduled_exit", now_et=now_et)
+            force_market = self._should_force_market_exit(planned, now_et)
+            reason = "overdue_exit_market_failsafe" if force_market else "scheduled_exit"
+            self._submit_exit_order(state, lot, planned, reason=reason, now_et=now_et, force_market=force_market)
 
     def _manage_intraday_replacements(self, state: TraderStateSnapshot, now_et: datetime) -> None:
         if not is_regular_trading_hours(now_et):
@@ -1273,7 +1291,7 @@ class IbkrPaperTrader:
             if broker_order is None:
                 continue
             order.broker_status = broker_order.status
-            order.filled_quantity = broker_order.filled_quantity
+            order.filled_quantity = max(int(order.filled_quantity), int(broker_order.filled_quantity))
             if _is_terminal_cancelled_order_status(broker_order.status):
                 self._finalize_cancelled_order(state, order, broker_order.status)
             elif broker_order.status == "Filled" or order.filled_quantity >= order.quantity:
@@ -1474,7 +1492,30 @@ class IbkrPaperTrader:
         ]
         self.signal_archive_path.parent.mkdir(parents=True, exist_ok=True)
         pd.DataFrame(rows).to_csv(self.signal_archive_path, index=False)
+        self._remember_terminal_candidates(
+            state,
+            [c.candidate_id for c in state.candidates if c.status in TERMINAL_CANDIDATE_STATUSES],
+        )
         state.candidates = [c for c in state.candidates if c.status not in TERMINAL_CANDIDATE_STATUSES]
+
+    def _terminal_candidate_ids(self, state: TraderStateSnapshot) -> set[str]:
+        raw = state.metadata.get("terminal_candidate_ids", [])
+        if not isinstance(raw, list):
+            return set()
+        return {str(candidate_id) for candidate_id in raw if candidate_id}
+
+    def _remember_terminal_candidates(self, state: TraderStateSnapshot, candidate_ids: list[str]) -> None:
+        if not candidate_ids:
+            return
+        existing = list(self._terminal_candidate_ids(state))
+        merged: list[str] = []
+        seen: set[str] = set()
+        for candidate_id in existing + [str(candidate_id) for candidate_id in candidate_ids if candidate_id]:
+            if candidate_id in seen:
+                continue
+            seen.add(candidate_id)
+            merged.append(candidate_id)
+        state.metadata["terminal_candidate_ids"] = merged[-5000:]
 
     def _find_sleeve(self, state: TraderStateSnapshot, sleeve_id: str) -> SleeveState | None:
         return next((row for row in state.sleeves if row.sleeve_id == sleeve_id), None)
@@ -1513,13 +1554,15 @@ class IbkrPaperTrader:
         *,
         reason: str,
         now_et: datetime | None = None,
+        force_market: bool = False,
     ) -> bool:
         current_order = self._find_order(state, lot.active_exit_order_id)
         if current_order is not None:
             return False
+        order_type = "MARKET" if force_market else "LIMIT"
         urgent = self._is_near_cutoff(now_et) if now_et is not None else False
         limit_price = self._build_limit_price("SELL", lot.ticker, lot.last_mark_price or lot.avg_entry_price, urgent=urgent)
-        if limit_price is None:
+        if limit_price is None and order_type != "MARKET":
             self.logger.warning("No exit quote available for %s", lot.ticker)
             return False
         order = PendingOrder(
@@ -1529,9 +1572,10 @@ class IbkrPaperTrader:
             ticker=lot.ticker,
             sleeve_id=lot.sleeve_id,
             quantity=int(lot.quantity),
-            limit_price=limit_price,
+            limit_price=0.0 if limit_price is None else limit_price,
             placed_at=utc_now_iso(),
             status="submitted",
+            order_type=order_type,
             lot_id=lot.lot_id,
         )
         broker_order = self.broker.place_order(
@@ -1541,16 +1585,34 @@ class IbkrPaperTrader:
                 side=order.side,
                 quantity=order.quantity,
                 limit_price=order.limit_price,
+                order_type=order.order_type,
             )
         )
         order.broker_order_id = broker_order.broker_order_id
         order.broker_status = broker_order.status
+        order.order_type = broker_order.order_type or order.order_type
         state.pending_orders.append(order)
         lot.active_exit_order_id = order.local_order_id
         planned.last_order_id = order.local_order_id
         planned.status = "submitted"
         self.store.append_journal(reason, asdict(order))
         return True
+
+    def _should_force_market_exit(self, planned: PlannedExit, now_et: datetime) -> bool:
+        due_at = parse_iso_datetime(planned.due_at)
+        if now_et < due_at or not is_regular_trading_hours(now_et):
+            return False
+        return (now_et - due_at).total_seconds() >= float(self.execution_policy.overdue_exit_grace_seconds)
+
+    def _should_replace_exit_with_failsafe_market(
+        self,
+        planned: PlannedExit,
+        current_order: PendingOrder,
+        now_et: datetime,
+    ) -> bool:
+        if current_order.status == "cancel_requested" or str(current_order.order_type).upper() == "MARKET":
+            return False
+        return self._should_force_market_exit(planned, now_et)
 
     def _order_is_stale(self, order: PendingOrder, near_cutoff: bool) -> bool:
         placed_at = parse_iso_datetime(order.placed_at)
@@ -1625,11 +1687,7 @@ def main() -> None:
             if args.once:
                 break
             elapsed = time.time() - start
-            target_cycle = (
-                EXECUTION_POLICY.open_order_poll_seconds
-                if is_regular_trading_hours(now_et)
-                else float(args.cycle_seconds)
-            )
+            target_cycle = target_cycle_seconds(now_et, float(args.cycle_seconds), EXECUTION_POLICY)
             sleep_seconds = max(0.0, float(target_cycle) - elapsed)
             logger.info("Cycle complete. Sleeping %.1f sec", sleep_seconds)
             time.sleep(sleep_seconds)

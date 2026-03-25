@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+import hashlib
 import json as _json
 import logging
 import urllib.request as _urllib_request
@@ -73,10 +74,9 @@ class AlpacaBrokerAdapter:
         self._data_feed: DataFeed | None = DataFeed(data_feed) if data_feed else None
         self._connect_timeout_seconds = connect_timeout_seconds
         self._connected = False
-        # UUID ↔ sequential-int order ID mapping (Alpaca uses UUIDs; Protocol uses int)
+        # Deterministic UUID/string ↔ int mapping so reconciliation survives process restarts.
         self._uuid_to_int: dict[str, int] = {}
         self._int_to_uuid: dict[int, str] = {}
-        self._next_order_int = 1
 
     # ── Connection ────────────────────────────────────────────────────────────
 
@@ -139,6 +139,7 @@ class AlpacaBrokerAdapter:
             side_str = _enum_str(side_raw).upper()
             status_raw = getattr(order, "status", None)
             status_str = _enum_str(status_raw)
+            order_type = _enum_str(getattr(order, "type", None)).upper() or "LIMIT"
             out.append(
                 BrokerOrderView(
                     broker_order_id=order_int,
@@ -151,7 +152,7 @@ class AlpacaBrokerAdapter:
                     remaining_quantity=max(0, total_qty - filled_qty),
                     status=status_str,
                     placed_at=str(getattr(order, "submitted_at", "") or ""),
-                    order_type="MARKET",
+                    order_type=order_type,
                 )
             )
         return out
@@ -297,8 +298,11 @@ class AlpacaBrokerAdapter:
 
     def _register_order(self, uuid: str) -> int:
         if uuid not in self._uuid_to_int:
-            n = self._next_order_int
-            self._next_order_int += 1
+            n = self._stable_order_int(uuid)
             self._uuid_to_int[uuid] = n
             self._int_to_uuid[n] = uuid
         return self._uuid_to_int[uuid]
+
+    def _stable_order_int(self, raw_id: str) -> int:
+        digest = hashlib.blake2b(str(raw_id).encode("utf-8"), digest_size=8).digest()
+        return int.from_bytes(digest, "big") % 2_147_483_646 + 1

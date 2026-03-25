@@ -152,9 +152,12 @@ class ExecutionPolicy:
     buy_cutoff_time: str
     cancel_unfilled_time: str
     open_batch_prepare_minutes: int
+    open_auction_poll_seconds: int
+    open_auction_window_minutes: int
     replace_interval_seconds: int
     buy_limit_buffer_bps: float
     sell_limit_buffer_bps: float
+    overdue_exit_grace_seconds: int
     min_order_notional: float
     quote_wait_seconds: float
     routing_exchange: str
@@ -304,9 +307,12 @@ EXECUTION_POLICY = ExecutionPolicy(
     buy_cutoff_time="15:30",
     cancel_unfilled_time="15:55",
     open_batch_prepare_minutes=1,
+    open_auction_poll_seconds=1,
+    open_auction_window_minutes=10,
     replace_interval_seconds=45,
     buy_limit_buffer_bps=50.0,
     sell_limit_buffer_bps=50.0,
+    overdue_exit_grace_seconds=60,
     min_order_notional=100.0,
     quote_wait_seconds=2.0,
     routing_exchange="SMART",
