@@ -1,2 +1,0 @@
-candidate_id,ticker,status,signal_score,estimated_decile_score,sleeve_id,entry_bucket,entry_trade_day,intended_entry_at,expires_at,replacement_for_lot_id,last_reason,last_updated_at
-RNXT|2026-03-20|2026-03-25 01:52:08,RNXT,pending,0.7284550804948625,0.9038246382314106,sleeve_1,open,2026-03-25,2026-03-25T09:30:00-04:00,2026-03-25T15:30:00-04:00,,,2026-03-25T01:52:12Z

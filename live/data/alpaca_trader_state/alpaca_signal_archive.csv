@@ -1,4 +1,0 @@
-candidate_id,ticker,status,signal_score,estimated_decile_score,sleeve_id,entry_bucket,entry_trade_day,intended_entry_at,expires_at,replacement_for_lot_id,last_reason,last_updated_at
-RNXT|2026-03-20|2026-03-25 01:52:08,RNXT,rejected,0.7284550804948625,0.9038246382314106,sleeve_1,open,2026-03-25,2026-03-25T09:30:00-04:00,2026-03-25T15:30:00-04:00,,missing_step_up_from_prev_close_pct,2026-03-25T13:52:52Z
-TOFB|2026-03-23|2026-03-25 11:52:13,TOFB,rejected,0.7795072425308534,0.9150508830426494,sleeve_1,open,2026-03-25,2026-03-25T09:30:00-04:00,2026-03-25T15:30:00-04:00,,missing_step_up_from_prev_close_pct,2026-03-25T13:52:52Z
-TOUR|2026-03-23|2026-03-25 12:22:08,TOUR,rejected,1.354869379388404,0.9729282331622388,sleeve_1,open,2026-03-25,2026-03-25T09:30:00-04:00,2026-03-25T15:30:00-04:00,,missing_step_up_from_prev_close_pct,2026-03-25T13:52:52Z

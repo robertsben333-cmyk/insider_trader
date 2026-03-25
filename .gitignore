@@ -33,6 +33,19 @@ live/data/price_cache/
 
 # Live run state (machine-specific)
 live/data/*.scrape_state.json
+data/sector_cache.csv
+data/ticker_meta_cache.csv
+live/data/alert_candidate_history.csv
+live/data/event_history_aggregated.csv
+live/data/insider_purchases.csv
+live/data/latest_alert_candidates.csv
+live/data/live_predictions.csv
+live/data/live_scoring_temp_aggregate*.csv
+live/data/sector_cache.csv
+live/data/alpaca_trader_state/*
+!live/data/alpaca_trader_state/.gitkeep
+live/data/trader_state/*
+!live/data/trader_state/.gitkeep
 live/data/dashboard/
 live/data/vm_sync/
 

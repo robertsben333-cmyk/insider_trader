@@ -1,0 +1,16 @@
+[Unit]
+Description=Alpaca Live Trader
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=opc
+WorkingDirectory=/home/opc/insider_trader
+EnvironmentFile=/etc/insider_trades.env
+ExecStart=/home/opc/insider_trader/scripts/vm/run_alpaca_trader.sh
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target
