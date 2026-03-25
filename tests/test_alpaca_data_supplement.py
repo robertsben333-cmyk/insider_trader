@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from datetime import datetime
 import json
+import logging
 import os
+from pathlib import Path
+import tempfile
 import time
 import unittest
 from unittest.mock import MagicMock, patch
@@ -177,6 +180,51 @@ class LiveScoringRefreshTests(unittest.TestCase):
         )
 
         self.assertEqual(latest["ticker"].tolist(), ["AAA"])
+
+    def test_update_alert_candidate_exports_preserves_filing_timestamps(self) -> None:
+        from live_scoring import read_csv_or_empty, update_alert_candidate_exports
+
+        export_df = pd.DataFrame(
+            [
+                {
+                    "scored_at": "2026-03-25 14:02:05",
+                    "representative_transaction_date": "2026-03-25 13:20:00",
+                    "transaction_date": "2026-03-25 13:20:00",
+                    "event_key": "CUR|2026-03-25",
+                    "ticker": "CUR",
+                },
+                {
+                    "scored_at": "2026-03-25 14:02:05",
+                    "representative_transaction_date": "2026-03-10 13:20:00",
+                    "transaction_date": "2026-03-10 13:20:00",
+                    "event_key": "OLD|2026-03-10",
+                    "ticker": "OLD",
+                }
+            ]
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            latest_path = Path(tmpdir) / "latest.csv"
+            history_path = Path(tmpdir) / "history.csv"
+
+            update_alert_candidate_exports(
+                latest_path,
+                history_path,
+                export_df,
+                logging.getLogger("test"),
+            )
+
+            latest = read_csv_or_empty(latest_path)
+            history = read_csv_or_empty(history_path)
+
+        self.assertIn("representative_transaction_date", latest.columns)
+        self.assertIn("transaction_date", latest.columns)
+        self.assertEqual(latest.loc[0, "representative_transaction_date"], "2026-03-25 13:20:00")
+        self.assertEqual(latest.loc[0, "transaction_date"], "2026-03-25 13:20:00")
+        self.assertEqual(
+            history.loc[history["ticker"] == "OLD", "transaction_date"].iloc[0],
+            "2026-03-10 13:20:00",
+        )
 
     def test_refresh_empty_minute_cache_only_after_open_for_today(self) -> None:
         from live_scoring import _should_refresh_empty_minute_cache

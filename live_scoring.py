@@ -198,6 +198,8 @@ DEFAULT_ADVICE_BONUS_FRACTION = ACTIVE_STRATEGY.advice_bonus_fraction
 EXIT_POLICY_REVIEW_DATE = ACTIVE_STRATEGY.exit_policy_review_date
 ALERT_EXPORT_COLUMNS = [
     "scored_at",
+    "representative_transaction_date",
+    "transaction_date",
     "event_key",
     "ticker",
     "company_name",
