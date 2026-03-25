@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
+from pandas.errors import EmptyDataError
 
 from live_trading.market_calendar import (
     ET,
@@ -35,7 +36,10 @@ def load_signal_candidates(
     if not snapshot_path.exists():
         return []
 
-    df = pd.read_csv(snapshot_path)
+    try:
+        df = pd.read_csv(snapshot_path)
+    except EmptyDataError:
+        return []
     if df.empty:
         return []
     if "is_tradable" in df.columns:

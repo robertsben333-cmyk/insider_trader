@@ -127,6 +127,17 @@ class IbkrPaperTraderTests(unittest.TestCase):
             )
         self.assertEqual(candidates, [])
 
+    def test_signal_intake_treats_empty_snapshot_as_no_candidates(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "latest_alert_candidates.csv"
+            path.write_text("", encoding="utf-8")
+            candidates = load_signal_candidates(
+                path,
+                budget_config=TRADING_BUDGET,
+                execution_policy=EXECUTION_POLICY,
+            )
+        self.assertEqual(candidates, [])
+
     def test_signal_intake_recomputes_step_up_when_snapshot_column_is_missing(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "latest_alert_candidates.csv"
